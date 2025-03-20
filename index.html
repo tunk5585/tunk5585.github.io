@@ -69,8 +69,8 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif; /* Системный стек шрифтов */
-            font-size: 10px; /* Увеличен для смартфонов */
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+            font-size: 10px;
             text-align: center;
             opacity: 0;
             transition: opacity 0.3s ease;
@@ -246,15 +246,6 @@
             document.addEventListener('touchend', endInteraction);
         });
 
-        function getRandomNumber() {
-            return Math.floor(Math.random() * 900) + 100;
-        }
-
-        function getTime() {
-            const now = new Date();
-            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
-        }
-
         function update() {
             linesSvg.innerHTML = '';
             activeBorderSvg.innerHTML = '';
@@ -263,6 +254,9 @@
                 if (!pulse.classList.contains('active') && !pulse.isDragging) {
                     pulse.posX += pulse.velX;
                     pulse.posY += pulse.velY;
+
+                    // Проверка столкновения с шапкой
+                    checkCollisionWithHeader(pulse);
 
                     const activePulse = document.querySelector('.pulse.active');
                     if (activePulse && pulse !== activePulse) {
@@ -280,13 +274,21 @@
                         }
                     }
 
-                    if (pulse.posX <= 0 || pulse.posX >= viewportWidth - 26) {
-                        pulse.velX *= -1;
-                        pulse.posX = Math.max(0, Math.min(pulse.posX, viewportWidth - 26));
+                    // Обновленная проверка границ
+                    if (pulse.posX <= 0) {
+                        pulse.posX = 0;
+                        pulse.velX = Math.abs(pulse.velX);
+                    } else if (pulse.posX >= viewportWidth - 26) {
+                        pulse.posX = viewportWidth - 26;
+                        pulse.velX = -Math.abs(pulse.velX);
                     }
-                    if (pulse.posY <= 0 || pulse.posY >= viewportHeight - 26) {
-                        pulse.velY *= -1;
-                        pulse.posY = Math.max(0, Math.min(pulse.posY, viewportHeight - 26));
+
+                    if (pulse.posY <= 0) {
+                        pulse.posY = 0;
+                        pulse.velY = Math.abs(pulse.velY);
+                    } else if (pulse.posY >= viewportHeight - 26) {
+                        pulse.posY = viewportHeight - 26;
+                        pulse.velY = -Math.abs(pulse.velY);
                     }
 
                     pulse.style.left = `${pulse.posX}px`;
@@ -358,8 +360,8 @@
 
                             const name1 = p1.querySelector('.pulse-content').textContent.slice(0, 2);
                             const name2 = p2.querySelector('.pulse-content').textContent.slice(0, 2);
-                            const randomNum = getRandomNumber();
-                            const time = getTime();
+                            const randomNum = Math.floor(Math.random() * 900) + 100;
+                            const time = new Date().toLocaleTimeString();
                             const distanceText = distance.toFixed(1);
 
                             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -387,8 +389,8 @@
 
                         const name1 = activePulse.querySelector('.pulse-content').textContent.slice(0, 2);
                         const name2 = pulse.querySelector('.pulse-content').textContent.slice(0, 2);
-                        const randomNum = getRandomNumber();
-                        const time = getTime();
+                        const randomNum = Math.floor(Math.random() * 900) + 100;
+                        const time = new Date().toLocaleTimeString();
                         const dx = pulse.posX - activePulse.posX;
                         const dy = pulse.posY - activePulse.posY;
                         const distance = Math.sqrt(dx * dx + dy * dy).toFixed(1);
