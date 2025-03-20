@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интерактивное портфолио</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .pulse {
+            width: 26px; /* 20px * 1.3 */
+            height: 26px; /* 20px * 1.3 */
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.2s ease;
+            transform-origin: center center;
+            z-index: 30;
+        }
+        .pulse::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: 0.65px solid #fff; /* 0.5px * 1.3 */
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-ring 0.8s infinite ease-out;
+            opacity: 0.5;
+        }
+        .pulse.proximity::before {
+            animation: pulse-ring-fast 0.4s infinite ease-out;
+        }
+        .pulse.active {
+            transform: scale(5);
+            background: #000;
+            z-index: 40;
+        }
+        .pulse.active::before {
+            display: none;
+        }
+        .pulse-content {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 5.2px; /* 4px * 1.3 */
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 50;
+        }
+        .pulse.active .pulse-content {
+            display: block;
+            opacity: 1;
+        }
+        @keyframes pulse-ring {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+        }
+        @keyframes pulse-ring-fast {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+        }
+        #lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            transition: opacity 0.2s ease;
+        }
+        .has-active #lines {
+            opacity: 0.3;
+        }
+        .has-active .pulse:not(.active) {
+            opacity: 1;
+            background: #000;
+            border: 0.65px solid #fff; /* 0.5px * 1.3 */
+        }
+        .connection-text {
+            fill: #fff;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 7.8px; /* 6px * 1.3 */
+        }
+        #active-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 45;
+        }
+        .connection-line {
+            stroke: #fff;
+            stroke-width: 0.65px; /* 0.5px * 1.3 */
+        }
+    </style>
+</head>
+<body>  
+    <div class="container">
+        <svg id="lines"></svg>
+        <svg id="active-border" width="100%" height="100%"></svg>
+        <div class="pulse" data-project="1">
+            <div class="pulse-content">Проект 1<br>Веб-дизайн</div>
+        </div>
+        <div class="pulse" data-project="2">
+            <div class="pulse-content">Проект 2<br>Иллюстрация</div>
+        </div>
+        <div class="pulse" data-project="3">
+            <div class="pulse-content">Проект 3<br>Разработка</div>
+        </div>
+        <div class="pulse" data-project="4">
+            <div class="pulse-content">Проект 4<br>Анимация</div>
+        </div>
+        <div class="pulse" data-project="5">
+            <div class="pulse-content">Проект 5<br>Графика</div>
+        </div>
+    </div>
+
+    <script>
+        const container = document.querySelector('.container');
+        const pulses = document.querySelectorAll('.pulse');
+        const linesSvg = document.querySelector('#lines');
+        const activeBorderSvg = document.querySelector('#active-border');
+        let containerRect;
+
+        function updateContainerSize() {
+            containerRect = container.getBoundingClientRect();
+            pulses.forEach(pulse => {
+                pulse.posX = Math.max(0, Math.min(pulse.posX, containerRect.width - 26)); // 20 * 1.3
+                pulse.posY = Math.max(0, Math.min(pulse.posY, containerRect.height - 26)); // 20 * 1.3
+                pulse.style.left = `${pulse.posX}px`;
+                pulse.style.top = `${pulse.posY}px`;
+            });
+        }
+
+        updateContainerSize();
+        window.addEventListener('resize', updateContainerSize);
+
+        pulses.forEach(pulse => {
+            pulse.posX = Math.random() * (containerRect.width - 26); // 20 * 1.3
+            pulse.posY = Math.random() * (containerRect.height - 26); // 20 * 1.3
+            pulse.velX = (Math.random() - 0.5) * 2;
+            pulse.velY = (Math.random() - 0.5) * 2;
+            pulse.style.left = `${pulse.posX}px`;
+            pulse.style.top = `${pulse.posY}px`;
+            pulse.connectedTo = new Set();
+
+            let isDragging = false;
+            pulse.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                pulse.velX = 0;
+                pulse.velY = 0;
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    pulse.posX = Math.max(0, Math.min(e.clientX - containerRect.left - 13, containerRect.width - 26)); // 10 * 1.3, 20 * 1.3
+                    pulse.posY = Math.max(0, Math.min(e.clientY - containerRect.top - 13, containerRect.height - 26)); // 10 * 1.3, 20 * 1.3
+                    pulse.style.left = `${pulse.posX}px`;
+                    pulse.style.top = `${pulse.posY}px`;
+                }
+            });
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
+            pulse.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!pulse.classList.contains('active')) {
+                    pulses.forEach(p => {
+                        if (p.classList.contains('active')) {
+                            p.classList.remove('active');
+                            p.velX = (Math.random() - 0.5) * 2;
+                            p.velY = (Math.random() - 0.5) * 2;
+                        }
+                    });
+                    pulse.classList.add('active');
+                    pulse.velX = 0;
+                    pulse.velY = 0;
+                    container.classList.add('has-active');
+                }
+            });
+        });
+
+        function getRandomNumber() {
+            return Math.floor(Math.random() * 900) + 100;
+        }
+
+        function getTime() {
+            const now = new Date();
+            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+        }
+
+        function update() {
+            linesSvg.innerHTML = '';
+            activeBorderSvg.innerHTML = '';
+
+            pulses.forEach(pulse => {
+                if (!pulse.classList.contains('active') && !pulse.isDragging) {
+                    pulse.posX += pulse.velX;
+                    pulse.posY += pulse.velY;
+
+                    const activePulse = document.querySelector('.pulse.active');
+                    if (activePulse && pulse !== activePulse) {
+                        const dx = pulse.posX - activePulse.posX;
+                        const dy = pulse.posY - activePulse.posY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const minDistance = 78; // 60 * 1.3
+
+                        if (distance < minDistance) {
+                            const angle = Math.atan2(dy, dx);
+                            pulse.posX = activePulse.posX + minDistance * Math.cos(angle);
+                            pulse.posY = activePulse.posY + minDistance * Math.sin(angle);
+                            pulse.velX *= -1;
+                            pulse.velY *= -1;
+                        }
+                    }
+
+                    if (pulse.posX <= 0 || pulse.posX >= containerRect.width - 26) { // 20 * 1.3
+                        pulse.velX *= -1;
+                        pulse.posX = Math.max(0, Math.min(pulse.posX, containerRect.width - 26));
+                    }
+                    if (pulse.posY <= 0 || pulse.posY >= containerRect.height - 26) { // 20 * 1.3
+                        pulse.velY *= -1;
+                        pulse.posY = Math.max(0, Math.min(pulse.posY, containerRect.height - 26));
+                    }
+
+                    pulse.style.left = `${pulse.posX}px`;
+                    pulse.style.top = `${pulse.posY}px`;
+                }
+
+                if (!pulse.classList.contains('active')) {
+                    const name = pulse.querySelector('.pulse-content').textContent.split('<br>')[0];
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', pulse.posX + 32.5); // 25 * 1.3
+                    text.setAttribute('y', pulse.posY + 6.5); // 5 * 1.3
+                    text.setAttribute('class', 'connection-text');
+                    text.textContent = name;
+                    linesSvg.appendChild(text);
+                }
+
+                if (pulse.classList.contains('active')) {
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', pulse.posX + 13); // 10 * 1.3
+                    circle.setAttribute('cy', pulse.posY + 13); // 10 * 1.3
+                    circle.setAttribute('r', '65'); // 50 * 1.3
+                    circle.setAttribute('stroke', '#fff');
+                    circle.setAttribute('stroke-width', '0.65'); // 0.5 * 1.3
+                    circle.setAttribute('fill', 'none');
+                    activeBorderSvg.appendChild(circle);
+                }
+            });
+
+            for (let i = 0; i < pulses.length; i++) {
+                for (let j = i + 1; j < pulses.length; j++) {
+                    const p1 = pulses[i];
+                    const p2 = pulses[j];
+                    if (!p1.classList.contains('active') && !p2.classList.contains('active')) {
+                        const dx = p2.posX - p1.posX;
+                        const dy = p2.posY - p1.posY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const connectDistance = 156; // 120 * 1.3
+                        const breakDistance = 520; // 400 * 1.3
+
+                        if (distance < 52) { // 40 * 1.3
+                            const tempX = p1.velX;
+                            const tempY = p1.velY;
+                            p1.velX = p2.velX;
+                            p1.velY = p2.velY;
+                            p2.velX = tempX;
+                            p2.velY = tempY;
+                        }
+
+                        if (distance <= connectDistance) {
+                            p1.connectedTo.add(p2);
+                            p2.connectedTo.add(p1);
+                            p1.classList.add('proximity');
+                            p2.classList.add('proximity');
+                        } else if (distance > breakDistance) {
+                            p1.connectedTo.delete(p2);
+                            p2.connectedTo.delete(p1);
+                            p1.classList.remove('proximity');
+                            p2.classList.remove('proximity');
+                        }
+
+                        if (p1.connectedTo.has(p2)) {
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', p1.posX + 13); // 10 * 1.3
+                            line.setAttribute('y1', p1.posY + 13); // 10 * 1.3
+                            line.setAttribute('x2', p2.posX + 13); // 10 * 1.3
+                            line.setAttribute('y2', p2.posY + 13); // 10 * 1.3
+                            line.setAttribute('class', 'connection-line');
+                            linesSvg.appendChild(line);
+
+                            const name1 = p1.querySelector('.pulse-content').textContent.slice(0, 2);
+                            const name2 = p2.querySelector('.pulse-content').textContent.slice(0, 2);
+                            const randomNum = getRandomNumber();
+                            const time = getTime();
+                            const distanceText = distance.toFixed(1);
+
+                            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                            text.setAttribute('x', (p1.posX + p2.posX) / 2 + 13); // 10 * 1.3
+                            text.setAttribute('y', (p1.posY + p2.posY) / 2 + 13); // 10 * 1.3
+                            text.setAttribute('class', 'connection-text');
+                            text.textContent = `${name1}-${name2} #${randomNum} | (${p1.posX.toFixed(0)},${p1.posY.toFixed(0)}) - (${p2.posX.toFixed(0)},${p2.posY.toFixed(0)}) | ${time} | ${distanceText}px`;
+                            linesSvg.appendChild(text);
+                        }
+                    }
+                }
+            }
+
+            const activePulse = document.querySelector('.pulse.active');
+            if (activePulse) {
+                pulses.forEach(pulse => {
+                    if (pulse !== activePulse && !pulse.classList.contains('active')) {
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', activePulse.posX + 13); // 10 * 1.3
+                        line.setAttribute('y1', activePulse.posY + 13); // 10 * 1.3
+                        line.setAttribute('x2', pulse.posX + 13); // 10 * 1.3
+                        line.setAttribute('y2', pulse.posY + 13); // 10 * 1.3
+                        line.setAttribute('class', 'connection-line');
+                        linesSvg.appendChild(line);
+
+                        const name1 = activePulse.querySelector('.pulse-content').textContent.slice(0, 2);
+                        const name2 = pulse.querySelector('.pulse-content').textContent.slice(0, 2);
+                        const randomNum = getRandomNumber();
+                        const time = getTime();
+                        const dx = pulse.posX - activePulse.posX;
+                        const dy = pulse.posY - activePulse.posY;
+                        const distance = Math.sqrt(dx * dx + dy * dy).toFixed(1);
+
+                        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        text.setAttribute('x', (activePulse.posX + pulse.posX) / 2 + 13); // 10 * 1.3
+                        text.setAttribute('y', (activePulse.posY + pulse.posY) / 2 + 13); // 10 * 1.3
+                        text.setAttribute('class', 'connection-text');
+                        text.textContent = `${name1}-${name2} #${randomNum} | (${activePulse.posX.toFixed(0)},${activePulse.posY.toFixed(0)}) - (${pulse.posX.toFixed(0)},${pulse.posY.toFixed(0)}) | ${time} | ${distance}px`;
+                        linesSvg.appendChild(text);
+                    }
+                });
+            }
+
+            requestAnimationFrame(update);
+        }
+        update();
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.pulse')) {
+                pulses.forEach(p => {
+                    if (p.classList.contains('active')) {
+                        p.classList.remove('active');
+                        container.classList.remove('has-active');
+                        p.velX = (Math.random() - 0.5) * 2;
+                        p.velY = (Math.random() - 0.5) * 2;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
