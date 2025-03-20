@@ -35,7 +35,7 @@
             transition: transform 0.2s ease;
             transform-origin: center center;
             z-index: 30;
-            touch-action: none; /* Отключаем стандартное поведение браузера для сенсора */
+            touch-action: none;
         }
         .pulse::before {
             content: '';
@@ -75,6 +75,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 50;
+            pointer-events: none;
         }
         .pulse.active .pulse-content {
             display: block;
@@ -157,8 +158,8 @@
         function updateContainerSize() {
             containerRect = container.getBoundingClientRect();
             pulses.forEach(pulse => {
-                pulse.posX = Math.max(0, Math.min(pulse.posX, containerRect.width - 26));
-                pulse.posY = Math.max(0, Math.min(pulse.posY, containerRect.height - 26));
+                pulse.posX = Math.max(0, Math.min(pulse.posX || 0, containerRect.width - 26));
+                pulse.posY = Math.max(0, Math.min(pulse.posY || 0, containerRect.height - 26));
                 pulse.style.left = `${pulse.posX}px`;
                 pulse.style.top = `${pulse.posY}px`;
             });
@@ -168,6 +169,7 @@
         window.addEventListener('resize', updateContainerSize);
 
         pulses.forEach(pulse => {
+            // Инициализация случайных позиций
             pulse.posX = Math.random() * (containerRect.width - 26);
             pulse.posY = Math.random() * (containerRect.height - 26);
             pulse.velX = (Math.random() - 0.5) * 2;
@@ -177,67 +179,75 @@
             pulse.connectedTo = new Set();
 
             let isDragging = false;
+            let startX, startY;
 
-            // Обработка мыши
-            pulse.addEventListener('mousedown', (e) => {
+            // Начало взаимодействия
+            function startInteraction(e) {
                 e.preventDefault();
                 isDragging = true;
+                startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
                 pulse.velX = 0;
                 pulse.velY = 0;
-            });
+            }
 
-            document.addEventListener('mousemove', (e) => {
+            // Движение
+            function movePulse(e) {
                 if (isDragging) {
-                    pulse.posX = Math.max(0, Math.min(e.clientX - containerRect.left - 13, containerRect.width - 26));
-                    pulse.posY = Math.max(0, Math.min(e.clientY - containerRect.top - 13, containerRect.height - 26));
+                    const currentX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+                    const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                    pulse.posX = Math.max(0, Math.min(currentX - containerRect.left - 13, containerRect.width - 26));
+                    pulse.posY = Math.max(0, Math.min(currentY - containerRect.top - 13, containerRect.height - 26));
                     pulse.style.left = `${pulse.posX}px`;
                     pulse.style.top = `${pulse.posY}px`;
                 }
-            });
+            }
 
-            document.addEventListener('mouseup', () => {
-                isDragging = false;
-            });
-
-            // Обработка сенсорных событий
-            pulse.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Предотвращаем прокрутку страницы
-                isDragging = true;
-                pulse.velX = 0;
-                pulse.velY = 0;
-            });
-
-            document.addEventListener('touchmove', (e) => {
+            // Окончание взаимодействия
+            function endInteraction(e) {
                 if (isDragging) {
-                    const touch = e.touches[0];
-                    pulse.posX = Math.max(0, Math.min(touch.clientX - containerRect.left - 13, containerRect.width - 26));
-                    pulse.posY = Math.max(0, Math.min(touch.clientY - containerRect.top - 13, containerRect.height - 26));
-                    pulse.style.left = `${pulse.posX}px`;
-                    pulse.style.top = `${pulse.posY}px`;
-                }
-            });
+                    const currentX = e.type.includes('touch') ? (e.changedTouches[0] ? e.changedTouches[0].clientX : startX) : e.clientX;
+                    const currentY = e.type.includes('touch') ? (e.changedTouches[0] ? e.changedTouches[0].clientY : startY) : e.clientY;
+                    const dx = currentX - startX;
+                    const dy = currentY - startY;
 
-            document.addEventListener('touchend', () => {
-                isDragging = false;
-            });
-
-            // Клик для активации
-            pulse.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (!pulse.classList.contains('active')) {
-                    pulses.forEach(p => {
-                        if (p.classList.contains('active')) {
-                            p.classList.remove('active');
-                            p.velX = (Math.random() - 0.5) * 2;
-                            p.velY = (Math.random() - 0.5) * 2;
+                    // Если движение минимальное, считаем это кликом
+                    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+                        e.stopPropagation();
+                        if (pulse.classList.contains('active')) {
+                            // Деактивация при повторном клике
+                            pulse.classList.remove('active');
+                            container.classList.remove('has-active');
+                            pulse.velX = (Math.random() - 0.5) * 2;
+                            pulse.velY = (Math.random() - 0.5) * 2;
+                        } else {
+                            // Активация
+                            pulses.forEach(p => {
+                                if (p.classList.contains('active')) {
+                                    p.classList.remove('active');
+                                    p.velX = (Math.random() - 0.5) * 2;
+                                    p.velY = (Math.random() - 0.5) * 2;
+                                }
+                            });
+                            pulse.classList.add('active');
+                            pulse.velX = 0;
+                            pulse.velY = 0;
+                            container.classList.add('has-active');
                         }
-                    });
-                    pulse.classList.add('active');
-                    pulse.velX = 0;
-                    pulse.velY = 0;
-                    container.classList.add('has-active');
+                    }
                 }
-            });
+                isDragging = false;
+            }
+
+            // События мыши
+            pulse.addEventListener('mousedown', startInteraction);
+            document.addEventListener('mousemove', movePulse);
+            document.addEventListener('mouseup', endInteraction);
+
+            // События касания
+            pulse.addEventListener('touchstart', startInteraction);
+            document.addEventListener('touchmove', movePulse);
+            document.addEventListener('touchend', endInteraction);
         });
 
         function getRandomNumber() {
