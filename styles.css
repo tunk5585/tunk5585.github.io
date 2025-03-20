@@ -52,7 +52,7 @@ body, html {
     justify-content: center;
     padding: 6.5px 0;
     gap: 9px;
-    transition: transform 0.4s ease; /* Добавляем анимацию */
+    transition: transform 0.4s ease;
 }
 
 .play-pause {
@@ -231,15 +231,11 @@ body, html {
 }
 
 .pulse {
-    width: 26px;
-    height: 26px;
     background: #fff;
     border-radius: 50%;
     position: absolute;
     cursor: pointer;
     user-select: none;
-    transition: transform 0.2s ease;
-    transform-origin: center center;
     z-index: 30;
     touch-action: none;
 }
@@ -254,19 +250,19 @@ body, html {
     background: transparent;
     border: 0.65px solid #fff;
     border-radius: 50%;
-    transform: translate(-50%, -50%);
-    animation: pulse-ring 0.8s infinite ease-out;
-    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+    animation: pulse-ring 1.2s infinite ease-in-out;
+    opacity: 0.7;
 }
 
 .pulse.proximity::before {
-    animation: pulse-ring-fast 0.4s infinite ease-out;
+    animation: pulse-ring-fast 0.6s infinite ease-in-out;
 }
 
 .pulse.active {
-    transform: scale(5);
     background: #000;
     z-index: 40;
+    opacity: 1;
 }
 
 .pulse.active::before {
@@ -279,6 +275,7 @@ body, html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    transform-origin: center center;
     color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
     font-size: 10px;
@@ -296,12 +293,14 @@ body, html {
 }
 
 @keyframes pulse-ring {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(1.8); opacity: 0.3; }
     100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
 
 @keyframes pulse-ring-fast {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+    50% { transform: translate(-50%, -50%) scale(2.2); opacity: 0.4; }
     100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }
 
