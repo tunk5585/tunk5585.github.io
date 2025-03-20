@@ -1,0 +1,348 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+    position: absolute;
+    top: 13px;
+    right: 13px;
+    width: 45px;
+    height: 70px;
+    background: #E9BB00;
+    border: 0.65px solid rgba(255,255,255,0.1);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6.5px 0;
+    gap: 9px;
+    transition: transform 0.4s ease;
+}
+
+.controls {
+    position: absolute;
+    bottom: 13px;
+    right: 13px;
+    width: 45px;
+    height: 110px;
+    background: #E9BB00;
+    border: 0.65px solid rgba(255,255,255,0.1);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6.5px 0;
+    gap: 9px;
+    transition: transform 0.4s ease; /* Добавляем анимацию */
+}
+
+.play-pause {
+    width: 26px;
+    height: 26px;
+    position: relative;
+    cursor: pointer;
+}
+
+.play-pause span {
+    position: absolute;
+    background: rgba(0,0,0,0.7);
+    transition: all 0.3s ease;
+}
+
+.play-pause.paused span {
+    width: 3.25px;
+    height: 26px;
+}
+
+.play-pause.paused span:first-child {
+    left: 6.5px;
+}
+
+.play-pause.paused span:last-child {
+    right: 6.5px;
+}
+
+.play-pause.playing span {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 13px 0 13px 22.5px;
+    border-color: transparent transparent transparent rgba(0,0,0,0.7);
+    background: transparent;
+    left: 50%;
+    top: 50%;
+    transform: translate(-40%, -50%);
+}
+
+.size-control {
+    width: 26px;
+    height: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding: 6.5px 0;
+}
+
+.size-slider {
+    width: 3.25px;
+    height: 100%;
+    background: rgba(0,0,0,0.1);
+    position: relative;
+    cursor: pointer;
+}
+
+.size-slider-handle {
+    width: 6.5px;
+    height: 6.5px;
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.size-slider-track {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0,0,0,0.7);
+}
+
+.size-slider:hover .size-slider-handle {
+    background: rgba(0,0,0,1);
+}
+
+.header.hidden, .controls.hidden {
+    transform: translateX(calc(100% + 13px));
+}
+
+.header-logo {
+    height: 32.5px;
+    width: auto;
+    opacity: 0.8;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    filter: brightness(1.2);
+}
+
+.header-logo:hover {
+    opacity: 1;
+    transform: rotate(360deg);
+}
+
+.menu-icon {
+    width: 26px;
+    height: 19.5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+}
+
+.menu-icon span {
+    display: block;
+    width: 100%;
+    height: 3.25px;
+    background-color: rgba(0,0,0,0.7);
+    transition: all 0.3s ease;
+    border-radius: 0.65px;
+    transform-origin: center;
+}
+
+.menu-icon.active span:nth-child(1) {
+    transform: translateY(8.125px) rotate(45deg);
+}
+
+.menu-icon.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-icon.active span:nth-child(3) {
+    transform: translateY(-8.125px) rotate(-45deg);
+}
+
+.menu-icon:hover span {
+    background-color: rgba(0,0,0,1);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6.5px);
+    right: 0;
+    width: 130px;
+    background: #E9BB00;
+    border: 0.65px solid rgba(255,255,255,0.1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.dropdown-menu.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.menu-item {
+    padding: 9.75px 13px;
+    color: rgba(0,0,0,0.7);
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.2s ease;
+    border-bottom: 0.65px solid rgba(255,255,255,0.1);
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item:hover {
+    background: rgba(0,0,0,0.05);
+    color: rgba(0,0,0,1);
+}
+
+.pulse {
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s ease;
+    transform-origin: center center;
+    z-index: 30;
+    touch-action: none;
+}
+
+.pulse::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: 0.65px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-ring 0.8s infinite ease-out;
+    opacity: 0.5;
+}
+
+.pulse.proximity::before {
+    animation: pulse-ring-fast 0.4s infinite ease-out;
+}
+
+.pulse.active {
+    transform: scale(5);
+    background: #000;
+    z-index: 40;
+}
+
+.pulse.active::before {
+    display: none;
+}
+
+.pulse-content {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+    font-size: 10px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 50;
+    pointer-events: none;
+    will-change: opacity;
+}
+
+.pulse.active .pulse-content {
+    display: block;
+    opacity: 1;
+}
+
+@keyframes pulse-ring {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+}
+
+@keyframes pulse-ring-fast {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+}
+
+#lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    transition: opacity 0.2s ease;
+}
+
+.has-active #lines, .has-active-menu #lines {
+    opacity: 0.3;
+}
+
+.has-active .pulse:not(.active), .has-active-menu .pulse:not(.active) {
+    opacity: 1;
+    background: #000;
+    border: 0.65px solid #fff;
+}
+
+.connection-text {
+    fill: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+    font-size: 7.8px;
+}
+
+#active-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 45;
+}
+
+.connection-line {
+    stroke: #fff;
+    stroke-width: 0.65px;
+}
