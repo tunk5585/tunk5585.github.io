@@ -5,17 +5,26 @@ const controls = document.querySelector('.controls');
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 if (isMobile) {
-    function updateMobileViewport() {
-        // Проверяем поддержку visualViewport API
+    function getSafeAreaBottom() {
+        // Пробуем получить значение safe-area-inset-bottom через CSS
+        const safeAreaBottom = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)') ||
+                               getComputedStyle(document.documentElement).getPropertyValue('constant(safe-area-inset-bottom)') || '0px';
+        const safeAreaBottomPx = parseFloat(safeAreaBottom) || 0;
+
+        // Дополнительно проверяем через visualViewport API
+        let visualViewportBottom = 0;
         if (window.visualViewport) {
             const viewport = window.visualViewport;
-            const safeAreaBottom = window.innerHeight - viewport.height;
-            controls.style.bottom = `${13 + Math.max(safeAreaBottom, 0)}px`;
-        } else {
-            // Запасной вариант: используем window.innerHeight и clientHeight
-            const safeAreaBottom = Math.max(window.innerHeight - document.documentElement.clientHeight, 0);
-            controls.style.bottom = `${13 + safeAreaBottom}px`;
+            visualViewportBottom = window.innerHeight - (viewport.height + viewport.offsetTop);
         }
+
+        // Возвращаем максимальное значение из всех источников
+        return Math.max(safeAreaBottomPx, visualViewportBottom, 10); // Минимальный отступ 10px как запасной вариант
+    }
+
+    function updateMobileViewport() {
+        const safeAreaBottom = getSafeAreaBottom();
+        controls.style.bottom = `${13 + safeAreaBottom}px`;
     }
 
     // Вызываем при загрузке

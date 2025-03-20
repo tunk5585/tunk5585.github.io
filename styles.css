@@ -63,6 +63,14 @@ body, html {
     }
 }
 
+/* Дополнительный отступ для мобильных устройств */
+@media (max-width: 768px) {
+    .controls {
+        min-height: 110px; /* Убедимся, что высота не сжимается */
+        box-sizing: border-box; /* Учитываем padding в размерах */
+    }
+}
+
 .play-pause {
     width: 26px;
     height: 26px;
