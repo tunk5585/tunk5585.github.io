@@ -5,36 +5,27 @@ const controls = document.querySelector('.controls');
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 if (isMobile) {
-    function getSafeAreaBottom() {
-        // Пробуем получить значение safe-area-inset-bottom через CSS
+    // Больше не нужно динамически менять bottom, так как это делает CSS
+    // Но мы можем добавить дополнительные проверки, если потребуется
+    function ensureVisibility() {
         const safeAreaBottom = getComputedStyle(document.documentElement).getPropertyValue('env(safe-area-inset-bottom)') ||
                                getComputedStyle(document.documentElement).getPropertyValue('constant(safe-area-inset-bottom)') || '0px';
         const safeAreaBottomPx = parseFloat(safeAreaBottom) || 0;
 
-        // Дополнительно проверяем через visualViewport API
-        let visualViewportBottom = 0;
-        if (window.visualViewport) {
-            const viewport = window.visualViewport;
-            visualViewportBottom = window.innerHeight - (viewport.height + viewport.offsetTop);
+        // Если safe-area-inset-bottom не работает, добавляем минимальный отступ
+        if (safeAreaBottomPx === 0) {
+            document.documentElement.style.setProperty('--safe-area-inset-bottom', '20px');
         }
-
-        // Возвращаем максимальное значение из всех источников
-        return Math.max(safeAreaBottomPx, visualViewportBottom, 10); // Минимальный отступ 10px как запасной вариант
-    }
-
-    function updateMobileViewport() {
-        const safeAreaBottom = getSafeAreaBottom();
-        controls.style.bottom = `${13 + safeAreaBottom}px`;
     }
 
     // Вызываем при загрузке
-    updateMobileViewport();
+    ensureVisibility();
 
-    // Обновляем при изменении размера окна, ориентации или смещении viewport
-    window.addEventListener('resize', updateMobileViewport);
-    window.addEventListener('orientationchange', updateMobileViewport);
+    // Обновляем при изменении размера окна или ориентации
+    window.addEventListener('resize', ensureVisibility);
+    window.addEventListener('orientationchange', ensureVisibility);
     if (window.visualViewport) {
-        window.visualViewport.addEventListener('resize', updateMobileViewport);
-        window.visualViewport.addEventListener('scroll', updateMobileViewport);
+        window.visualViewport.addEventListener('resize', ensureVisibility);
+        window.visualViewport.addEventListener('scroll', ensureVisibility);
     }
 }
