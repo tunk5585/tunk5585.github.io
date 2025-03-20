@@ -39,7 +39,7 @@ body, html {
 
 .controls {
     position: absolute;
-    bottom: 13px;
+    bottom: 13px; /* Динамически корректируется в JS */
     right: 13px;
     width: 45px;
     height: 110px;
@@ -238,6 +238,8 @@ body, html {
     user-select: none;
     z-index: 30;
     touch-action: none;
+    will-change: transform, width, height;
+    transform: translate3d(0, 0, 0);
 }
 
 .pulse::before {
@@ -251,12 +253,13 @@ body, html {
     border: 0.65px solid #fff;
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(1);
-    animation: pulse-ring 1.2s infinite ease-in-out;
+    animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
     opacity: 0.7;
+    will-change: transform, opacity;
 }
 
 .pulse.proximity::before {
-    animation: pulse-ring-fast 0.6s infinite ease-in-out;
+    animation: pulse-ring-fast 0.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .pulse.active {
@@ -278,29 +281,28 @@ body, html {
     transform-origin: center center;
     color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
-    font-size: 10px;
+    font-size: 40px;
     text-align: center;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 50;
     pointer-events: none;
-    will-change: opacity;
+    will-change: transform, opacity;
 }
 
 .pulse.active .pulse-content {
     display: block;
     opacity: 1;
+    font-size: 80px;
 }
 
 @keyframes pulse-ring {
     0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    50% { transform: translate(-50%, -50%) scale(1.8); opacity: 0.3; }
     100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
 }
 
 @keyframes pulse-ring-fast {
     0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    50% { transform: translate(-50%, -50%) scale(2.2); opacity: 0.4; }
     100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }
 

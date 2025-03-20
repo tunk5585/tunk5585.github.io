@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Интерактивное портфолио</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="preload" href="assets/images/svglogo_1_trnsp.svg" as="image">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <a href="https://tunk5585.github.io/"><img src="assets/images/svglogo_1_trnsp.svg" alt="Logo" class="header-logo"></a>
-            <div class="menu-icon">
+            <a href="https://tunk5585.github.io/" aria-label="Домашняя страница">
+                <img src="assets/images/svglogo_1_trnsp.svg" alt="Logo" class="header-logo" loading="eager">
+            </a>
+            <div class="menu-icon" role="button" tabindex="0" aria-label="Меню">
                 <span></span>
                 <span></span>
                 <span></span>
@@ -21,32 +25,32 @@
             </div>
         </div>
         <div class="controls">
-            <div class="play-pause paused">
+            <div class="play-pause paused" role="button" tabindex="0" aria-label="Пауза/Воспроизведение">
                 <span></span>
                 <span></span>
             </div>
             <div class="size-control">
-                <div class="size-slider">
+                <div class="size-slider" role="slider" aria-label="Размер точек" tabindex="0">
                     <div class="size-slider-track"></div>
                     <div class="size-slider-handle"></div>
                 </div>
             </div>
         </div>
-        <svg id="lines"></svg>
-        <svg id="active-border" width="100%" height="100%"></svg>
-        <div class="pulse" data-project="1">
+        <svg id="lines" aria-hidden="true"></svg>
+        <svg id="active-border" width="100%" height="100%" aria-hidden="true"></svg>
+        <div class="pulse" data-project="1" role="button" tabindex="0">
             <div class="pulse-content">Проект 1<br>Веб-дизайн</div>
         </div>
-        <div class="pulse" data-project="2">
+        <div class="pulse" data-project="2" role="button" tabindex="0">
             <div class="pulse-content">Проект 2<br>Иллюстрация</div>
         </div>
-        <div class="pulse" data-project="3">
+        <div class="pulse" data-project="3" role="button" tabindex="0">
             <div class="pulse-content">Проект 3<br>Разработка</div>
         </div>
-        <div class="pulse" data-project="4">
+        <div class="pulse" data-project="4" role="button" tabindex="0">
             <div class="pulse-content">Проект 4<br>Анимация</div>
         </div>
-        <div class="pulse" data-project="5">
+        <div class="pulse" data-project="5" role="button" tabindex="0">
             <div class="pulse-content">Проект 5<br>Графика</div>
         </div>
     </div>
