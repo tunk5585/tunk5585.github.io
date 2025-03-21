@@ -68,6 +68,7 @@ body, html {
     justify-content: center;
     background: #E9BB00;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .play-pause svg {
@@ -78,8 +79,7 @@ body, html {
     top: 50%;
     transform: translate(-50%, -50%);
     transform-origin: center;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    will-change: transform;
 }
 
 .play-pause:active svg {
@@ -91,9 +91,8 @@ body, html {
 }
 
 .icon-group {
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    transform-origin: center;
+    will-change: transform;
 }
 
 .playing .pause-group {
