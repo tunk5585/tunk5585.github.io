@@ -78,15 +78,12 @@ body, html {
     top: 50%;
     transform: translate(-50%, -50%);
     transform-origin: center;
-    -webkit-transform: translate(-50%, -50%);
-    -webkit-transform-origin: center;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
 
 .play-pause:active svg {
     transform: translate(-50%, -50%) scale(0.92);
-    -webkit-transform: translate(-50%, -50%) scale(0.92);
 }
 
 .icon-group path {
@@ -95,30 +92,24 @@ body, html {
 
 .icon-group {
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
 
 .playing .pause-group {
     transform: scale(0);
-    -webkit-transform: scale(0);
 }
 
 .playing .play-group {
     transform: scale(1);
-    -webkit-transform: scale(1);
 }
 
 .pause-group {
     transform: scale(1);
-    -webkit-transform: scale(1);
 }
 
 .play-group {
     transform: scale(0);
-    -webkit-transform: scale(0);
 }
 
 .particle {
