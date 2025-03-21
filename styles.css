@@ -63,37 +63,92 @@ body, html {
     height: 26px;
     position: relative;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #E9BB00;
 }
 
-.play-pause span {
+.play-pause svg {
+    width: 37px;
+    height: 37px;
     position: absolute;
-    background: rgba(0,0,0,0.7);
-    transition: all 0.3s ease;
-}
-
-.play-pause.paused span {
-    width: 3.25px;
-    height: 26px;
-}
-
-.play-pause.paused span:first-child {
-    left: 6.5px;
-}
-
-.play-pause.paused span:last-child {
-    right: 6.5px;
-}
-
-.play-pause.playing span {
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 13px 0 13px 22.5px;
-    border-color: transparent transparent transparent rgba(0,0,0,0.7);
-    background: transparent;
     left: 50%;
     top: 50%;
-    transform: translate(-40%, -50%);
+    transform: translate(-50%, -50%);
+    transform-origin: center;
+}
+
+.play-pause:active svg {
+    transform: translate(-50%, -50%) scale(0.92);
+}
+
+.icon-group path {
+    fill: #000;
+}
+
+.icon-group {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.playing .pause-group {
+    transform: scale(0);
+}
+
+.playing .play-group {
+    transform: scale(1);
+}
+
+.pause-group {
+    transform: scale(1);
+}
+
+.play-group {
+    transform: scale(0);
+}
+
+.particle {
+    fill: #000;
+    transform-origin: center;
+}
+
+.playing .particle {
+    animation: scatter 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.paused .particle {
+    animation: scatter-reverse 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes scatter {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+}
+
+@keyframes scatter-reverse {
+    0% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+}
+
+@keyframes wobble {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(-5deg); }
+    75% { transform: rotate(3deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.play-pause.playing .icon-group.play-group,
+.play-pause.paused .icon-group.pause-group {
+    animation: wobble 0.4s ease-in-out;
 }
 
 .size-control {
@@ -117,13 +172,12 @@ body, html {
 .size-slider-handle {
     width: 13px;
     height: 13px;
-    background: rgba(0,0,0,0.7);
+    background: #000;
     border-radius: 50%;
     position: absolute;
     left: 50%;
     transform: translate(-50%, -50%);
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
 .size-slider-handle::before {
@@ -141,11 +195,12 @@ body, html {
     bottom: 0;
     left: 0;
     width: 100%;
-    background: rgba(0,0,0,0.7);
+    height: 0%;
+    background: #000;
 }
 
 .size-slider:hover .size-slider-handle {
-    background: rgba(0,0,0,1);
+    background: #000;
 }
 
 .header.hidden, .controls.hidden {

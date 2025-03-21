@@ -26,9 +26,27 @@
             </div>
         </div>
         <div class="controls">
-            <div class="play-pause paused" role="button" tabindex="0" aria-label="Пауза/Воспроизведение">
-                <span></span>
-                <span></span>
+            <div class="play-pause paused">
+                <svg viewBox="0 0 40 40">
+                    <!-- Группа для паузы -->
+                    <g class="icon-group pause-group">
+                        <path d="M 12 8 H 18 V 32 H 12 Z" />
+                        <path d="M 22 8 H 28 V 32 H 22 Z" />
+                        <!-- Частицы для эффекта -->
+                        <circle class="particle" cx="15" cy="15" r="2.5" style="--tx: -15px; --ty: -15px;" />
+                        <circle class="particle" cx="15" cy="25" r="2.5" style="--tx: -20px; --ty: 15px;" />
+                        <circle class="particle" cx="25" cy="15" r="2.5" style="--tx: 15px; --ty: -20px;" />
+                        <circle class="particle" cx="25" cy="25" r="2.5" style="--tx: 20px; --ty: 15px;" />
+                    </g>
+                    <!-- Группа для плей -->
+                    <g class="icon-group play-group">
+                        <path d="M 10 8 L 32 20 L 10 32 Z" />
+                        <!-- Частицы для эффекта -->
+                        <circle class="particle" cx="15" cy="15" r="2.5" style="--tx: -15px; --ty: -15px;" />
+                        <circle class="particle" cx="15" cy="25" r="2.5" style="--tx: -20px; --ty: 15px;" />
+                        <circle class="particle" cx="25" cy="20" r="2.5" style="--tx: 15px; --ty: 0px;" />
+                    </g>
+                </svg>
             </div>
             <div class="size-control">
                 <div class="size-slider" role="slider" aria-label="Размер точек" tabindex="0">
