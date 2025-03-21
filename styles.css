@@ -215,14 +215,22 @@ body, html {
     height: 32.5px;
     width: auto;
     opacity: 0.8;
-    transition: all 0.4s ease;
+    transition: opacity 0.4s ease;
     cursor: pointer;
     filter: brightness(1.2);
 }
 
 .header-logo:hover {
     opacity: 1;
-    transform: rotate(360deg);
+}
+
+@keyframes rotate-once {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.rotate-once {
+    animation: rotate-once 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 .menu-icon {
@@ -424,4 +432,24 @@ body, html {
 .connection-line {
     stroke: #fff;
     stroke-width: 0.65px;
+}
+
+.velocity-info {
+    position: fixed;
+    bottom: 13px;
+    left: 13px;
+    color: #E9BB00;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+    font-size: 9.75px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1000;
+    text-align: left;
+    line-height: 1.2;
+    white-space: pre-line;
+}
+
+.has-active-menu .velocity-info {
+    opacity: 1;
 }
