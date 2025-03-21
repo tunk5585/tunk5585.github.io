@@ -348,6 +348,10 @@ body, html {
     font-size: 7.8px;
 }
 
+.connection-info {
+    fill: #E9BB00;
+}
+
 #active-border {
     position: absolute;
     top: 0;
