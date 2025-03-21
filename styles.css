@@ -255,14 +255,17 @@ body, html {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    /* Задаем начальное значение для --pulse-scale */
+    --pulse-scale: 1;
 }
 
 .pulse-ring {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 26px; /* Фиксированный размер, равный базовому размеру точки */
-    height: 26px;
+    /* Размер кольца зависит от --pulse-scale */
+    width: calc(26px * var(--pulse-scale));
+    height: calc(26px * var(--pulse-scale));
     background: transparent;
     border: 0.65px solid #fff;
     border-radius: 50%;
@@ -271,14 +274,12 @@ body, html {
     opacity: 0.7;
     will-change: transform, opacity;
     transform-origin: center center;
-}
-
-.pulse.proximity .pulse-ring {
-    animation: pulse-ring-fast 0.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 29;
+    pointer-events: none;
 }
 
 .pulse.active .pulse-ring {
-    display: none;
+    display: none; /* Скрываем кольцо для активных точек */
 }
 
 .pulse-content {
@@ -314,11 +315,6 @@ body, html {
 @keyframes pulse-ring {
     0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
     100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
-}
-
-@keyframes pulse-ring-fast {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
 }
 
 #lines {
