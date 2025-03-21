@@ -255,7 +255,6 @@ body, html {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    /* Задаем начальное значение для --pulse-scale */
     --pulse-scale: 1;
 }
 
@@ -263,7 +262,6 @@ body, html {
     position: absolute;
     top: 50%;
     left: 50%;
-    /* Размер кольца зависит от --pulse-scale */
     width: calc(26px * var(--pulse-scale));
     height: calc(26px * var(--pulse-scale));
     background: transparent;
@@ -279,7 +277,7 @@ body, html {
 }
 
 .pulse.active .pulse-ring {
-    display: none; /* Скрываем кольцо для активных точек */
+    display: none;
 }
 
 .pulse-content {
