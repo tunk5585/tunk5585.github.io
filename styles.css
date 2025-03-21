@@ -14,7 +14,7 @@ body, html {
     overflow: hidden;
     margin: 0;
     padding: 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px); /* Добавляем padding-bottom для безопасной зоны */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -41,7 +41,7 @@ body, html {
 
 .controls {
     position: absolute;
-    bottom: 13px; /* Фиксированный отступ */
+    bottom: 13px;
     right: 13px;
     width: 45px;
     height: 110px;
@@ -115,13 +115,13 @@ body, html {
 }
 
 .size-slider-handle {
-    width: 13px; /* Увеличиваем размер с 6.5px до 13px */
-    height: 13px; /* Увеличиваем размер с 6.5px до 13px */
+    width: 13px;
+    height: 13px;
     background: rgba(0,0,0,0.7);
     border-radius: 50%;
     position: absolute;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%); /* Центрируем по горизонтали и вертикали */
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
@@ -132,7 +132,7 @@ body, html {
     position: absolute;
     top: -10px;
     left: -10px;
-    width: 33px; /* Область захвата 33px x 33px */
+    width: 33px;
     height: 33px;
     background: transparent;
 }
