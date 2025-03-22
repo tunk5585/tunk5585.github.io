@@ -460,6 +460,7 @@ body, html {
     --circle-size: 16.25px;
     --border-radius-start: 0 15px 15px 15px;
     --border-radius-end: 50%;
+    --hide-transform: translateY(-20px);
     
     position: fixed;
     top: 13px;
@@ -474,7 +475,7 @@ body, html {
     font-size: 13px;
     line-height: 1.4;
     opacity: 0;
-    transform: translateY(-20px);
+    transform: var(--hide-transform);
     z-index: 1001;
     pointer-events: none;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -483,7 +484,7 @@ body, html {
     align-items: center;
     justify-content: flex-start;
     transform-origin: 0 0;
-    will-change: transform, width, height, border-radius, padding;
+    will-change: transform, width, height, border-radius, padding, opacity;
 }
 
 .notification.show {
@@ -517,6 +518,13 @@ body, html {
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.notification.collapsed {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    padding: 0;
+    border-radius: var(--border-radius-end);
+}
+
 .notification.collapsing {
     width: var(--circle-size);
     height: var(--circle-size);
@@ -527,13 +535,6 @@ body, html {
         height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
         padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
         border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.notification.collapsed {
-    width: var(--circle-size);
-    height: var(--circle-size);
-    padding: 0;
-    border-radius: var(--border-radius-end);
 }
 
 .notification.collapsing .notification-text,
@@ -570,10 +571,9 @@ body, html {
         transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
     }
 }
-
 .notification.hide {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: var(--hide-transform);
     visibility: hidden;
     pointer-events: none;
     transition: 
