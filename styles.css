@@ -455,17 +455,24 @@ body, html {
 }
 
 .notification {
+    --notification-width: 260px;
+    --notification-height: 42px;
+    --circle-size: 16.25px;
+    --border-radius-start: 0 15px 15px 15px;
+    --border-radius-end: 50%;
+    
     position: fixed;
     top: 13px;
     left: 13px;
     background: #E9BB00;
     color: #000;
+    width: var(--notification-width);
+    height: var(--notification-height);
     padding: 13px;
-    border-radius: 0 15px 15px 15px;
+    border-radius: var(--border-radius-start);
     font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
     font-size: 13px;
     line-height: 1.4;
-    max-width: 260px;
     opacity: 0;
     transform: translateY(-20px);
     z-index: 1001;
@@ -475,9 +482,8 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    white-space: normal;
-    word-wrap: break-word;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transform-origin: 0 0;
+    will-change: transform, width, height, border-radius, padding;
 }
 
 .notification.show {
@@ -485,11 +491,18 @@ body, html {
     transform: translateY(0);
     visibility: visible;
     pointer-events: auto;
+    transition: 
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        visibility 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .notification-text {
     opacity: 1;
-    transition: opacity 0.3s ease;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .notification-exclamation {
@@ -498,58 +511,63 @@ body, html {
     top: 50%;
     transform: translate(-50%, -50%);
     opacity: 0;
-    font-size: 19.5px;
-    transition: opacity 0.3s ease;
+    font-size: 9.75px;
     pointer-events: none;
     display: none;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification.collapsing {
+    width: var(--circle-size);
+    height: var(--circle-size);
+    padding: 0;
+    border-radius: var(--border-radius-end);
+    transition: 
+        width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .notification.collapsed {
-    width: 32.5px;
-    height: 32.5px;
+    width: var(--circle-size);
+    height: var(--circle-size);
     padding: 0;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: var(--border-radius-end);
 }
 
+.notification.collapsing .notification-text,
 .notification.collapsed .notification-text {
     opacity: 0;
-    transition: opacity 0.3s ease;
-    display: none;
 }
 
+.notification.collapsing .notification-exclamation,
 .notification.collapsed .notification-exclamation {
     opacity: 1;
-    transition: opacity 0.3s ease 0.3s;
     display: flex;
 }
 
 @media (hover: hover) {
     .notification:hover {
-        width: auto;
-        height: auto;
+        width: var(--notification-width);
+        height: var(--notification-height);
         padding: 13px;
-        border-radius: 0 15px 15px 15px;
-        transition: all 0.3s ease;
+        border-radius: var(--border-radius-start);
+        transition: 
+            width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            height 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            padding 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+            border-radius 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     
     .notification:hover .notification-exclamation {
         opacity: 0;
-        transition: opacity 0.3s ease;
-        display: none;
+        transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .notification:hover .notification-text {
         opacity: 1;
-        transition: opacity 0.3s ease 0.3s;
-        display: block;
+        transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1) 0.1s;
     }
 }
 
@@ -558,4 +576,8 @@ body, html {
     transform: translateY(-20px);
     visibility: hidden;
     pointer-events: none;
+    transition: 
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
