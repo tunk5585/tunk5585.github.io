@@ -357,7 +357,7 @@ body, html {
     transform: translate(-50%, -50%);
     transform-origin: center center;
     color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica', 'Arial', sans-serif;
+    font-family: 'Helvetica', Arial, sans-serif;
     font-size: 36px;
     text-align: center;
     opacity: 0;
@@ -512,6 +512,7 @@ body, html {
     font-family: 'Helvetica', Arial, sans-serif;
     font-size: 12.1px;
     line-height: 1.3;
+    color: #000;
 }
 
 .details-button {
@@ -524,6 +525,7 @@ body, html {
     font-size: 12.1px;
     font-family: 'Helvetica', Arial, sans-serif;
     transition: background-color 0.2s ease, transform 0.2s ease;
+    color: #000;
 }
 
 .details-button:hover {
@@ -543,6 +545,7 @@ body, html {
     border: 1px solid rgba(0, 0, 0, 0.2);
     z-index: 1001;
     font-size: 12.1px;
+    color: #000;
 }
 
 .details-button:hover .details-tooltip {
@@ -583,4 +586,9 @@ body, html {
     .notification {
         width: 209px;
     }
+}
+
+/* Обновляем базовые шрифты для всего сайта */
+body {
+    font-family: 'Helvetica', Arial, sans-serif;
 }
