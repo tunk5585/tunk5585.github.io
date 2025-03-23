@@ -31,23 +31,31 @@ if (isMobile) {
     const notificationContainer = document.getElementById('notification-container');
     notificationContainer.addEventListener('touchstart', (e) => {
         const notification = e.target.closest('.notification');
-        if (notification && !notification.classList.contains('collapsing')) {
-            e.stopPropagation(); // Предотвращаем всплытие события
-            
+        if (!notification) return;
+        
+        e.stopPropagation(); // Предотвращаем всплытие события
+        
+        // Получаем все активные уведомления и сортируем их по z-index
+        const notifications = Array.from(document.querySelectorAll('.notification.active'));
+        notifications.sort((a, b) => {
+            const aZIndex = parseInt(window.getComputedStyle(a).zIndex) || 0;
+            const bZIndex = parseInt(window.getComputedStyle(b).zIndex) || 0;
+            return bZIndex - aZIndex;
+        });
+        
+        // Находим индекс текущего уведомления
+        const currentIndex = notifications.indexOf(notification);
+        
+        if (currentIndex === -1) return;
+        
+        // Обрабатываем только верхнее уведомление
+        if (currentIndex === 0) {
             if (notification.classList.contains('collapsed')) {
-                // Сворачиваем все другие уведомления
-                document.querySelectorAll('.notification.active:not(.collapsed)').forEach(otherNotification => {
-                    if (otherNotification !== notification) {
-                        otherNotification.classList.add('collapsing');
-                        setTimeout(() => {
-                            otherNotification.classList.add('collapsed');
-                            otherNotification.classList.remove('collapsing');
-                        }, 300);
-                    }
-                });
-                
                 // Разворачиваем текущее уведомление
                 notification.classList.remove('collapsed');
+                notification.style.zIndex = Math.max(...notifications.map(n => 
+                    parseInt(window.getComputedStyle(n).zIndex) || 0
+                )) + 1;
             } else {
                 // Сворачиваем текущее уведомление
                 notification.classList.add('collapsing');
@@ -58,4 +66,23 @@ if (isMobile) {
             }
         }
     });
+    
+    // Добавляем обработчик для проверки условий триггеров
+    const checkTriggerConditions = () => {
+        const notifications = document.querySelectorAll('.notification.active');
+        notifications.forEach(notification => {
+            // Проверяем наличие условий для скрытия уведомления
+            if (notification.dataset.triggerCondition === 'fulfilled') {
+                notification.classList.add('collapsing');
+                setTimeout(() => {
+                    notification.classList.remove('active');
+                    notification.classList.remove('collapsing');
+                    notification.classList.add('collapsed');
+                }, 300);
+            }
+        });
+    };
+    
+    // Запускаем проверку каждые 100мс
+    setInterval(checkTriggerConditions, 100);
 }
