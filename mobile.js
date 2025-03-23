@@ -67,22 +67,27 @@ if (isMobile) {
         }
     });
     
-    // Добавляем обработчик для проверки условий триггеров
-    const checkTriggerConditions = () => {
+    // Функция для проверки и удаления уведомлений
+    const checkAndRemoveNotifications = () => {
         const notifications = document.querySelectorAll('.notification.active');
         notifications.forEach(notification => {
-            // Проверяем наличие условий для скрытия уведомления
             if (notification.dataset.triggerCondition === 'fulfilled') {
                 notification.classList.add('collapsing');
                 setTimeout(() => {
                     notification.classList.remove('active');
-                    notification.classList.remove('collapsing');
                     notification.classList.add('collapsed');
+                    notification.classList.remove('collapsing');
+                    // Добавляем задержку перед удалением элемента
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
                 }, 300);
             }
         });
     };
     
     // Запускаем проверку каждые 100мс
-    setInterval(checkTriggerConditions, 100);
+    setInterval(checkAndRemoveNotifications, 100);
 }
