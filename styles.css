@@ -642,6 +642,8 @@ body, html {
     .pulse {
         transform: translate3d(0, 0, 0);
         transition: none;
+        /* Запрещаем изменение размера без явного указания */
+        box-sizing: border-box !important;
     }
 }
 
@@ -658,6 +660,24 @@ body, html {
     /* Предотвращаем смещение при тапе */
     transform: translate3d(0, 0, 0);
     transition: none;
+    /* Отключаем любые плавные переходы размера */
+    transition-property: none !important;
+    /* Обеспечиваем стабильное отображение */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Фиксируем размер и положение при возможном сдвиге */
+    position: absolute !important;
+}
+
+/* Исправления для активной точки на мобильных */
+.mobile-device .pulse.active {
+    /* Принудительно отключаем любые трансформации, которые могут вызвать сдвиг */
+    transform: translate3d(0, 0, 0) !important;
+    /* Делаем точку стабильной */
+    position: absolute !important;
+    z-index: 40 !important;
+    /* Отключаем эффекты перехода, которые могут вызывать сдвиг */
+    transition: none !important;
 }
 
 .mobile-device .pulse.active .pulse-content {
@@ -667,6 +687,9 @@ body, html {
     -webkit-backface-visibility: hidden;
     transform: translate(-50%, -50%) translateZ(0);
     -webkit-transform: translate(-50%, -50%) translateZ(0);
+    /* Запрещаем изменение позиции содержимого */
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: opacity !important;
 }
 
 .mobile-device .notification.collapsed {
@@ -695,6 +718,27 @@ body, html {
 .mobile-device .container .pulse {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
+    /* Запрещаем любые изменения размера, которые не были явно указаны */
+    box-sizing: border-box !important;
+}
+
+/* Предотвращаем смещение при изменении размера */
+.mobile-device .container {
+    /* Обеспечиваем корректные вычисления размеров */
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+}
+
+/* Стабилизация позиций при изменении размера */
+.mobile-device .size-slider-handle {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+.mobile-device.resizing .pulse {
+    /* Предотвращаем любые движения во время изменения размера */
+    transition: none !important;
+    animation: none !important;
 }
 
 /* Предотвращаем нежелательное выделение текста на мобильных */

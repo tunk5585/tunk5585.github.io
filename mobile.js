@@ -35,6 +35,63 @@ if (isMobile) {
         // Добавляем класс для мобильных устройств
         document.body.classList.add('mobile-device');
         
+        // Фиксируем все точки в их текущих позициях при загрузке
+        const pulses = document.querySelectorAll('.pulse');
+        pulses.forEach(pulse => {
+            // Запоминаем исходные позиции
+            if (pulse.style.left && pulse.style.top) {
+                pulse.setAttribute('data-original-left', pulse.style.left);
+                pulse.setAttribute('data-original-top', pulse.style.top);
+            }
+        });
+        
+        // Перехватываем изменение размера ползунком
+        const sizeSlider = document.querySelector('.size-slider');
+        if (sizeSlider) {
+            const originalSliderHandler = sizeSlider.onmousedown || (() => {});
+            
+            // Функция для отслеживания изменений размера
+            const handleSizeChange = () => {
+                // Задержка для обеспечения стабильности после изменения размера
+                setTimeout(() => {
+                    // Фиксируем позиции всех точек после изменения размера
+                    const pulses = document.querySelectorAll('.pulse');
+                    pulses.forEach(pulse => {
+                        // Отменяем все трансформации и transition эффекты
+                        pulse.style.transition = 'none';
+                        
+                        // Фиксируем текущее положение через transform
+                        const computedStyle = window.getComputedStyle(pulse);
+                        const rect = pulse.getBoundingClientRect();
+                        
+                        if (rect.left && rect.top) {
+                            // Сохраняем четкую позицию
+                            pulse.style.position = 'absolute';
+                            pulse.posX = rect.left + rect.width / 2;
+                            pulse.posY = rect.top + rect.height / 2;
+                        }
+                    });
+                }, 50);
+            };
+            
+            // Наблюдаем за ползунком размера
+            const sizeHandle = document.querySelector('.size-slider-handle');
+            if (sizeHandle) {
+                let isSliding = false;
+                
+                sizeHandle.addEventListener('touchstart', () => {
+                    isSliding = true;
+                }, { passive: true });
+                
+                document.addEventListener('touchend', () => {
+                    if (isSliding) {
+                        isSliding = false;
+                        handleSizeChange();
+                    }
+                }, { passive: true });
+            }
+        }
+        
         // Переопределяем функцию проверки скорости точек для мобильных устройств
         if (typeof updateVelocityInfo === 'function') {
             const originalUpdateVelocityInfo = updateVelocityInfo;
@@ -156,6 +213,10 @@ if (isMobile) {
     pulses.forEach(pulse => {
         // Предотвращаем дребезг касаний (touch bounce)
         let lastTouchTime = 0;
+
+        // Сохраняем исходные координаты и размер точки
+        pulse.originalX = pulse.offsetLeft;
+        pulse.originalY = pulse.offsetTop;
         
         // Заменяем обработчик событий touchstart
         pulse.addEventListener('touchstart', (e) => {
@@ -167,6 +228,11 @@ if (isMobile) {
                 return;
             }
             lastTouchTime = now;
+            
+            // Фиксируем положение точки перед взаимодействием
+            const rect = pulse.getBoundingClientRect();
+            pulse.fixedLeft = rect.left;
+            pulse.fixedTop = rect.top;
             
             // Останавливаем движение точки при касании
             pulse.velX = 0;
@@ -204,11 +270,33 @@ if (isMobile) {
                         ring.style.animation = 'none';
                         ring.style.opacity = '0';
                     }
+                    
+                    // Фиксируем текущую позицию активной точки
+                    const rect = pulse.getBoundingClientRect();
+                    if (rect.width && rect.height) {
+                        // Принудительно фиксируем размер и позицию
+                        pulse.style.transform = 'translate3d(0, 0, 0)';
+                        pulse.style.left = `${pulse.fixedLeft}px`;
+                        pulse.style.top = `${pulse.fixedTop}px`;
+                    }
                 });
             } else {
                 // Деактивируем точку при повторном касании
                 pulse.classList.remove('active');
                 document.querySelector('.container').classList.remove('has-active');
+                
+                // Восстанавливаем исходные стили
+                pulse.style.transform = '';
+                
+                // Восстанавливаем оригинальную позицию, если была сохранена
+                if (pulse.originalX !== undefined && pulse.originalY !== undefined) {
+                    pulse.style.left = `${pulse.originalX}px`;
+                    pulse.style.top = `${pulse.originalY}px`;
+                    
+                    // Обновляем posX и posY для правильной физики
+                    pulse.posX = pulse.originalX;
+                    pulse.posY = pulse.originalY;
+                }
                 
                 // Возобновляем отслеживание скорости
                 isTrackingVelocity = true;
@@ -220,9 +308,35 @@ if (isMobile) {
             // Если точка была активирована и это было короткое касание, сохраняем её активной
             // Иначе, если она не активирована, даем ей случайное направление движения
             if (!pulse.classList.contains('active')) {
+                // Восстанавливаем движение если точка не активна
                 pulse.velX = (Math.random() - 0.5) * 2;
                 pulse.velY = (Math.random() - 0.5) * 2;
+            } else {
+                // Если точка активна, убеждаемся что она остается на месте
+                pulse.velX = 0;
+                pulse.velY = 0;
+                
+                // Принудительно обновляем стили, чтобы предотвратить сдвиг
+                requestAnimationFrame(() => {
+                    pulse.style.transform = 'translate3d(0, 0, 0)';
+                });
             }
         }, { passive: false });
+    });
+    
+    // Перехватываем изменение размера и автоматически фиксируем положение точек
+    window.addEventListener('resize', () => {
+        // Обрабатываем все точки при изменении размера окна
+        const pulses = document.querySelectorAll('.pulse');
+        pulses.forEach(pulse => {
+            if (pulse.classList.contains('active')) {
+                // Для активной точки применяем жесткую фиксацию
+                const rect = pulse.getBoundingClientRect();
+                pulse.style.transform = 'translate3d(0, 0, 0)';
+                pulse.style.transition = 'none';
+                pulse.style.left = `${rect.left}px`;
+                pulse.style.top = `${rect.top}px`;
+            }
+        });
     });
 }
