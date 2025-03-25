@@ -69,23 +69,8 @@ if (isMobile) {
                             pulse.style.position = 'absolute';
                             pulse.posX = rect.left + rect.width / 2;
                             pulse.posY = rect.top + rect.height / 2;
-                            
-                            // Обновляем позицию кольца пульсации
-                            const ring = pulse.querySelector('.pulse-ring');
-                            if (ring) {
-                                // Убедимся, что кольцо всегда в центре точки
-                                ring.style.top = '50%';
-                                ring.style.left = '50%';
-                                ring.style.width = '100%';
-                                ring.style.height = '100%';
-                                ring.style.transform = 'translate(-50%, -50%) scale(1)';
-                                ring.style.transformOrigin = 'center center';
-                            }
                         }
                     });
-                    
-                    // Снимаем класс масштабирования
-                    document.body.classList.remove('scaling');
                 }, 50);
             };
             
@@ -96,33 +81,12 @@ if (isMobile) {
                 
                 sizeHandle.addEventListener('touchstart', () => {
                     isSliding = true;
-                    // Добавляем класс для отслеживания состояния масштабирования
-                    document.body.classList.add('scaling');
-                }, { passive: true });
-                
-                document.addEventListener('touchmove', (e) => {
-                    if (isSliding) {
-                        // Во время движения слайдера обновляем позиции колец в реальном времени
-                        const pulses = document.querySelectorAll('.pulse');
-                        pulses.forEach(pulse => {
-                            const ring = pulse.querySelector('.pulse-ring');
-                            if (ring) {
-                                // Обновляем стили кольца пульсации
-                                ring.style.transform = 'translate(-50%, -50%) scale(1)';
-                            }
-                        });
-                    }
                 }, { passive: true });
                 
                 document.addEventListener('touchend', () => {
                     if (isSliding) {
                         isSliding = false;
                         handleSizeChange();
-                        
-                        // Дополнительная задержка для обеспечения завершения всех изменений размера
-                        setTimeout(() => {
-                            document.body.classList.remove('scaling');
-                        }, 100);
                     }
                 }, { passive: true });
             }
@@ -291,13 +255,21 @@ if (isMobile) {
                 // Приостанавливаем отслеживание скорости при активной точке
                 isTrackingVelocity = false;
                 
+                // Добавляем класс для отключения всех пульсаций
+                document.body.classList.add('has-active-point');
+                
                 // Принудительно применяем стили для активной точки, чтобы исправить возможные конфликты
                 requestAnimationFrame(() => {
-                    // Сначала удаляем все анимации
-                    const rings = document.querySelectorAll('.pulse-ring');
-                    rings.forEach(ring => {
+                    // Сначала удаляем все анимации со всех пульсирующих колец
+                    const allRings = document.querySelectorAll('.pulse-ring');
+                    allRings.forEach(ring => {
+                        // Полностью сбрасываем стили и потом устанавливаем нужные значения
+                        ring.style.cssText = '';
+                        void ring.offsetWidth;
+                        
                         ring.style.animation = 'none';
                         ring.style.opacity = '0';
+                        ring.style.display = 'none';
                     });
                     
                     // Затем устанавливаем правильные стили для текущей точки
@@ -305,6 +277,7 @@ if (isMobile) {
                     if (ring) {
                         ring.style.animation = 'none';
                         ring.style.opacity = '0';
+                        ring.style.display = 'none';
                     }
                     
                     // Фиксируем текущую позицию активной точки
@@ -320,6 +293,7 @@ if (isMobile) {
                 // Деактивируем точку при повторном касании
                 pulse.classList.remove('active');
                 document.querySelector('.container').classList.remove('has-active');
+                document.body.classList.remove('has-active-point');
                 
                 // Восстанавливаем исходные стили
                 pulse.style.transform = '';
@@ -333,6 +307,22 @@ if (isMobile) {
                     pulse.posX = pulse.originalX;
                     pulse.posY = pulse.originalY;
                 }
+                
+                // Восстанавливаем анимацию для всех пульсирующих колец
+                const allRings = document.querySelectorAll('.pulse-ring');
+                allRings.forEach(ring => {
+                    // Удаляем все inline стили, которые могут мешать работе CSS анимации
+                    ring.style.animation = '';
+                    ring.style.opacity = '';
+                    ring.style.display = '';
+                    
+                    // Триггерим перерисовку для гарантированного применения CSS анимации
+                    void ring.offsetWidth;
+                    
+                    // Теперь добавляем анимацию обратно
+                    ring.style.animation = 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite';
+                    ring.style.opacity = '1';
+                });
                 
                 // Возобновляем отслеживание скорости
                 isTrackingVelocity = true;
