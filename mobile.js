@@ -8,6 +8,10 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 if (isMobile) {
     console.log('Mobile device detected');
     
+    // Глобальные переменные для отслеживания скорости точек
+    let highVelocityPoints = new Set();
+    let isTrackingVelocity = true;
+    
     // Улучшенная обработка касаний для мобильных устройств
     document.addEventListener('DOMContentLoaded', () => {
         // Предотвращаем нежелательное масштабирование двойным тапом
@@ -30,6 +34,52 @@ if (isMobile) {
         
         // Добавляем класс для мобильных устройств
         document.body.classList.add('mobile-device');
+        
+        // Переопределяем функцию проверки скорости точек для мобильных устройств
+        if (typeof updateVelocityInfo === 'function') {
+            const originalUpdateVelocityInfo = updateVelocityInfo;
+            
+            // Перезаписываем глобальную функцию updateVelocityInfo
+            window.updateVelocityInfo = function() {
+                // Вызываем оригинальную функцию для базового обновления информации
+                originalUpdateVelocityInfo();
+                
+                if (!isTrackingVelocity) return;
+                
+                // Проверка скорости всех точек
+                const pulses = document.querySelectorAll('.pulse');
+                let hasHighVelocity = false;
+                highVelocityPoints.clear();
+                
+                pulses.forEach(pulse => {
+                    if (pulse.velX && pulse.velY) {
+                        const velocity = calculateVelocity(pulse);
+                        if (velocity > 5) {
+                            hasHighVelocity = true;
+                            highVelocityPoints.add(pulse);
+                        }
+                    }
+                });
+                
+                // Если есть точки с высокой скоростью и уведомление не активно, показываем его
+                if (hasHighVelocity && !isHighVelocityTriggered && typeof highVelocityNotification !== 'undefined') {
+                    isHighVelocityTriggered = true;
+                    highVelocityNotification.showNotification();
+                    
+                    // Задаем таймаут для автоматического сворачивания
+                    setTimeout(() => {
+                        if (isHighVelocityTriggered && highVelocityNotification.isExpanded) {
+                            highVelocityNotification.collapseNotification();
+                        }
+                    }, 5000);
+                }
+                // Если нет точек с высокой скоростью и уведомление активно, скрываем его
+                else if (!hasHighVelocity && isHighVelocityTriggered && typeof highVelocityNotification !== 'undefined') {
+                    isHighVelocityTriggered = false;
+                    highVelocityNotification.hideNotification();
+                }
+            };
+        }
     });
     
     // Обработчик тапа по документу для сворачивания уведомлений с задержкой
@@ -45,10 +95,14 @@ if (isMobile) {
         
         const notificationContainer = document.getElementById('notification-container');
         if (!notificationContainer.contains(e.target)) {
+            // Не закрываем уведомление о высокой скорости, если есть точки с высокой скоростью
             const notifications = document.querySelectorAll('.notification.active:not(.collapsed)');
             notifications.forEach(notification => {
                 const handler = notification.id === 'highVelocity' ? highVelocityNotification : tapNotification;
-                if (handler && !notification.classList.contains('collapsed')) {
+                
+                // Проверяем, что это не highVelocity или если это он, но точек с высокой скоростью нет
+                if (handler && !notification.classList.contains('collapsed') && 
+                   (notification.id !== 'highVelocity' || (notification.id === 'highVelocity' && highVelocityPoints.size === 0))) {
                     handler.collapseNotification();
                 }
             });
@@ -86,7 +140,13 @@ if (isMobile) {
             if (notification.classList.contains('collapsed')) {
                 handler.expandNotification();
             } else {
-                handler.collapseNotification();
+                // Если это уведомление о высокой скорости и есть точки с высокой скоростью,
+                // не закрываем его полностью, только сворачиваем
+                if (notification.id === 'highVelocity' && highVelocityPoints.size > 0) {
+                    handler.collapseNotification();
+                } else {
+                    handler.collapseNotification();
+                }
             }
         }, 10);
     }, { passive: false });
@@ -108,6 +168,10 @@ if (isMobile) {
             }
             lastTouchTime = now;
             
+            // Останавливаем движение точки при касании
+            pulse.velX = 0;
+            pulse.velY = 0;
+            
             // Делаем точку активной при касании
             if (!pulse.classList.contains('active')) {
                 // Деактивируем все другие точки перед активацией этой
@@ -116,8 +180,48 @@ if (isMobile) {
                 // Добавляем класс 'has-active' к container
                 document.querySelector('.container').classList.add('has-active');
                 
+                // Принудительно убираем классы, которые могут конфликтовать с CSS
+                pulse.classList.remove('proximity');
+                
                 // Активируем выбранную точку
                 pulse.classList.add('active');
+                
+                // Приостанавливаем отслеживание скорости при активной точке
+                isTrackingVelocity = false;
+                
+                // Принудительно применяем стили для активной точки, чтобы исправить возможные конфликты
+                requestAnimationFrame(() => {
+                    // Сначала удаляем все анимации
+                    const rings = document.querySelectorAll('.pulse-ring');
+                    rings.forEach(ring => {
+                        ring.style.animation = 'none';
+                        ring.style.opacity = '0';
+                    });
+                    
+                    // Затем устанавливаем правильные стили для текущей точки
+                    const ring = pulse.querySelector('.pulse-ring');
+                    if (ring) {
+                        ring.style.animation = 'none';
+                        ring.style.opacity = '0';
+                    }
+                });
+            } else {
+                // Деактивируем точку при повторном касании
+                pulse.classList.remove('active');
+                document.querySelector('.container').classList.remove('has-active');
+                
+                // Возобновляем отслеживание скорости
+                isTrackingVelocity = true;
+            }
+        }, { passive: false });
+        
+        // Обработчик события touchend
+        pulse.addEventListener('touchend', (e) => {
+            // Если точка была активирована и это было короткое касание, сохраняем её активной
+            // Иначе, если она не активирована, даем ей случайное направление движения
+            if (!pulse.classList.contains('active')) {
+                pulse.velX = (Math.random() - 0.5) * 2;
+                pulse.velY = (Math.random() - 0.5) * 2;
             }
         }, { passive: false });
     });
