@@ -13,6 +13,19 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="5585" />
     <link rel="manifest" href="/assets/images/site.webmanifest" />
+    <script>
+        // Раннее определение мобильного устройства
+        (function() {
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                ('ontouchstart' in window) ||
+                (navigator.maxTouchPoints > 0) ||
+                (window.matchMedia && window.matchMedia("(pointer: coarse)").matches);
+            if (isMobile) {
+                document.documentElement.classList.add('mobile-device');
+                document.body && document.body.classList.add('mobile-device');
+            }
+        })();
+    </script>
 </head>
 <body>  
     <div class="container">

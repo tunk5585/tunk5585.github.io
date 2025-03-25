@@ -1,12 +1,18 @@
 // mobile.js
 const controls = document.querySelector('.controls');
 
-// Проверяем, является ли устройство мобильным
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+// Улучшенное определение мобильного устройства
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                  ('ontouchstart' in window) || 
+                  (navigator.maxTouchPoints > 0) ||
+                  (window.matchMedia("(pointer: coarse)").matches);
 
 // Обработка тапов для уведомлений на мобильных устройствах
 if (isMobile) {
     console.log('Mobile device detected');
+    
+    // Явно добавляем класс для мобильных устройств при загрузке
+    document.body.classList.add('mobile-device');
     
     // Глобальные переменные для отслеживания скорости точек
     let highVelocityPoints = new Set();
@@ -31,9 +37,6 @@ if (isMobile) {
                 e.preventDefault();
             }, { passive: false });
         });
-        
-        // Добавляем класс для мобильных устройств
-        document.body.classList.add('mobile-device');
         
         // Фиксируем все точки в их текущих позициях при загрузке
         const pulses = document.querySelectorAll('.pulse');
@@ -393,4 +396,55 @@ if (isMobile) {
             }
         });
     });
+
+    // Оптимизация обработки ресурсов для повышения производительности
+    // Отключаем ненужные эффекты в режиме низкой производительности
+    const checkLowPerformance = () => {
+        // Если устройство на iOS и страница тормозит, добавляем класс low-performance
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        const isLowRAM = navigator.deviceMemory && navigator.deviceMemory < 4;
+        
+        // Тестируем производительность устройства
+        let startTime = performance.now();
+        let iterations = 0;
+        
+        // Простой тест производительности - как быстро выполняется 20000 операций
+        while (iterations < 20000 && performance.now() - startTime < 50) {
+            iterations++;
+            Math.sqrt(iterations);
+        }
+        
+        // Если устройство медленное (не смогло выполнить 20000 операций за 50мс)
+        // или это iOS, или мало памяти - оптимизируем
+        if (iterations < 20000 || isIOS || isLowRAM) {
+            document.documentElement.classList.add('low-performance');
+            document.body.classList.add('low-performance');
+            
+            // Дополнительные оптимизации для очень слабых устройств
+            if (iterations < 10000 || isLowRAM) {
+                // Упрощаем или отключаем анимации
+                console.log('Very low performance mode activated');
+                
+                // Отключаем некоторые анимации
+                const pulseRings = document.querySelectorAll('.pulse-ring');
+                pulseRings.forEach(ring => {
+                    if (iterations < 5000) {
+                        // На очень слабых устройствах вообще отключаем пульсацию
+                        ring.style.display = 'none';
+                    } else {
+                        // На средне-слабых замедляем
+                        ring.style.animationDuration = '3s';
+                    }
+                });
+                
+                // Отключаем некоторые эффекты, которые не критически важны
+                document.querySelectorAll('.connection-text').forEach(el => {
+                    el.style.display = 'none';
+                });
+            }
+        }
+    };
+    
+    // Проверяем производительность после полной загрузки
+    window.addEventListener('load', checkLowPerformance);
 }
