@@ -48,47 +48,75 @@ if (isMobile) {
         // Перехватываем изменение размера ползунком
         const sizeSlider = document.querySelector('.size-slider');
         if (sizeSlider) {
-            const originalSliderHandler = sizeSlider.onmousedown || (() => {});
+            // Флаг для отслеживания состояния слайдера
+            let isSliding = false;
             
-            // Функция для отслеживания изменений размера
-            const handleSizeChange = () => {
-                // Задержка для обеспечения стабильности после изменения размера
+            // Обработчик начала изменения размера
+            sizeSlider.addEventListener('mousedown', () => {
+                isSliding = true;
+                document.body.classList.add('resizing');
+                
+                // Временно скрываем пульсирующие кольца при изменении размера
+                const rings = document.querySelectorAll('.pulse-ring');
+                rings.forEach(ring => {
+                    ring.style.animation = 'none';
+                    ring.style.opacity = '0';
+                });
+            }, { passive: true });
+            
+            // Обработчик для тачскрина
+            sizeSlider.addEventListener('touchstart', () => {
+                isSliding = true;
+                document.body.classList.add('resizing');
+                
+                // Временно скрываем пульсирующие кольца при изменении размера
+                const rings = document.querySelectorAll('.pulse-ring');
+                rings.forEach(ring => {
+                    ring.style.animation = 'none';
+                    ring.style.opacity = '0';
+                });
+            }, { passive: true });
+            
+            // Обработчик окончания изменения размера
+            document.addEventListener('mouseup', () => {
+                if (isSliding) {
+                    finishResizing();
+                }
+            }, { passive: true });
+            
+            // Обработчик для тачскрина
+            document.addEventListener('touchend', () => {
+                if (isSliding) {
+                    finishResizing();
+                }
+            }, { passive: true });
+            
+            // Функция восстановления после изменения размера
+            function finishResizing() {
+                isSliding = false;
+                document.body.classList.remove('resizing');
+                
+                // Добавляем небольшую задержку перед восстановлением пульсирующих колец
                 setTimeout(() => {
-                    // Фиксируем позиции всех точек после изменения размера
+                    // Обновляем позиции всех точек и их пульсирующих колец
                     const pulses = document.querySelectorAll('.pulse');
                     pulses.forEach(pulse => {
-                        // Отменяем все трансформации и transition эффекты
-                        pulse.style.transition = 'none';
-                        
-                        // Фиксируем текущее положение через transform
-                        const computedStyle = window.getComputedStyle(pulse);
-                        const rect = pulse.getBoundingClientRect();
-                        
-                        if (rect.left && rect.top) {
-                            // Сохраняем четкую позицию
-                            pulse.style.position = 'absolute';
-                            pulse.posX = rect.left + rect.width / 2;
-                            pulse.posY = rect.top + rect.height / 2;
+                        // Сбрасываем и восстанавливаем кольцо пульсации
+                        const ring = pulse.querySelector('.pulse-ring');
+                        if (ring) {
+                            // Принудительно обновляем позицию
+                            ring.style.cssText = '';
+                            void ring.offsetWidth;
+                            
+                            // Если точка не активна, восстанавливаем анимацию
+                            if (!document.body.classList.contains('has-active-point') && 
+                                !document.querySelector('.container').classList.contains('has-active')) {
+                                ring.style.animation = 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite';
+                                ring.style.opacity = '1';
+                            }
                         }
                     });
                 }, 50);
-            };
-            
-            // Наблюдаем за ползунком размера
-            const sizeHandle = document.querySelector('.size-slider-handle');
-            if (sizeHandle) {
-                let isSliding = false;
-                
-                sizeHandle.addEventListener('touchstart', () => {
-                    isSliding = true;
-                }, { passive: true });
-                
-                document.addEventListener('touchend', () => {
-                    if (isSliding) {
-                        isSliding = false;
-                        handleSizeChange();
-                    }
-                }, { passive: true });
             }
         }
         

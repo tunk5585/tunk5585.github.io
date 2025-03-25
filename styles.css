@@ -330,6 +330,7 @@ body, html {
     transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d !important;
 }
 
 .pulse-ring {
@@ -337,11 +338,20 @@ body, html {
     width: calc(35px * var(--scale-multiplier));
     height: calc(35px * var(--scale-multiplier));
     border-radius: 50%;
-    border: 1.3px solid #E9BB00;
+    border: 0.65px solid #fff;
     z-index: 1;
     opacity: 1;
     animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     will-change: transform, opacity;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    transform-origin: center !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
+    -webkit-transform: translate(-50%, -50%) translateZ(0);
+    transform: translate(-50%, -50%) translateZ(0);
 }
 
 .pulse:hover .pulse-ring,
@@ -403,13 +413,13 @@ body, html {
 }
 
 @keyframes pulse-ring {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; border-color: #fff; }
+    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: #fff; }
 }
 
 @keyframes pulse-ring-fast {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; border-color: #fff; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-color: #fff; }
 }
 
 #lines {
@@ -701,7 +711,8 @@ body, html {
 
 /* Исправление для анимации пульсации на мобильных устройствах */
 .mobile-device .pulse .pulse-ring {
-    border-width: 1px;
+    border-width: 0.65px;
+    border-color: #fff;
     will-change: transform, opacity;
     position: absolute;
     top: 50%;
@@ -765,6 +776,9 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     margin: 0;
+    transform-origin: center !important;
+    box-sizing: border-box !important;
+    pointer-events: none !important;
 }
 
 /* Дополнительное правило для мобильных устройств, чтобы точно отключить все пульсации */
@@ -785,4 +799,29 @@ body {
     /* Предотвращаем любые движения во время изменения размера */
     transition: none !important;
     animation: none !important;
+}
+
+/* Отключаем пульсацию при изменении размера */
+body.resizing .pulse-ring {
+    animation: none !important;
+    opacity: 0 !important;
+    transition: none !important;
+}
+
+/* Гарантируем стабильное положение после изменения размера */
+body.resizing .pulse {
+    transform: translate3d(0, 0, 0) !important;
+    transition: none !important;
+}
+
+/* Еще более жесткая фиксация для мобильных устройств */
+.mobile-device.resizing .pulse {
+    /* Предотвращаем любые движения во время изменения размера */
+    transition: none !important;
+    animation: none !important;
+    will-change: transform !important;
+}
+
+.mobile-device.resizing .pulse-ring {
+    display: none !important;
 }
