@@ -69,8 +69,23 @@ if (isMobile) {
                             pulse.style.position = 'absolute';
                             pulse.posX = rect.left + rect.width / 2;
                             pulse.posY = rect.top + rect.height / 2;
+                            
+                            // Обновляем позицию кольца пульсации
+                            const ring = pulse.querySelector('.pulse-ring');
+                            if (ring) {
+                                // Убедимся, что кольцо всегда в центре точки
+                                ring.style.top = '50%';
+                                ring.style.left = '50%';
+                                ring.style.width = '100%';
+                                ring.style.height = '100%';
+                                ring.style.transform = 'translate(-50%, -50%) scale(1)';
+                                ring.style.transformOrigin = 'center center';
+                            }
                         }
                     });
+                    
+                    // Снимаем класс масштабирования
+                    document.body.classList.remove('scaling');
                 }, 50);
             };
             
@@ -81,12 +96,33 @@ if (isMobile) {
                 
                 sizeHandle.addEventListener('touchstart', () => {
                     isSliding = true;
+                    // Добавляем класс для отслеживания состояния масштабирования
+                    document.body.classList.add('scaling');
+                }, { passive: true });
+                
+                document.addEventListener('touchmove', (e) => {
+                    if (isSliding) {
+                        // Во время движения слайдера обновляем позиции колец в реальном времени
+                        const pulses = document.querySelectorAll('.pulse');
+                        pulses.forEach(pulse => {
+                            const ring = pulse.querySelector('.pulse-ring');
+                            if (ring) {
+                                // Обновляем стили кольца пульсации
+                                ring.style.transform = 'translate(-50%, -50%) scale(1)';
+                            }
+                        });
+                    }
                 }, { passive: true });
                 
                 document.addEventListener('touchend', () => {
                     if (isSliding) {
                         isSliding = false;
                         handleSizeChange();
+                        
+                        // Дополнительная задержка для обеспечения завершения всех изменений размера
+                        setTimeout(() => {
+                            document.body.classList.remove('scaling');
+                        }, 100);
                     }
                 }, { passive: true });
             }

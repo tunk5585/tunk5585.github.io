@@ -346,6 +346,7 @@ body, html {
     will-change: transform, opacity;
     transform-origin: center center;
     transition: opacity 0.3s ease;
+    box-sizing: border-box;
 }
 
 .pulse:hover .pulse-ring,
@@ -407,13 +408,13 @@ body, html {
 }
 
 @keyframes pulse-ring {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.5); opacity: 0; }
 }
 
 @keyframes pulse-ring-fast {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
-    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+    0% { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(3); opacity: 0; }
 }
 
 #lines {
@@ -707,38 +708,85 @@ body, html {
 .mobile-device .pulse .pulse-ring {
     border-width: 1px;
     will-change: transform, opacity;
+    /* Фиксированная позиция кольца пульсации */
+    top: 50% !important;
+    left: 50% !important;
+    /* Гарантируем, что кольцо всегда масштабируется от центра */
+    transform-origin: center !important;
+    /* Предотвращаем сдвиги при анимации */
+    transform: translate(-50%, -50%) scale(1) !important;
+    /* Анимация применяется только к псевдоэлементам */
 }
 
-.mobile-device .has-active .pulse .pulse-ring {
+.mobile-device .pulse .pulse-ring::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: inherit;
+    border-radius: 50%;
+    box-sizing: border-box;
+}
+
+.mobile-device .pulse:hover .pulse-ring::after,
+.mobile-device .pulse.active .pulse-ring::after {
+    animation: pulse-ring 1.2s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-device .pulse.proximity .pulse-ring::after {
+    animation: pulse-ring-fast 0.6s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-device .has-active .pulse .pulse-ring::after {
     animation: none !important;
-    opacity: 0 !important;
 }
 
-/* Дополнительное исправление для предотвращения смещения точек на iOS */
-.mobile-device .container .pulse {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    /* Запрещаем любые изменения размера, которые не были явно указаны */
-    box-sizing: border-box !important;
+/* Переписываем анимации для работы с псевдоэлементами */
+@keyframes pulse-ring {
+    0% { 
+        transform: scale(1); 
+        opacity: 0.7; 
+    }
+    100% { 
+        transform: scale(2.5); 
+        opacity: 0; 
+    }
 }
 
-/* Предотвращаем смещение при изменении размера */
-.mobile-device .container {
-    /* Обеспечиваем корректные вычисления размеров */
-    -webkit-transform-style: preserve-3d;
-    transform-style: preserve-3d;
+@keyframes pulse-ring-fast {
+    0% { 
+        transform: scale(1); 
+        opacity: 0.7; 
+    }
+    100% { 
+        transform: scale(3); 
+        opacity: 0; 
+    }
 }
 
-/* Стабилизация позиций при изменении размера */
+/* Дополнительное исправление для предотвращения смещения на фейдере */
 .mobile-device .size-slider-handle {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
 }
 
-.mobile-device.resizing .pulse {
-    /* Предотвращаем любые движения во время изменения размера */
+/* Добавляем класс для отслеживания состояния масштабирования */
+.mobile-device.scaling .pulse {
     transition: none !important;
+}
+
+.mobile-device.scaling .pulse-ring {
+    /* Гарантируем, что кольцо не смещается во время изменения размера */
+    transition: none !important;
+    border-width: 1px !important;
+}
+
+.mobile-device.scaling .pulse-ring::after {
+    /* Отключаем анимацию во время масштабирования */
     animation: none !important;
+    transition: none !important;
 }
 
 /* Предотвращаем нежелательное выделение текста на мобильных */
