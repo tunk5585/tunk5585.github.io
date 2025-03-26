@@ -1,6 +1,15 @@
 // mobile.js
 const controls = document.querySelector('.controls');
 
+// Константы для инерции
+const mobileFrictionFactor = 0.9993; // Снижаем затухание ещё в 3 раза (было 0.998)
+const mobileMinVelocity = 0.5; // Минимальная скорость, точки не будут останавливаться полностью
+const mobileInertiaDecayTime = 45000; // Увеличенное время затухания инерции до 45 секунд (было 15000)
+const mobileCollisionInertiaFactor = 0.7; // Коэффициент передачи импульса при столкновении с активной точкой
+
+// Карта для хранения состояния перетаскивания для каждой точки на мобильных устройствах
+const mobileDragState = new Map();
+
 // Заменяем дублирующую проверку единой функцией
 function detectMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
@@ -200,15 +209,23 @@ if (window.isMobileDevice) {
                     // Делаем элемент видимым в Safari
                     velocityInfo.style.display = 'block';
                     velocityInfo.style.position = 'fixed';
-                    velocityInfo.style.bottom = '13px';
+                    velocityInfo.style.bottom = '70px'; // Увеличиваем отступ снизу
                     velocityInfo.style.left = '13px';
                     velocityInfo.style.margin = '0';
-                    velocityInfo.style.padding = '0';
+                    velocityInfo.style.padding = '5px';
                     velocityInfo.style.zIndex = '1000';
                     velocityInfo.style.width = 'auto';
                     velocityInfo.style.maxWidth = '40%';
                     velocityInfo.style.opacity = '1';
                     velocityInfo.style.visibility = 'visible';
+                    velocityInfo.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+                    velocityInfo.style.borderRadius = '4px';
+                    
+                    // Проверяем, поддерживается ли safe-area-inset-bottom
+                    if (CSS.supports('padding-bottom: env(safe-area-inset-bottom)')) {
+                        // Используем env() для устройств с нижней панелью (iPhone X и новее)
+                        velocityInfo.style.bottom = 'calc(70px + env(safe-area-inset-bottom))';
+                    }
                     
                     // Убедимся, что контент отображается правильно при открытии меню
                     const menuIcon = document.querySelector('.menu-icon');
@@ -255,9 +272,19 @@ if (window.isMobileDevice) {
             fixSafariVelocityInfo();
             window.addEventListener('load', fixSafariVelocityInfo);
             
-            // Добавляем обработчик для обновления информации о скорости при повороте экрана
+            // Добавляем обработчики для обновления информации о скорости
             window.addEventListener('orientationchange', () => {
                 setTimeout(fixSafariVelocityInfo, 300);
+            });
+            
+            // Добавляем обработчик для случаев, когда пользователь прокрутил страницу
+            window.addEventListener('scroll', () => {
+                setTimeout(fixSafariVelocityInfo, 200);
+            });
+            
+            // Проверяем при резекте окна
+            window.addEventListener('resize', () => {
+                setTimeout(fixSafariVelocityInfo, 200);
             });
         }
     });
@@ -336,6 +363,17 @@ if (window.isMobileDevice) {
     pulses.forEach(pulse => {
         // Предотвращаем дребезг касаний (touch bounce)
         let lastTouchTime = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        // Инициализируем состояние перетаскивания для каждой точки
+        mobileDragState.set(pulse, {
+            lastPosX: 0, 
+            lastPosY: 0,
+            lastTime: 0,
+            velocityX: 0,
+            velocityY: 0
+        });
 
         // Сохраняем исходные координаты и размер точки
         pulse.originalX = pulse.offsetLeft;
@@ -343,124 +381,145 @@ if (window.isMobileDevice) {
         
         // Заменяем обработчик событий touchstart
         pulse.addEventListener('touchstart', (e) => {
-            // Предотвращаем двойную обработку события в течение 300 мс
             const now = Date.now();
-            if (now - lastTouchTime < 300) {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-            }
+            if (now - lastTouchTime < 300) return; // Предотвращаем быстрые повторные касания
             lastTouchTime = now;
             
-            // Фиксируем положение точки перед взаимодействием
-            const rect = pulse.getBoundingClientRect();
-            pulse.fixedLeft = rect.left;
-            pulse.fixedTop = rect.top;
+            // Останавливаем всплытие события, но не предотвращаем дефолтное поведение
+            e.stopPropagation();
+            
+            // Сбрасываем фокус с элементов ввода для скрытия клавиатуры
+            document.activeElement.blur();
+            
+            // Запоминаем начальные координаты
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            
+            // Начинаем перетаскивание
+            isDragging = true;
             
             // Останавливаем движение точки при касании
             pulse.velX = 0;
             pulse.velY = 0;
             
-            // Делаем точку активной при касании
-            if (!pulse.classList.contains('active')) {
-                // Деактивируем все другие точки перед активацией этой
-                pulses.forEach(p => p.classList.remove('active'));
+            // Сбрасываем флаги инерции
+            pulse.justReleased = false;
+            
+            // Устанавливаем флаг isDragging в точке
+            pulse.isDragging = true;
+            
+            // Инициализируем состояние перетаскивания для этой точки
+            const state = mobileDragState.get(pulse);
+            state.lastPosX = pulse.posX || pulse.offsetLeft;
+            state.lastPosY = pulse.posY || pulse.offsetTop;
+            state.lastTime = now;
+            state.velocityX = 0;
+            state.velocityY = 0;
+            
+            // Добавляем класс для визуальной индикации
+            pulse.classList.add('being-dragged');
+            
+            // Обновляем в веб-компоненте если есть
+            if (window.updateDraggingState) {
+                window.updateDraggingState(true);
+            }
+        }, { passive: false });
+        
+        // Обработчик события touchmove
+        pulse.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                // Получаем текущие координаты касания
+                const touchX = e.touches[0].clientX;
+                const touchY = e.touches[0].clientY;
                 
-                // Добавляем класс 'has-active' к container
-                document.querySelector('.container').classList.add('has-active');
+                // Рассчитываем смещение от начальной позиции
+                const offsetX = touchX - startX;
+                const offsetY = touchY - startY;
                 
-                // Принудительно убираем классы, которые могут конфликтовать с CSS
-                pulse.classList.remove('proximity');
-                
-                // Активируем выбранную точку
-                pulse.classList.add('active');
-                
-                // Приостанавливаем отслеживание скорости при активной точке
-                isTrackingVelocity = false;
-                
-                // Добавляем класс для отключения всех пульсаций
-                document.body.classList.add('has-active-point');
-                
-                // Принудительно применяем стили для активной точки, чтобы исправить возможные конфликты
-                requestAnimationFrame(() => {
-                    // Сначала удаляем все анимации со всех пульсирующих колец
-                    const allRings = document.querySelectorAll('.pulse-ring');
-                    allRings.forEach(ring => {
-                        // Просто удаляем все inline стили, чтобы CSS правила применились
-                        ring.style.cssText = '';
-                        
-                        // Триггерим перерисовку
-                        void ring.offsetWidth;
-                        
-                        // Устанавливаем только необходимые стили для анимации
-                        ring.style.animation = 'none';
-                        ring.style.opacity = '0';
-                        ring.style.display = 'none';
-                    });
+                // Если это реальное перетаскивание (а не просто касание)
+                if (Math.abs(offsetX) > 5 || Math.abs(offsetY) > 5) {
+                    // Устанавливаем новую позицию точки
+                    pulse.posX = Math.max(0, Math.min(window.innerWidth - pulse.offsetWidth, pulse.originalX + offsetX));
+                    pulse.posY = Math.max(0, Math.min(window.innerHeight - pulse.offsetHeight, pulse.originalY + offsetY));
                     
-                    // Затем устанавливаем правильные стили для текущей точки
-                    const ring = pulse.querySelector('.pulse-ring');
-                    if (ring) {
-                        ring.style.animation = 'none';
-                        ring.style.opacity = '0';
-                        ring.style.display = 'none';
+                    // Применяем позицию с transform для лучшей производительности
+                    pulse.style.transform = `translate3d(${pulse.posX}px, ${pulse.posY}px, 0)`;
+                    
+                    // Отслеживаем скорость перемещения для этой точки
+                    const now = Date.now();
+                    const state = mobileDragState.get(pulse);
+                    if (now - state.lastTime > 50) { // Чаще обновляем для более точного отслеживания
+                        state.velocityX = (pulse.posX - state.lastPosX) / (now - state.lastTime) * 1000;
+                        state.velocityY = (pulse.posY - state.lastPosY) / (now - state.lastTime) * 1000;
+                        
+                        // Обновляем глобальные переменные для совместимости с основным кодом
+                        window.dragVelocityX = state.velocityX;
+                        window.dragVelocityY = state.velocityY;
+                        window.lastDragTime = now;
+                        
+                        state.lastPosX = pulse.posX;
+                        state.lastPosY = pulse.posY;
+                        state.lastTime = now;
                     }
                     
-                    // Фиксируем текущую позицию активной точки
-                    const rect = pulse.getBoundingClientRect();
-                    if (rect.width && rect.height) {
-                        // Принудительно фиксируем размер и позицию
-                        pulse.style.transform = 'translate3d(0, 0, 0)';
-                        pulse.style.left = `${pulse.fixedLeft}px`;
-                        pulse.style.top = `${pulse.fixedTop}px`;
-                    }
-                });
-            } else {
-                // Деактивируем точку при повторном касании
-                pulse.classList.remove('active');
-                document.querySelector('.container').classList.remove('has-active');
-                document.body.classList.remove('has-active-point');
-                
-                // Восстанавливаем исходные стили
-                pulse.style.transform = '';
-                
-                // Восстанавливаем оригинальную позицию, если была сохранена
-                if (pulse.originalX !== undefined && pulse.originalY !== undefined) {
-                    pulse.style.left = `${pulse.originalX}px`;
-                    pulse.style.top = `${pulse.originalY}px`;
-                    
-                    // Обновляем posX и posY для правильной физики
-                    pulse.posX = pulse.originalX;
-                    pulse.posY = pulse.originalY;
+                    // Предотвращаем прокрутку страницы
+                    e.preventDefault();
                 }
-                
-                // Восстанавливаем анимацию для всех пульсирующих колец
-                const allRings = document.querySelectorAll('.pulse-ring');
-                allRings.forEach(ring => {
-                    // Просто удаляем все inline стили, чтобы CSS правила применились
-                    ring.style.cssText = '';
-                    
-                    // Триггерим перерисовку
-                    void ring.offsetWidth;
-                    
-                    // Устанавливаем только необходимые стили для анимации
-                    ring.style.animation = 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite';
-                    ring.style.opacity = '1';
-                });
-                
-                // Возобновляем отслеживание скорости
-                isTrackingVelocity = true;
             }
         }, { passive: false });
         
         // Обработчик события touchend
         pulse.addEventListener('touchend', (e) => {
+            const wasDragged = isDragging;
+            isDragging = false;
+            pulse.isDragging = false;
+            
+            // Удаляем класс перетаскивания
+            pulse.classList.remove('being-dragged');
+            
+            // Обновляем оригинальную позицию для следующего перетаскивания
+            pulse.originalX = pulse.posX || pulse.offsetLeft;
+            pulse.originalY = pulse.posY || pulse.offsetTop;
+            
+            // Получаем состояние перетаскивания для этой точки
+            const state = mobileDragState.get(pulse);
+            
             // Если точка была активирована и это было короткое касание, сохраняем её активной
-            // Иначе, если она не активирована, даем ей случайное направление движения
+            // Иначе, если она не активирована или была перетаскивание, обрабатываем соответственно
             if (!pulse.classList.contains('active')) {
-                // Восстанавливаем движение если точка не активна
-                pulse.velX = (Math.random() - 0.5) * 2;
-                pulse.velY = (Math.random() - 0.5) * 2;
+                if (wasDragged && state.velocityX && state.velocityY) {
+                    // Если было перетаскивание, придаем инерцию с более сильным эффектом
+                    pulse.velX = state.velocityX * 0.2; // Увеличиваем фактор инерции для более заметного эффекта (было 0.1)
+                    pulse.velY = state.velocityY * 0.2;
+                    
+                    // Ограничиваем скорость для предотвращения слишком быстрого движения
+                    const speed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
+                    if (speed > 30) { // Увеличиваем максимальную скорость (было 20)
+                        const factor = 30 / speed;
+                        pulse.velX *= factor;
+                        pulse.velY *= factor;
+                    }
+                    
+                    // Добавляем метки для затухающей инерции
+                    pulse.justReleased = true;
+                    pulse.releaseTime = Date.now();
+                    
+                    // Устанавливаем минимальную скорость для обеспечения долгого движения
+                    if (speed < mobileMinVelocity * 2) {
+                        const angle = Math.atan2(pulse.velY, pulse.velX);
+                        pulse.velX = Math.cos(angle) * mobileMinVelocity * 2;
+                        pulse.velY = Math.sin(angle) * mobileMinVelocity * 2;
+                    }
+                } else {
+                    // Если не было перетаскивания, даем движение с базовой скоростью
+                    const angle = Math.random() * 2 * Math.PI;
+                    pulse.velX = Math.cos(angle) * mobileMinVelocity * 3;
+                    pulse.velY = Math.sin(angle) * mobileMinVelocity * 3;
+                    
+                    // Добавляем метки для затухающей инерции
+                    pulse.justReleased = true;
+                    pulse.releaseTime = Date.now();
+                }
             } else {
                 // Если точка активна, убеждаемся что она остается на месте
                 pulse.velX = 0;
@@ -470,6 +529,16 @@ if (window.isMobileDevice) {
                 requestAnimationFrame(() => {
                     pulse.style.transform = 'translate3d(0, 0, 0)';
                 });
+            }
+            
+            // Сбрасываем переменные перетаскивания для этой точки
+            state.velocityX = 0;
+            state.velocityY = 0;
+            state.lastTime = 0;
+            
+            // Обновляем в веб-компоненте если есть
+            if (window.updateDraggingState) {
+                window.updateDraggingState(false);
             }
         }, { passive: false });
     });
@@ -620,4 +689,147 @@ if (window.isMobileDevice) {
         TouchEventManager.init();
         // ... прочие инициализации для мобильных ...
     });
+}
+
+// Перехватываем оригинальную функцию обновления для добавления инерции
+if (window.update) {
+    const originalUpdate = window.update;
+    
+    window.update = function(currentTime) {
+        // Вызываем оригинальную функцию
+        originalUpdate(currentTime);
+        
+        // Добавляем собственную логику затухающей инерции
+        if (window.isMobileDevice) {
+            pulses.forEach(pulse => {
+                if (!pulse.classList.contains('active') && !pulse.isDragging && isAnimating) {
+                    // Применяем силу трения для плавного затухания
+                    if (Math.abs(pulse.velX) > 0 || Math.abs(pulse.velY) > 0) {
+                        // Сначала сохраняем текущую скорость и направление
+                        const speed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
+                        const angle = Math.atan2(pulse.velY, pulse.velX);
+                        
+                        // Экспоненциальное затухание скорости
+                        pulse.velX *= mobileFrictionFactor;
+                        pulse.velY *= mobileFrictionFactor;
+                        
+                        // Если скорость стала слишком маленькой, поддерживаем базовую скорость
+                        const newSpeed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
+                        if (newSpeed < mobileMinVelocity) {
+                            pulse.velX = Math.cos(angle) * mobileMinVelocity;
+                            pulse.velY = Math.sin(angle) * mobileMinVelocity;
+                        }
+                    }
+                    
+                    // Специальная обработка для точек, которые только что были отпущены
+                    if (pulse.justReleased) {
+                        const now = Date.now();
+                        // Если прошло больше времени чем inertiaDecayTime, убираем флаг
+                        if (now - pulse.releaseTime > mobileInertiaDecayTime) {
+                            pulse.justReleased = false;
+                        } else {
+                            // Если точка только что была отпущена, применяем более сильное затухание
+                            // Плавное уменьшение скорости с течением времени
+                            const elapsedRatio = (now - pulse.releaseTime) / mobileInertiaDecayTime;
+                            const adjustedFriction = mobileFrictionFactor - (0.02 * (1 - elapsedRatio));
+                            pulse.velX *= adjustedFriction;
+                            pulse.velY *= adjustedFriction;
+                        }
+                    }
+                    
+                    // Обработка столкновения с активной точкой на мобильных устройствах
+                    const activePulse = document.querySelector('.pulse.active');
+                    if (activePulse && pulse !== activePulse) {
+                        // Получаем размеры точек
+                        const pulseSize = pulse.offsetWidth || 26;
+                        const activePulseSize = activePulse.offsetWidth || 40;
+                        
+                        // Вычисляем центры точек
+                        const pulseX = pulse.posX + pulseSize / 2;
+                        const pulseY = pulse.posY + pulseSize / 2;
+                        const activePulseX = activePulse.offsetLeft + activePulseSize / 2;
+                        const activePulseY = activePulse.offsetTop + activePulseSize / 2;
+                        
+                        // Вычисляем расстояние между точками
+                        const dx = pulseX - activePulseX;
+                        const dy = pulseY - activePulseY;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const minDistance = (pulseSize + activePulseSize) / 2;
+
+                        // Если точки столкнулись
+                        if (distance < minDistance) {
+                            // Вычисляем угол между точками
+                            const angle = Math.atan2(dy, dx);
+                            
+                            // Отталкиваем точку от активной точки
+                            pulse.posX = activePulseX + Math.cos(angle) * minDistance - pulseSize / 2;
+                            pulse.posY = activePulseY + Math.sin(angle) * minDistance - pulseSize / 2;
+                            
+                            // Вычисляем скорость точки до столкновения
+                            const oldVelX = pulse.velX;
+                            const oldVelY = pulse.velY;
+                            const oldSpeed = Math.sqrt(oldVelX * oldVelX + oldVelY * oldVelY);
+                            
+                            // Отражаем скорость и применяем импульс столкновения
+                            const normalX = Math.cos(angle);
+                            const normalY = Math.sin(angle);
+                            const dotProduct = pulse.velX * normalX + pulse.velY * normalY;
+                            
+                            // Базовое отражение скорости
+                            pulse.velX = pulse.velX - 2 * dotProduct * normalX;
+                            pulse.velY = pulse.velY - 2 * dotProduct * normalY;
+                            
+                            // Добавляем дополнительный импульс для более выраженного эффекта
+                            const baseImpulse = Math.max(mobileMinVelocity * 10, oldSpeed * mobileCollisionInertiaFactor);
+                            pulse.velX += normalX * baseImpulse;
+                            pulse.velY += normalY * baseImpulse;
+                            
+                            // Отмечаем точку как недавно столкнувшуюся и устанавливаем время столкновения
+                            pulse.justCollided = true;
+                            pulse.collisionTime = Date.now();
+                            
+                            // Ограничиваем максимальную скорость после столкновения
+                            const newSpeed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
+                            if (newSpeed > 40) {
+                                const factor = 40 / newSpeed;
+                                pulse.velX *= factor;
+                                pulse.velY *= factor;
+                            }
+                            
+                            // Обеспечиваем минимальную скорость после столкновения
+                            if (newSpeed < mobileMinVelocity * 5) {
+                                const factor = (mobileMinVelocity * 5) / Math.max(newSpeed, 0.1);
+                                pulse.velX *= factor;
+                                pulse.velY *= factor;
+                            }
+                            
+                            // Применяем новую позицию и скорость
+                            pulse.style.transform = `translate3d(${pulse.posX}px, ${pulse.posY}px, 0)`;
+                        }
+                    }
+                    
+                    // При столкновении со стенами уменьшаем скорость
+                    const windowWidth = window.innerWidth;
+                    const windowHeight = window.innerHeight;
+                    const pulseSize = 26; // Базовый размер точки
+                    
+                    if (pulse.posX <= 0) {
+                        pulse.posX = 0;
+                        pulse.velX = Math.abs(pulse.velX) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                    } else if (pulse.posX >= windowWidth - pulseSize) {
+                        pulse.posX = windowWidth - pulseSize;
+                        pulse.velX = -Math.abs(pulse.velX) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                    }
+                    
+                    if (pulse.posY <= 0) {
+                        pulse.posY = 0;
+                        pulse.velY = Math.abs(pulse.velY) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                    } else if (pulse.posY >= windowHeight - pulseSize) {
+                        pulse.posY = windowHeight - pulseSize;
+                        pulse.velY = -Math.abs(pulse.velY) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                    }
+                }
+            });
+        }
+    };
 }

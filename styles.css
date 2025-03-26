@@ -878,13 +878,16 @@ body.resizing .pulse {
     opacity: 1 !important;
     visibility: visible !important;
     z-index: 1000;
-    bottom: 13px !important;
+    bottom: 70px !important; /* Увеличиваем отступ снизу, чтобы информация была над нижней панелью Safari */
     left: 13px !important;
     margin: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
     width: auto !important;
     max-width: 40% !important;
+    background-color: rgba(0, 0, 0, 0.7) !important; /* Добавляем полупрозрачный фон для лучшей видимости */
+    padding: 5px !important;
+    border-radius: 4px !important;
 }
 
 .ios-safari .container.has-active-menu .velocity-info {
@@ -892,6 +895,7 @@ body.resizing .pulse {
     visibility: visible !important;
     pointer-events: auto !important;
     display: block !important;
+    bottom: 70px !important; /* Увеличиваем отступ снизу и для активного меню */
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -900,16 +904,68 @@ body.resizing .pulse {
         display: block !important;
         position: fixed !important;
         z-index: 1000;
-        bottom: 13px !important;
+        bottom: 70px !important; /* Увеличиваем отступ снизу */
         left: 13px !important;
         margin: 0 !important;
         transform: none !important;
         width: auto !important;
+        background-color: rgba(0, 0, 0, 0.7) !important;
+        padding: 5px !important;
+        border-radius: 4px !important;
     }
     
     .container.has-active-menu .velocity-info {
         opacity: 1 !important;
         visibility: visible !important;
         display: block !important;
+    }
+    
+    /* Дополнительно для iPhone с нижней панелью (iPhone X и новее) */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+        .ios-safari .velocity-info {
+            bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+        }
+        
+        .velocity-info {
+            bottom: calc(70px + env(safe-area-inset-bottom)) !important;
+        }
+    }
+}
+
+/* Стили для поддержки перетаскивания в Safari iOS */
+.ios-safari .pulse {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ios-safari .pulse.active {
+    z-index: 1000;
+}
+
+body.is-dragging {
+    overflow: hidden;
+    touch-action: none;
+}
+
+.ios-safari body.is-dragging * {
+    touch-action: none;
+}
+
+/* Корректировка позиционирования для улучшенного отслеживания касаний */
+@supports (-webkit-touch-callout: none) {
+    .pulse {
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .pulse:active {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
     }
 }
