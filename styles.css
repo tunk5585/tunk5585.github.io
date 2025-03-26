@@ -333,13 +333,13 @@ body, html {
     transform-style: preserve-3d !important;
 }
 
-/* Базовые стили для кольца пульсации на всех устройствах */
+/* Стили для пульсирующего кольца */
 .pulse-ring {
     position: absolute;
-    width: calc(35px * var(--scale-multiplier));
-    height: calc(35px * var(--scale-multiplier));
+    width: calc(var(--pulse-ring-size, 26px) * var(--scale-multiplier, 1));
+    height: calc(var(--pulse-ring-size, 26px) * var(--scale-multiplier, 1));
     border-radius: 50%;
-    border: 0.65px solid #fff;
+    border: calc(var(--pulse-ring-border-width, 0.65px) * var(--scale-multiplier, 1)) solid #fff;
     z-index: 1;
     top: 50%;
     left: 50%;
@@ -397,8 +397,16 @@ body.resizing .pulse-ring {
 
 /* Keyframes для анимации пульсации */
 @keyframes pulse-ring {
-    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; border-color: #fff; }
-    100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; border-color: #fff; }
+    0% { 
+        transform: translate(-50%, -50%) scale(1); 
+        opacity: 0.7; 
+        border-color: #fff; 
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(var(--pulse-ring-max-scale, 2.5)); 
+        opacity: 0; 
+        border-color: #fff; 
+    }
 }
 
 @keyframes pulse-ring-fast {
@@ -422,6 +430,10 @@ body.resizing .pulse-ring {
     z-index: 50;
     pointer-events: none;
     will-change: transform, opacity;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .pulse.active {
@@ -461,10 +473,20 @@ body.resizing .pulse-ring {
     fill: #fff;
     font-family: 'Helvetica', Arial, sans-serif;
     font-size: 7.8px;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
 }
 
 .connection-info {
     fill: #E9BB00;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
 }
 
 #active-border {
@@ -800,4 +822,50 @@ body.resizing .pulse {
 .low-performance.mobile-device .pulse-ring {
     animation-duration: 3s !important; /* Ещё сильнее замедляем на слабых устройствах */
     transform: translate(-50%, -50%) !important; /* Фиксируем трансформацию */
+}
+
+/* Стили для встроенной пульсирующей точки в тексте */
+.inline-pulse {
+    position: relative;
+    display: inline-block;
+    width: var(--inline-pulse-container-size, 12px);
+    height: var(--inline-pulse-container-size, 12px);
+    vertical-align: middle;
+    margin: 0 2px;
+}
+
+.inline-pulse-dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--inline-pulse-dot-size, 4px);
+    height: var(--inline-pulse-dot-size, 4px);
+    background-color: #000;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.inline-pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: var(--inline-pulse-dot-size, 4px);
+    height: var(--inline-pulse-dot-size, 4px);
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid #000;
+    animation: inline-pulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    z-index: 1;
+}
+
+@keyframes inline-pulse {
+    0% { width: var(--inline-pulse-dot-size, 4px); height: var(--inline-pulse-dot-size, 4px); opacity: 1; }
+    100% { width: var(--inline-pulse-max-size, 12px); height: var(--inline-pulse-max-size, 12px); opacity: 0; }
+}
+
+/* Для уведомлений в свернутом состоянии */
+.notification.collapsed .inline-pulse {
+    display: none;
 }

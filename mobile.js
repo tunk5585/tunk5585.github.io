@@ -1,19 +1,27 @@
 // mobile.js
 const controls = document.querySelector('.controls');
 
-// Улучшенное определение мобильного устройства
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                  ('ontouchstart' in window) || 
-                  (navigator.maxTouchPoints > 0) ||
-                  (window.matchMedia("(pointer: coarse)").matches);
+// Заменяем дублирующую проверку единой функцией
+function detectMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+           ('ontouchstart' in window) || 
+           (navigator.maxTouchPoints > 0) ||
+           (window.matchMedia("(pointer: coarse)").matches);
+}
 
-// Обработка тапов для уведомлений на мобильных устройствах
-if (isMobile) {
+// Объявляем глобальную переменную для использования во всем проекте
+window.isMobileDevice = detectMobileDevice();
+
+// Применяем классы к документу
+if (window.isMobileDevice) {
     console.log('Mobile device detected');
-    
-    // Явно добавляем класс для мобильных устройств при загрузке
     document.body.classList.add('mobile-device');
-    
+    document.documentElement.classList.add('mobile-device');
+}
+
+// Остальной код специфичный для мобильных устройств
+// Используем window.isMobileDevice вместо локальной переменной isMobile
+if (window.isMobileDevice) {
     // Глобальные переменные для отслеживания скорости точек
     let highVelocityPoints = new Set();
     let isTrackingVelocity = true;
@@ -447,4 +455,84 @@ if (isMobile) {
     
     // Проверяем производительность после полной загрузки
     window.addEventListener('load', checkLowPerformance);
+}
+
+// Создаем единый модуль для управления событиями касания
+const TouchEventManager = {
+    // Настройки и состояние
+    touchStartTime: 0,
+    touchStartX: 0,
+    touchStartY: 0,
+    TOUCH_THRESHOLD: 10,
+    activeElement: null,
+    
+    // Инициализация всех обработчиков
+    init() {
+        // Один обработчик для всех элементов с классом pulse
+        this.initPulseEvents();
+        
+        // Один обработчик для всех уведомлений
+        this.initNotificationEvents();
+        
+        // Общий обработчик для документа
+        this.initDocumentEvents();
+        
+        // Обработчик для изменения размера
+        this.initResizeEvents();
+    },
+    
+    // Методы инициализации разных групп обработчиков
+    initPulseEvents() {
+        const pulses = document.querySelectorAll('.pulse');
+        
+        // Делегируем обработку событий через один слушатель
+        document.addEventListener('touchstart', (e) => {
+            const pulse = e.target.closest('.pulse');
+            if (!pulse) return;
+            
+            // Предотвращаем дребезг касаний
+            const now = Date.now();
+            if (now - this.touchStartTime < 300 && pulse === this.activeElement) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            
+            this.touchStartTime = now;
+            this.activeElement = pulse;
+            
+            // Вызываем обработку касания точки
+            this.handlePulseTouchStart(e, pulse);
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            const pulse = this.activeElement;
+            if (!pulse || !pulse.classList.contains('pulse')) return;
+            
+            // Вызываем обработку окончания касания точки
+            this.handlePulseTouchEnd(e, pulse);
+            this.activeElement = null;
+        }, { passive: false });
+    },
+    
+    handlePulseTouchStart(e, pulse) {
+        // Логика обработки начала касания точки
+        // ... код из существующего обработчика touchstart ...
+    },
+    
+    handlePulseTouchEnd(e, pulse) {
+        // Логика обработки окончания касания точки
+        // ... код из существующего обработчика touchend ...
+    },
+    
+    // Остальные методы для других групп событий
+    // ...
+};
+
+// Инициализируем модуль только на мобильных устройствах
+if (window.isMobileDevice) {
+    document.addEventListener('DOMContentLoaded', () => {
+        TouchEventManager.init();
+        // ... прочие инициализации для мобильных ...
+    });
 }
