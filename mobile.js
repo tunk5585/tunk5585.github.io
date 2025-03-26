@@ -199,6 +199,16 @@ if (window.isMobileDevice) {
                 if (velocityInfo) {
                     // Делаем элемент видимым в Safari
                     velocityInfo.style.display = 'block';
+                    velocityInfo.style.position = 'fixed';
+                    velocityInfo.style.bottom = '13px';
+                    velocityInfo.style.left = '13px';
+                    velocityInfo.style.margin = '0';
+                    velocityInfo.style.padding = '0';
+                    velocityInfo.style.zIndex = '1000';
+                    velocityInfo.style.width = 'auto';
+                    velocityInfo.style.maxWidth = '40%';
+                    velocityInfo.style.opacity = '1';
+                    velocityInfo.style.visibility = 'visible';
                     
                     // Убедимся, что контент отображается правильно при открытии меню
                     const menuIcon = document.querySelector('.menu-icon');
@@ -206,12 +216,35 @@ if (window.isMobileDevice) {
                         menuIcon.addEventListener('click', () => {
                             // Проверяем, открыто ли меню
                             if (document.querySelector('.container').classList.contains('has-active-menu')) {
+                                // Применяем стили в самом открытии меню
+                                velocityInfo.style.display = 'block';
+                                velocityInfo.style.opacity = '1';
+                                velocityInfo.style.visibility = 'visible';
+                                
                                 // Принудительно обновляем содержимое информации о скорости
                                 setTimeout(() => {
                                     if (typeof updateVelocityInfo === 'function') {
                                         updateVelocityInfo();
+                                        
+                                        // Дополнительная проверка, чтобы текст был виден
+                                        if (velocityInfo.textContent.trim() === '') {
+                                            const pulses = document.querySelectorAll('.pulse');
+                                            let info = '';
+                                            
+                                            pulses.forEach(pulse => {
+                                                if (!pulse.classList.contains('active') && pulse.velX && pulse.velY) {
+                                                    const velocity = calculateVelocity(pulse);
+                                                    const name = pulse.querySelector('.pulse-content').textContent.split(' ')[0];
+                                                    info += `${name}; Скорость: ${velocity.toFixed(2)}\n`;
+                                                }
+                                            });
+                                            
+                                            if (info.trim() !== '') {
+                                                velocityInfo.textContent = info.trim();
+                                            }
+                                        }
                                     }
-                                }, 10);
+                                }, 50);
                             }
                         });
                     }
@@ -221,6 +254,11 @@ if (window.isMobileDevice) {
             // Вызываем функцию сразу и после полной загрузки
             fixSafariVelocityInfo();
             window.addEventListener('load', fixSafariVelocityInfo);
+            
+            // Добавляем обработчик для обновления информации о скорости при повороте экрана
+            window.addEventListener('orientationchange', () => {
+                setTimeout(fixSafariVelocityInfo, 300);
+            });
         }
     });
     

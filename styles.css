@@ -878,12 +878,20 @@ body.resizing .pulse {
     opacity: 1 !important;
     visibility: visible !important;
     z-index: 1000;
+    bottom: 13px !important;
+    left: 13px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    width: auto !important;
+    max-width: 40% !important;
 }
 
 .ios-safari .container.has-active-menu .velocity-info {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
+    display: block !important;
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -892,10 +900,16 @@ body.resizing .pulse {
         display: block !important;
         position: fixed !important;
         z-index: 1000;
+        bottom: 13px !important;
+        left: 13px !important;
+        margin: 0 !important;
+        transform: none !important;
+        width: auto !important;
     }
     
     .container.has-active-menu .velocity-info {
         opacity: 1 !important;
         visibility: visible !important;
+        display: block !important;
     }
 }
