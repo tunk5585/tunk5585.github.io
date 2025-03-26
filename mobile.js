@@ -302,10 +302,13 @@ if (window.isMobileDevice) {
                     // Сначала удаляем все анимации со всех пульсирующих колец
                     const allRings = document.querySelectorAll('.pulse-ring');
                     allRings.forEach(ring => {
-                        // Полностью сбрасываем стили и потом устанавливаем нужные значения
+                        // Просто удаляем все inline стили, чтобы CSS правила применились
                         ring.style.cssText = '';
+                        
+                        // Триггерим перерисовку
                         void ring.offsetWidth;
                         
+                        // Устанавливаем только необходимые стили для анимации
                         ring.style.animation = 'none';
                         ring.style.opacity = '0';
                         ring.style.display = 'none';
@@ -350,15 +353,13 @@ if (window.isMobileDevice) {
                 // Восстанавливаем анимацию для всех пульсирующих колец
                 const allRings = document.querySelectorAll('.pulse-ring');
                 allRings.forEach(ring => {
-                    // Удаляем все inline стили, которые могут мешать работе CSS анимации
-                    ring.style.animation = '';
-                    ring.style.opacity = '';
-                    ring.style.display = '';
+                    // Просто удаляем все inline стили, чтобы CSS правила применились
+                    ring.style.cssText = '';
                     
-                    // Триггерим перерисовку для гарантированного применения CSS анимации
+                    // Триггерим перерисовку
                     void ring.offsetWidth;
                     
-                    // Теперь добавляем анимацию обратно
+                    // Устанавливаем только необходимые стили для анимации
                     ring.style.animation = 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite';
                     ring.style.opacity = '1';
                 });
