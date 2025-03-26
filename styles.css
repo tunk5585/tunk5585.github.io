@@ -870,3 +870,32 @@ body.resizing .pulse {
 .notification.collapsed .inline-pulse {
     display: none;
 }
+
+/* Специальные стили для Safari iOS */
+.ios-safari .velocity-info {
+    display: block !important;
+    position: fixed !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 1000;
+}
+
+.ios-safari .container.has-active-menu .velocity-info {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+@supports (-webkit-touch-callout: none) {
+    /* Дополнительные правила для iOS */
+    .velocity-info {
+        display: block !important;
+        position: fixed !important;
+        z-index: 1000;
+    }
+    
+    .container.has-active-menu .velocity-info {
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+}

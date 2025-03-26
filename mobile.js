@@ -9,14 +9,28 @@ function detectMobileDevice() {
            (window.matchMedia("(pointer: coarse)").matches);
 }
 
+// Функция для определения Safari на iOS
+function isIOSSafari() {
+    const ua = navigator.userAgent;
+    return /iPhone|iPad|iPod/i.test(ua) && /WebKit/i.test(ua) && !/CriOS/i.test(ua) && !/OPiOS/i.test(ua) && !/FxiOS/i.test(ua);
+}
+
 // Объявляем глобальную переменную для использования во всем проекте
 window.isMobileDevice = detectMobileDevice();
+window.isIOSSafari = isIOSSafari();
 
 // Применяем классы к документу
 if (window.isMobileDevice) {
     console.log('Mobile device detected');
     document.body.classList.add('mobile-device');
     document.documentElement.classList.add('mobile-device');
+    
+    // Добавляем класс для Safari на iOS
+    if (window.isIOSSafari) {
+        console.log('iOS Safari detected');
+        document.body.classList.add('ios-safari');
+        document.documentElement.classList.add('ios-safari');
+    }
 }
 
 // Остальной код специфичный для мобильных устройств
@@ -175,6 +189,38 @@ if (window.isMobileDevice) {
                     highVelocityNotification.hideNotification();
                 }
             };
+        }
+        
+        // Специфичная фикс-функция для Safari iOS
+        if (window.isIOSSafari) {
+            // Принудительно показываем информацию о скорости в Safari на iOS
+            const fixSafariVelocityInfo = function() {
+                const velocityInfo = document.querySelector('.velocity-info');
+                if (velocityInfo) {
+                    // Делаем элемент видимым в Safari
+                    velocityInfo.style.display = 'block';
+                    
+                    // Убедимся, что контент отображается правильно при открытии меню
+                    const menuIcon = document.querySelector('.menu-icon');
+                    if (menuIcon) {
+                        menuIcon.addEventListener('click', () => {
+                            // Проверяем, открыто ли меню
+                            if (document.querySelector('.container').classList.contains('has-active-menu')) {
+                                // Принудительно обновляем содержимое информации о скорости
+                                setTimeout(() => {
+                                    if (typeof updateVelocityInfo === 'function') {
+                                        updateVelocityInfo();
+                                    }
+                                }, 10);
+                            }
+                        });
+                    }
+                }
+            };
+            
+            // Вызываем функцию сразу и после полной загрузки
+            fixSafariVelocityInfo();
+            window.addEventListener('load', fixSafariVelocityInfo);
         }
     });
     
