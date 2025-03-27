@@ -398,6 +398,19 @@ if (window.isMobileDevice) {
             if (now - lastTouchTime < 300) return; // Предотвращаем быстрые повторные касания
             lastTouchTime = now;
             
+            // Определяем, было ли касание в расширенной области
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
+            const rect = pulse.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const distance = Math.sqrt((touchX - centerX) ** 2 + (touchY - centerY) ** 2);
+            
+            // Если касание было в расширенной области, но за пределами видимой точки
+            if (distance > rect.width / 2 && distance <= rect.width / 2 + touchAreaExpansion) {
+                console.log("Обнаружено касание в расширенной области точки:", pulse.textContent);
+            }
+            
             // Останавливаем всплытие события, но не предотвращаем дефолтное поведение
             e.stopPropagation();
             
@@ -1136,3 +1149,92 @@ function checkMobileBarriers(pulse) {
     
     return collided;
 }
+
+// Функция для создания расширенных областей касания для всех точек
+function createExpandedTouchAreas() {
+    // Добавляем общий стиль для всех точек
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        .pulse-touch-area {
+            position: absolute;
+            border-radius: 50%;
+            background: transparent;
+            pointer-events: auto;
+            z-index: 100;
+            transform: translate(-50%, -50%);
+        }
+    `;
+    document.head.appendChild(styleElement);
+    
+    // Создаем расширенные области для всех точек
+    const pulses = document.querySelectorAll('.pulse');
+    pulses.forEach((pulse, index) => {
+        // Убеждаемся, что у точки есть идентификатор
+        if (!pulse.dataset.id) {
+            pulse.dataset.id = `pulse-${index}`;
+        }
+        
+        // Создаем отдельный элемент для расширенной области касания
+        const touchArea = document.createElement('div');
+        touchArea.className = 'pulse-touch-area';
+        touchArea.dataset.forPulse = pulse.dataset.id;
+        
+        // Устанавливаем размер с учетом расширения области касания
+        const pulseRect = pulse.getBoundingClientRect();
+        const expandedSize = pulseRect.width + (touchAreaExpansion * 2);
+        
+        touchArea.style.width = `${expandedSize}px`;
+        touchArea.style.height = `${expandedSize}px`;
+        
+        // Позиционируем над точкой
+        const container = document.querySelector('.container');
+        container.appendChild(touchArea);
+        
+        // Функция для обновления позиции расширенной области
+        const updatePosition = () => {
+            const rect = pulse.getBoundingClientRect();
+            touchArea.style.left = `${rect.left + rect.width / 2}px`;
+            touchArea.style.top = `${rect.top + rect.height / 2}px`;
+        };
+        
+        // Начальное позиционирование
+        updatePosition();
+        
+        // Обновляем позицию при анимации
+        window.addEventListener('resize', updatePosition);
+        setInterval(updatePosition, 500); // Регулярное обновление
+        
+        // Перенаправляем события на оригинальную точку
+        touchArea.addEventListener('touchstart', (e) => {
+            // Создаем и диспатчим событие для оригинальной точки
+            const touch = e.touches[0];
+            const newEvent = new TouchEvent('touchstart', {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+                touches: e.touches,
+                targetTouches: e.targetTouches,
+                changedTouches: e.changedTouches
+            });
+            
+            // Останавливаем оригинальное событие
+            e.stopPropagation();
+            e.preventDefault();
+            
+            // Диспатчим новое событие на оригинальную точку
+            pulse.dispatchEvent(newEvent);
+        }, { passive: false });
+    });
+    
+    console.log(`Созданы расширенные области касания (${touchAreaExpansion}px) для ${pulses.length} точек`);
+}
+
+// Проверяем производительность после полной загрузки
+window.addEventListener('load', () => {
+    checkLowPerformance();
+    
+    // Создаем расширенные области касания
+    if (window.isMobileDevice) {
+        createExpandedTouchAreas();
+    }
+});
