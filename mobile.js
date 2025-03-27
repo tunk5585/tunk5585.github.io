@@ -2,10 +2,24 @@
 const controls = document.querySelector('.controls');
 
 // Константы для инерции
-const mobileFrictionFactor = 0.9993; // Снижаем затухание ещё в 3 раза (было 0.998)
-const mobileMinVelocity = 0.5; // Минимальная скорость, точки не будут останавливаться полностью
-const mobileInertiaDecayTime = 45000; // Увеличенное время затухания инерции до 45 секунд (было 15000)
-const mobileCollisionInertiaFactor = 0.7; // Коэффициент передачи импульса при столкновении с активной точкой
+const mobileFrictionFactor = 0.9995; // Еще более плавное затухание
+const mobileMinVelocity = 0.4; // Уменьшаем минимальную скорость в 4 раза (было 0.4)
+const mobileInertiaDecayTime = 150000; // Сокращаем время затухания инерции (было 75000)
+const mobileCollisionInertiaFactor = 5.0; // Увеличиваем коэффициент импульса при столкновении (было 0.5)
+const mobileVelocityThreshold = 1050.0; // Снижаем порог скорости для определения свайпа (было 2000)
+const mobileReleaseInertiaFactor = 0.000015; // Уменьшаем коэффициент инерции еще в 100 раз (было 0.0015)
+
+// Константа для расширения области касания (в пикселях)
+const touchAreaExpansion = 15; // Расширяет область касания на 15px вокруг видимой точки
+
+// Переменные для отслеживания скорости касания (курсор для мобильных устройств)
+let mobileTouchX = 0;
+let mobileTouchY = 0;
+let mobileTouchTime = 0;
+let mobileTouchVelocityX = 0;
+let mobileTouchVelocityY = 0;
+let mobileTouchVelocity = 0;
+const mobileTouchVelocityTrackingPeriod = 50; // мс
 
 // Карта для хранения состояния перетаскивания для каждой точки на мобильных устройствах
 const mobileDragState = new Map();
@@ -45,8 +59,7 @@ if (window.isMobileDevice) {
 // Остальной код специфичный для мобильных устройств
 // Используем window.isMobileDevice вместо локальной переменной isMobile
 if (window.isMobileDevice) {
-    // Глобальные переменные для отслеживания скорости точек
-    let highVelocityPoints = new Set();
+    // Удаляем глобальную переменную для отслеживания скорости точек и флаг
     let isTrackingVelocity = true;
     
     // Улучшенная обработка касаний для мобильных устройств
@@ -158,44 +171,35 @@ if (window.isMobileDevice) {
         if (typeof updateVelocityInfo === 'function') {
             const originalUpdateVelocityInfo = updateVelocityInfo;
             
-            // Перезаписываем глобальную функцию updateVelocityInfo
+            // Перезаписываем глобальную функцию updateVelocityInfo для мобильных устройств
             window.updateVelocityInfo = function() {
                 // Вызываем оригинальную функцию для базового обновления информации
                 originalUpdateVelocityInfo();
                 
-                if (!isTrackingVelocity) return;
-                
-                // Проверка скорости всех точек
-                const pulses = document.querySelectorAll('.pulse');
-                let hasHighVelocity = false;
-                highVelocityPoints.clear();
-                
-                pulses.forEach(pulse => {
-                    if (pulse.velX && pulse.velY) {
-                        const velocity = calculateVelocity(pulse);
-                        if (velocity > 5) {
-                            hasHighVelocity = true;
-                            highVelocityPoints.add(pulse);
+                // Дополнительная проверка для iOS Safari
+                if (window.isIOSSafari) {
+                    const velocityInfo = document.querySelector('.velocity-info');
+                    if (velocityInfo) {
+                        // Проверяем, открыто ли меню
+                        const isMenuOpen = document.querySelector('.container').classList.contains('has-active-menu');
+                        
+                        if (isMenuOpen) {
+                            // Показываем информацию о скорости только при открытом меню
+                            velocityInfo.style.display = 'block';
+                            velocityInfo.style.opacity = '1';
+                            velocityInfo.style.visibility = 'visible';
+                            
+                            // Проверяем, есть ли информация о курсоре в тексте
+                            if (velocityInfo.textContent.trim() && !velocityInfo.textContent.includes('Курсор:') && mobileTouchVelocity > 0.1) {
+                                // Добавляем информацию о скорости касания в начало
+                                const currentText = velocityInfo.textContent;
+                                velocityInfo.textContent = `Курсор: ${mobileTouchVelocity.toFixed(2)}\n${currentText}`;
+                            }
+                        } else {
+                            // Скрываем информацию
+                            velocityInfo.style.opacity = '0';
                         }
                     }
-                });
-                
-                // Если есть точки с высокой скоростью и уведомление не активно, показываем его
-                if (hasHighVelocity && !isHighVelocityTriggered && typeof highVelocityNotification !== 'undefined') {
-                    isHighVelocityTriggered = true;
-                    highVelocityNotification.showNotification();
-                    
-                    // Задаем таймаут для автоматического сворачивания
-                    setTimeout(() => {
-                        if (isHighVelocityTriggered && highVelocityNotification.isExpanded) {
-                            highVelocityNotification.collapseNotification();
-                        }
-                    }, 5000);
-                }
-                // Если нет точек с высокой скоростью и уведомление активно, скрываем его
-                else if (!hasHighVelocity && isHighVelocityTriggered && typeof highVelocityNotification !== 'undefined') {
-                    isHighVelocityTriggered = false;
-                    highVelocityNotification.hideNotification();
                 }
             };
         }
@@ -239,7 +243,7 @@ if (window.isMobileDevice) {
                                 velocityInfo.style.visibility = 'visible';
                                 
                                 // Принудительно обновляем содержимое информации о скорости
-                                setTimeout(() => {
+                    setTimeout(() => {
                                     if (typeof updateVelocityInfo === 'function') {
                                         updateVelocityInfo();
                                         
@@ -302,14 +306,12 @@ if (window.isMobileDevice) {
         
         const notificationContainer = document.getElementById('notification-container');
         if (!notificationContainer.contains(e.target)) {
-            // Не закрываем уведомление о высокой скорости, если есть точки с высокой скоростью
+            // Обновляем логику, удаляя проверки на уведомление о высокой скорости
             const notifications = document.querySelectorAll('.notification.active:not(.collapsed)');
             notifications.forEach(notification => {
-                const handler = notification.id === 'highVelocity' ? highVelocityNotification : tapNotification;
+                const handler = notification.id === 'tap' ? tapNotification : null;
                 
-                // Проверяем, что это не highVelocity или если это он, но точек с высокой скоростью нет
-                if (handler && !notification.classList.contains('collapsed') && 
-                   (notification.id !== 'highVelocity' || (notification.id === 'highVelocity' && highVelocityPoints.size === 0))) {
+                if (handler && !notification.classList.contains('collapsed')) {
                     handler.collapseNotification();
                 }
             });
@@ -339,21 +341,16 @@ if (window.isMobileDevice) {
         const notification = e.target.closest('.notification');
         if (!notification) return;
         
-        const handler = notification.id === 'highVelocity' ? highVelocityNotification : tapNotification;
+        // Исключаем проверку на highVelocity
+        const handler = notification.id === 'tap' ? tapNotification : null;
         if (!handler) return;
         
-        // Используем setTimeout для лучшего различения между tap и scroll
+        // Используем setTimeout для лучшего различия между tap и scroll
         setTimeout(() => {
             if (notification.classList.contains('collapsed')) {
                 handler.expandNotification();
-            } else {
-                // Если это уведомление о высокой скорости и есть точки с высокой скоростью,
-                // не закрываем его полностью, только сворачиваем
-                if (notification.id === 'highVelocity' && highVelocityPoints.size > 0) {
-                    handler.collapseNotification();
                 } else {
                     handler.collapseNotification();
-                }
             }
         }, 10);
     }, { passive: false });
@@ -361,6 +358,21 @@ if (window.isMobileDevice) {
     // Улучшенная обработка взаимодействия с точками (pulses) на мобильных устройствах
     const pulses = document.querySelectorAll('.pulse');
     pulses.forEach(pulse => {
+        // Добавляем стиль для расширения области касания
+        const style = document.createElement('style');
+        style.textContent = `
+            .pulse[data-id="${pulse.dataset.id || Math.random()}"]::before {
+                content: '';
+                position: absolute;
+                top: -${touchAreaExpansion}px;
+                left: -${touchAreaExpansion}px;
+                right: -${touchAreaExpansion}px;
+                bottom: -${touchAreaExpansion}px;
+                z-index: -1;
+            }
+        `;
+        document.head.appendChild(style);
+        
         // Предотвращаем дребезг касаний (touch bounce)
         let lastTouchTime = 0;
         let isDragging = false;
@@ -372,7 +384,8 @@ if (window.isMobileDevice) {
             lastPosY: 0,
             lastTime: 0,
             velocityX: 0,
-            velocityY: 0
+            velocityY: 0,
+            dragHistory: [] // Добавляем массив для истории движений
         });
 
         // Сохраняем исходные координаты и размер точки
@@ -438,23 +451,85 @@ if (window.isMobileDevice) {
                 
                 // Если это реальное перетаскивание (а не просто касание)
                 if (Math.abs(offsetX) > 5 || Math.abs(offsetY) > 5) {
-                    // Устанавливаем новую позицию точки
+                    // Устанавливаем новую позицию точки с учетом границ экрана
                     pulse.posX = Math.max(0, Math.min(window.innerWidth - pulse.offsetWidth, pulse.originalX + offsetX));
                     pulse.posY = Math.max(0, Math.min(window.innerHeight - pulse.offsetHeight, pulse.originalY + offsetY));
+                    
+                    // Проверяем только невидимые барьеры справа
+                    const rightMargin = 20;
+                    const viewportRight = window.innerWidth;
+                    const pulseSize = pulse.offsetWidth || 26;
+                    
+                    // Проверяем правый край экрана
+                    if (pulse.posX + pulseSize > viewportRight - rightMargin) {
+                        // Получаем все блоки, которые могут быть справа
+                        const header = document.querySelector('.header');
+                        const controls = document.querySelector('.controls');
+                        const dropdownMenu = document.querySelector('.dropdown-menu');
+                        
+                        const headerRect = header.getBoundingClientRect();
+                        const controlsRect = controls.getBoundingClientRect();
+                        
+                        const rightElements = [headerRect, controlsRect];
+                        if (dropdownMenu.classList.contains('active')) {
+                            rightElements.push(dropdownMenu.getBoundingClientRect());
+                        }
+                        
+                        let inGap = true;
+                        
+                        // Проверяем, находится ли точка в вертикальном диапазоне какого-либо блока
+                        for (const elemRect of rightElements) {
+                            if (pulse.posY < elemRect.bottom && 
+                                pulse.posY + pulseSize > elemRect.top && 
+                                elemRect.right > viewportRight - rightMargin * 2) {
+                                inGap = false;
+                                break;
+                            }
+                        }
+                        
+                        // Если точка находится в щели, ограничиваем её позицию
+                        if (inGap) {
+                            pulse.posX = viewportRight - pulseSize - rightMargin;
+                        }
+                    }
                     
                     // Применяем позицию с transform для лучшей производительности
                     pulse.style.transform = `translate3d(${pulse.posX}px, ${pulse.posY}px, 0)`;
                     
+                    // Проверяем, находится ли точка под UI элементами при перетаскивании
+                    checkMobileBarriers(pulse);
+                    
                     // Отслеживаем скорость перемещения для этой точки
                     const now = Date.now();
                     const state = mobileDragState.get(pulse);
+                    
+                    // Инициализируем историю перетаскивания, если её нет
+                    if (!state.dragHistory) {
+                        state.dragHistory = [];
+                    }
+                    
                     if (now - state.lastTime > 50) { // Чаще обновляем для более точного отслеживания
-                        state.velocityX = (pulse.posX - state.lastPosX) / (now - state.lastTime) * 1000;
-                        state.velocityY = (pulse.posY - state.lastPosY) / (now - state.lastTime) * 1000;
+                        const vx = (pulse.posX - state.lastPosX) / (now - state.lastTime) * 1000;
+                        const vy = (pulse.posY - state.lastPosY) / (now - state.lastTime) * 1000;
+                        
+                        // Сохраняем историю последних движений для сглаживания
+                        state.dragHistory.push({
+                            vx: vx,
+                            vy: vy,
+                            time: now
+                        });
+                        
+                        // Ограничиваем размер истории
+                        if (state.dragHistory.length > 10) {
+                            state.dragHistory.shift();
+                        }
+                        
+                        state.velocityX = vx;
+                        state.velocityY = vy;
                         
                         // Обновляем глобальные переменные для совместимости с основным кодом
-                        window.dragVelocityX = state.velocityX;
-                        window.dragVelocityY = state.velocityY;
+                        window.dragVelocityX = vx;
+                        window.dragVelocityY = vy;
                         window.lastDragTime = now;
                         
                         state.lastPosX = pulse.posX;
@@ -468,7 +543,7 @@ if (window.isMobileDevice) {
             }
         }, { passive: false });
         
-        // Обработчик события touchend
+        // Обработчик события touchend с улучшенной плавностью и проверкой активной точки
         pulse.addEventListener('touchend', (e) => {
             const wasDragged = isDragging;
             isDragging = false;
@@ -484,44 +559,58 @@ if (window.isMobileDevice) {
             // Получаем состояние перетаскивания для этой точки
             const state = mobileDragState.get(pulse);
             
-            // Если точка была активирована и это было короткое касание, сохраняем её активной
-            // Иначе, если она не активирована или была перетаскивание, обрабатываем соответственно
-            if (!pulse.classList.contains('active')) {
+            // Проверяем, есть ли активная точка на экране
+            const isAnyPulseActive = document.querySelector('.pulse.active') !== null;
+            
+            // Если точка не активна и нет других активных точек, проверяем необходимость инерции
+            if (!pulse.classList.contains('active') && !isAnyPulseActive) {
                 if (wasDragged && state.velocityX && state.velocityY) {
-                    // Если было перетаскивание, придаем инерцию с более сильным эффектом
-                    pulse.velX = state.velocityX * 0.2; // Увеличиваем фактор инерции для более заметного эффекта (было 0.1)
-                    pulse.velY = state.velocityY * 0.2;
+                    // Вычисляем текущую скорость перемещения
+                    const currentVelocity = Math.sqrt(state.velocityX * state.velocityX + state.velocityY * state.velocityY);
                     
-                    // Ограничиваем скорость для предотвращения слишком быстрого движения
-                    const speed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
-                    if (speed > 30) { // Увеличиваем максимальную скорость (было 20)
-                        const factor = 30 / speed;
-                        pulse.velX *= factor;
-                        pulse.velY *= factor;
-                    }
+                    // Определяем, был ли это свайп (быстрое движение) или плавное перетаскивание
+                    const isSwipe = currentVelocity > mobileVelocityThreshold;
                     
-                    // Добавляем метки для затухающей инерции
-                    pulse.justReleased = true;
-                    pulse.releaseTime = Date.now();
-                    
-                    // Устанавливаем минимальную скорость для обеспечения долгого движения
-                    if (speed < mobileMinVelocity * 2) {
-                        const angle = Math.atan2(pulse.velY, pulse.velX);
-                        pulse.velX = Math.cos(angle) * mobileMinVelocity * 2;
-                        pulse.velY = Math.sin(angle) * mobileMinVelocity * 2;
+                    // Применяем инерцию только при свайпе
+                    if (isSwipe) {
+                        // Получаем направление движения
+                        const angle = Math.atan2(state.velocityY, state.velocityX);
+                        
+                        // Получаем силу броска в зависимости от скорости свайпа
+                        const swipeSpeed = Math.sqrt(state.velocityX * state.velocityX + state.velocityY * state.velocityY);
+                        const throwPower = swipeSpeed * 0.03; // Чуть меньше множитель для мобильных
+                        const maxThrowPower = 15; // Ограничиваем максимальную скорость для мобильных
+                        const actualThrowPower = Math.min(throwPower, maxThrowPower);
+                        
+                        // Применяем инерцию, масштабированную по скорости свайпа
+                        pulse.velX = Math.cos(angle) * actualThrowPower;
+                        pulse.velY = Math.sin(angle) * actualThrowPower;
+                        
+                        console.log("Скорость свайпа:", swipeSpeed, "Сила броска:", actualThrowPower);
+                        
+                        // Добавляем метки для затухающей инерции
+                        pulse.justReleased = true;
+                        pulse.releaseTime = Date.now();
+                        
+                        // Устанавливаем минимальную скорость для обеспечения долгого движения
+                        const currentSpeed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
+                        if (currentSpeed < mobileMinVelocity * 1.5) {
+                            const velocityAngle = Math.atan2(pulse.velY, pulse.velX);
+                            pulse.velX = Math.cos(velocityAngle) * mobileMinVelocity * 1.5;
+                            pulse.velY = Math.sin(velocityAngle) * mobileMinVelocity * 1.5;
+                        }
+                    } else {
+                        // Если это было плавное перетаскивание, останавливаем точку
+                        pulse.velX = 0;
+                        pulse.velY = 0;
                     }
                 } else {
-                    // Если не было перетаскивания, даем движение с базовой скоростью
-                    const angle = Math.random() * 2 * Math.PI;
-                    pulse.velX = Math.cos(angle) * mobileMinVelocity * 3;
-                    pulse.velY = Math.sin(angle) * mobileMinVelocity * 3;
-                    
-                    // Добавляем метки для затухающей инерции
-                    pulse.justReleased = true;
-                    pulse.releaseTime = Date.now();
+                    // Если не было перетаскивания, останавливаем точку
+                    pulse.velX = 0;
+                    pulse.velY = 0;
                 }
             } else {
-                // Если точка активна, убеждаемся что она остается на месте
+                // Если точка активна или есть другая активная точка, останавливаем её
                 pulse.velX = 0;
                 pulse.velY = 0;
                 
@@ -531,7 +620,7 @@ if (window.isMobileDevice) {
                 });
             }
             
-            // Сбрасываем переменные перетаскивания для этой точки
+            // Сбрасываем переменные перетаскивания
             state.velocityX = 0;
             state.velocityY = 0;
             state.lastTime = 0;
@@ -641,22 +730,67 @@ const TouchEventManager = {
         
         // Делегируем обработку событий через один слушатель
         document.addEventListener('touchstart', (e) => {
-            const pulse = e.target.closest('.pulse');
-            if (!pulse) return;
+            // Проверяем, было ли касание на точке или рядом с ней
+            const touchX = e.touches[0].clientX;
+            const touchY = e.touches[0].clientY;
             
-            // Предотвращаем дребезг касаний
-            const now = Date.now();
-            if (now - this.touchStartTime < 300 && pulse === this.activeElement) {
-                e.preventDefault();
-                e.stopPropagation();
-                return;
+            // Ищем ближайшую точку
+            let nearestPulse = null;
+            let minDistance = Infinity;
+            
+            pulses.forEach(pulse => {
+                // Получаем положение и размер точки
+                const rect = pulse.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                
+                // Вычисляем расстояние от касания до центра точки
+                const distance = Math.sqrt((touchX - centerX) ** 2 + (touchY - centerY) ** 2);
+                
+                // Проверяем, находится ли касание в расширенной области
+                const expandedRadius = rect.width / 2 + touchAreaExpansion;
+                
+                if (distance <= expandedRadius && distance < minDistance) {
+                    minDistance = distance;
+                    nearestPulse = pulse;
+                }
+            });
+            
+            // Если нашли точку в радиусе обнаружения
+            if (nearestPulse) {
+                // Предотвращаем дребезг касаний
+                const now = Date.now();
+                if (now - this.touchStartTime < 300 && nearestPulse === this.activeElement) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                
+                this.touchStartTime = now;
+                this.activeElement = nearestPulse;
+                
+                // Вызываем обработку касания точки
+                this.handlePulseTouchStart(e, nearestPulse);
+                e.preventDefault(); // Предотвращаем стандартное поведение
+            } else {
+                // Ищем точку через стандартный метод
+                const pulse = e.target.closest('.pulse');
+                if (!pulse) return;
+                
+                // Предотвращаем дребезг касаний
+                const now = Date.now();
+                if (now - this.touchStartTime < 300 && pulse === this.activeElement) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                
+                this.touchStartTime = now;
+                this.activeElement = pulse;
+                
+                // Вызываем обработку касания точки
+                this.handlePulseTouchStart(e, pulse);
             }
-            
-            this.touchStartTime = now;
-            this.activeElement = pulse;
-            
-            // Вызываем обработку касания точки
-            this.handlePulseTouchStart(e, pulse);
         }, { passive: false });
         
         document.addEventListener('touchend', (e) => {
@@ -779,10 +913,14 @@ if (window.update) {
                             pulse.velX = pulse.velX - 2 * dotProduct * normalX;
                             pulse.velY = pulse.velY - 2 * dotProduct * normalY;
                             
-                            // Добавляем дополнительный импульс для более выраженного эффекта
-                            const baseImpulse = Math.max(mobileMinVelocity * 10, oldSpeed * mobileCollisionInertiaFactor);
-                            pulse.velX += normalX * baseImpulse;
-                            pulse.velY += normalY * baseImpulse;
+                            // Для более плавного отскока от активной точки
+                            const baseImpulse = Math.max(mobileMinVelocity * 5, oldSpeed * mobileCollisionInertiaFactor);
+                            pulse.velX += normalX * baseImpulse * 0.7; // Снижаем силу импульса
+                            pulse.velY += normalY * baseImpulse * 0.7;
+                            
+                            // Смягчаем скорость после столкновения для более реалистичного эффекта
+                            pulse.velX *= 0.85;
+                            pulse.velY *= 0.85;
                             
                             // Отмечаем точку как недавно столкнувшуюся и устанавливаем время столкновения
                             pulse.justCollided = true;
@@ -790,15 +928,15 @@ if (window.update) {
                             
                             // Ограничиваем максимальную скорость после столкновения
                             const newSpeed = Math.sqrt(pulse.velX * pulse.velX + pulse.velY * pulse.velY);
-                            if (newSpeed > 40) {
-                                const factor = 40 / newSpeed;
+                            if (newSpeed > 25) { // Снижаем максимальную скорость (было 40)
+                                const factor = 25 / newSpeed;
                                 pulse.velX *= factor;
                                 pulse.velY *= factor;
                             }
                             
                             // Обеспечиваем минимальную скорость после столкновения
-                            if (newSpeed < mobileMinVelocity * 5) {
-                                const factor = (mobileMinVelocity * 5) / Math.max(newSpeed, 0.1);
+                            if (newSpeed < mobileMinVelocity * 3) { // Снижаем минимальную скорость (было 5)
+                                const factor = (mobileMinVelocity * 3) / Math.max(newSpeed, 0.1);
                                 pulse.velX *= factor;
                                 pulse.velY *= factor;
                             }
@@ -815,21 +953,186 @@ if (window.update) {
                     
                     if (pulse.posX <= 0) {
                         pulse.posX = 0;
-                        pulse.velX = Math.abs(pulse.velX) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                        pulse.velX = Math.abs(pulse.velX) * 0.5; // Уменьшаем скорость при отскоке
                     } else if (pulse.posX >= windowWidth - pulseSize) {
                         pulse.posX = windowWidth - pulseSize;
-                        pulse.velX = -Math.abs(pulse.velX) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                        pulse.velX = -Math.abs(pulse.velX) * 0.5; // Уменьшаем скорость при отскоке
                     }
                     
                     if (pulse.posY <= 0) {
                         pulse.posY = 0;
-                        pulse.velY = Math.abs(pulse.velY) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                        pulse.velY = Math.abs(pulse.velY) * 0.5; // Уменьшаем скорость при отскоке
                     } else if (pulse.posY >= windowHeight - pulseSize) {
                         pulse.posY = windowHeight - pulseSize;
-                        pulse.velY = -Math.abs(pulse.velY) * 0.8; // Уменьшаем скорость при отскоке на 20%
+                        pulse.velY = -Math.abs(pulse.velY) * 0.5; // Уменьшаем скорость при отскоке
                     }
+                    
+                    // Добавляем проверку невидимых барьеров
+                    checkMobileBarriers(pulse);
                 }
             });
         }
     };
+}
+
+// Функция для отслеживания скорости касания (курсора) на мобильных устройствах
+function updateMobileTouchVelocity(e) {
+    const currentTime = Date.now();
+    
+    // Получаем координаты касания
+    const clientX = e.touches && e.touches[0] ? e.touches[0].clientX : mobileTouchX;
+    const clientY = e.touches && e.touches[0] ? e.touches[0].clientY : mobileTouchY;
+    
+    // Рассчитываем скорость, только если прошло определенное время
+    if (currentTime - mobileTouchTime > mobileTouchVelocityTrackingPeriod) {
+        const dt = (currentTime - mobileTouchTime) / 1000; // в секундах
+        
+        if (dt > 0 && mobileTouchTime > 0) {
+            mobileTouchVelocityX = (clientX - mobileTouchX) / dt;
+            mobileTouchVelocityY = (clientY - mobileTouchY) / dt;
+            mobileTouchVelocity = Math.sqrt(mobileTouchVelocityX * mobileTouchVelocityX + mobileTouchVelocityY * mobileTouchVelocityY);
+        }
+        
+        mobileTouchX = clientX;
+        mobileTouchY = clientY;
+        mobileTouchTime = currentTime;
+        
+        // Обновляем глобальные переменные для совместимости
+        if (window.cursorVelocity !== undefined) {
+            window.cursorVelocity = mobileTouchVelocity;
+            window.cursorVelocityX = mobileTouchVelocityX;
+            window.cursorVelocityY = mobileTouchVelocityY;
+        }
+        
+        // Обновляем информацию о скорости
+        if (typeof updateVelocityInfo === 'function') {
+            requestAnimationFrame(updateVelocityInfo);
+        }
+    }
+}
+
+// Добавляем обработчик событий для отслеживания движений касания
+document.addEventListener('touchmove', updateMobileTouchVelocity, { passive: true });
+
+// Сбрасываем скорость касания при завершении
+document.addEventListener('touchend', () => {
+    setTimeout(() => {
+        mobileTouchVelocity = 0;
+        
+        // Обновляем глобальные переменные для совместимости
+        if (window.cursorVelocity !== undefined) {
+            window.cursorVelocity = 0;
+        }
+        
+        // Обновляем информацию о скорости
+        if (typeof updateVelocityInfo === 'function') {
+            requestAnimationFrame(updateVelocityInfo);
+        }
+    }, 200);
+});
+
+// Добавляем функцию проверки невидимых барьеров для мобильных устройств
+function checkMobileBarriers(pulse) {
+    // Получаем размер точки
+    const pulseSize = pulse.offsetWidth || 26;
+    const pulseRect = { 
+        x: pulse.posX, 
+        y: pulse.posY, 
+        width: pulseSize, 
+        height: pulseSize 
+    };
+    
+    let collided = false;
+    
+    // Получаем прямоугольники UI элементов
+    const header = document.querySelector('.header');
+    const controls = document.querySelector('.controls');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    const headerRect = header.getBoundingClientRect();
+    const controlsRect = controls.getBoundingClientRect();
+    const dropdownRect = dropdownMenu.getBoundingClientRect();
+    
+    // Проверяем, находится ли точка под UI элементами, и увеличиваем их яркость
+    
+    // Хедер
+    if (!header.classList.contains('hidden') && 
+        pulseRect.x < headerRect.right && 
+        pulseRect.x + pulseRect.width > headerRect.left &&
+        pulseRect.y < headerRect.bottom && 
+        pulseRect.y + pulseRect.height > headerRect.top) {
+        
+        // Увеличиваем яркость хедера
+        header.classList.add('highlight');
+        setTimeout(() => {
+            header.classList.remove('highlight');
+        }, 300);
+    }
+    
+    // Контролы
+    if (!controls.classList.contains('hidden') && 
+        pulseRect.x < controlsRect.right && 
+        pulseRect.x + pulseRect.width > controlsRect.left &&
+        pulseRect.y < controlsRect.bottom && 
+        pulseRect.y + pulseRect.height > controlsRect.top) {
+        
+        // Увеличиваем яркость контролов
+        controls.classList.add('highlight');
+        setTimeout(() => {
+            controls.classList.remove('highlight');
+        }, 300);
+    }
+    
+    // Выпадающее меню
+    if (dropdownMenu.classList.contains('active') && 
+        pulseRect.x < dropdownRect.right && 
+        pulseRect.x + pulseRect.width > dropdownRect.left &&
+        pulseRect.y < dropdownRect.bottom && 
+        pulseRect.y + pulseRect.height > dropdownRect.top) {
+        
+        // Увеличиваем яркость выпадающего меню
+        dropdownMenu.classList.add('highlight');
+        setTimeout(() => {
+            dropdownMenu.classList.remove('highlight');
+        }, 300);
+    }
+    
+    // Добавляем невидимые барьеры справа
+    const rightMargin = 20; // Отступ от правого края экрана
+    
+    // Находим все блоки, которые расположены у правого края экрана
+    const rightElements = [headerRect, controlsRect];
+    if (dropdownMenu.classList.contains('active')) {
+        rightElements.push(dropdownRect);
+    }
+    
+    // Проверяем, находится ли точка в щели между блоками и правым краем экрана
+    const viewportRight = window.innerWidth;
+    
+    // Если точка находится близко к правому краю экрана
+    if (pulseRect.x + pulseRect.width > viewportRight - rightMargin) {
+        let inGap = true;
+        
+        // Проверяем, находится ли точка в вертикальном диапазоне какого-либо блока
+        for (const elemRect of rightElements) {
+            if (pulseRect.y < elemRect.bottom && 
+                pulseRect.y + pulseRect.height > elemRect.top && 
+                elemRect.right > viewportRight - rightMargin * 2) {
+                inGap = false;
+                break;
+            }
+        }
+        
+        // Если точка находится в щели, отталкиваем её
+        if (inGap) {
+            pulse.posX = viewportRight - pulseRect.width - rightMargin;
+            if (pulse.velX) pulse.velX = -Math.abs(pulse.velX) * 0.5; // Отражаем с уменьшением скорости
+            collided = true;
+            
+            // Обновляем визуальное положение для мобильных устройств
+            pulse.style.transform = `translate3d(${pulse.posX}px, ${pulse.posY}px, 0)`;
+        }
+    }
+    
+    return collided;
 }
