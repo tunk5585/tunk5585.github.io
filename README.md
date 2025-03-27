@@ -13,7 +13,7 @@
 │   └── style.css   # Стили
 ├── js/            
 │   ├──script.js     # JavaScript функционал
-│   └──mobile.js     # Мобильный JavaScript функционал
+│   └──optimization.js     # JavaScript функционал
 └── README.md       # Документация
 
 ```
