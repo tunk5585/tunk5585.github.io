@@ -34,8 +34,9 @@ body, html {
     right: 13px;
     width: 45px;
     height: 70px;
-    background: #E9BB00;
-    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.1);
+    background: rgba(233, 187, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -43,7 +44,8 @@ body, html {
     justify-content: center;
     padding: 6.5px 0;
     gap: 9px;
-    transition: transform 0.4s ease;
+    transition: all 0.3s ease;
+    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.2);
 }
 
 .controls {
@@ -53,8 +55,9 @@ body, html {
     transform: translateY(-50%);
     width: 45px;
     height: 110px;
-    background: #E9BB00;
-    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.1);
+    background: rgba(233, 187, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -62,8 +65,9 @@ body, html {
     justify-content: center;
     padding: 6.5px 0;
     gap: 9px;
-    transition: transform 0.4s ease;
+    transition: all 0.3s ease;
     box-sizing: border-box;
+    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.2);
 }
 
 .play-pause {
@@ -74,7 +78,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #E9BB00;
+    background: transparent;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
 }
@@ -282,14 +286,16 @@ body, html {
     top: calc(100% + 6.5px);
     right: 0;
     width: 130px;
-    background: #E9BB00;
-    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.1);
+    background: rgba(233, 187, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     opacity: 0;
     visibility: hidden;
     transform: translateY(-10px);
     transition: all 0.3s ease;
     z-index: 100;
     overflow: hidden;
+    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.2);
 }
 
 .dropdown-menu.active {
@@ -543,14 +549,16 @@ body.resizing .pulse-ring {
 
 .notification {
     position: relative;
-    background-color: #E9BB00;
+    background: rgba(233, 187, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     color: #000;
     padding: 6.5px;
     width: 247.5px;
     transform: translateY(-100%);
     opacity: 0;
-    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.1);
-    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease;
+    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.2);
+    transition: transform 0.3s ease, opacity 0.3s ease, width 0.3s ease, height 0.3s ease, padding 0.3s ease, background 0.25s ease-out;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -628,11 +636,13 @@ body.resizing .pulse-ring {
     position: absolute;
     top: 100%;
     right: 0;
-    background-color: #E9BB00;
+    background: rgba(233, 187, 0, 0.85);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     padding: 5.5px;
     width: 165px;
     margin-top: 2.75px;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: var(--pulse-ring-border-width) solid rgba(255,255,255,0.2);
     z-index: 1001;
     font-size: 11px;
     color: #000;
@@ -980,20 +990,20 @@ body.is-dragging {
 .header.highlight,
 .controls.highlight,
 .dropdown-menu.highlight {
-    filter: brightness(1.3);
-    transition: filter 0.15s ease-in-out;
+    background: rgba(233, 187, 0, 0.85);
+    transition: all 0.15s ease-in-out;
 }
 
 /* Обратная анимация при удалении класса highlight */
 .header,
 .controls,
 .dropdown-menu {
-    transition: filter 0.25s ease-out;
+    transition: all 0.25s ease-out;
 }
 
-/* Усиливаем эффект для мобильных устройств */
+/* Стили для мобильных устройств */
 .mobile-device .header.highlight,
 .mobile-device .controls.highlight,
 .mobile-device .dropdown-menu.highlight {
-    filter: brightness(1.5);
+    background: rgba(233, 187, 0, 0.85);
 }
