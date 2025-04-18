@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Импорт страниц
 import Home from './pages/Home';
@@ -12,7 +12,7 @@ import Testimonials from './pages/Testimonials';
 import Contact from './pages/Contact';
 
 // Создаём роутер с future флагами для устранения предупреждений
-const router = createHashRouter(
+const router = createBrowserRouter(
   [
     {
       path: "/",
