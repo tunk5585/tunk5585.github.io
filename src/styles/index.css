@@ -1,0 +1,82 @@
+:root {
+  --main-bg: #0f0f0f;
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --accent: #333333;
+  --hover: #555555;
+  --border: #222222;
+  --overlay: rgba(0, 0, 0, 0.8);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--main-bg);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+a {
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a:hover {
+  color: var(--text-secondary);
+}
+
+button {
+  background: none;
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--hover);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.ascii-art {
+  font-family: monospace;
+  white-space: pre;
+  line-height: 1.2;
+  font-size: 12px;
+  user-select: none;
+}
+
+.section {
+  padding: 80px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  
+  .section {
+    padding: 60px 0;
+  }
+} 
