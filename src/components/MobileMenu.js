@@ -15,6 +15,8 @@ const MobileMenuContainer = styled.div`
     left: 0;
     width: 100%;
     z-index: 100;
+    transform: translateY(${props => props.$hidden ? '-100%' : '0'});
+    transition: transform 0.3s ease;
   }
 `;
 
@@ -23,8 +25,8 @@ const MobileHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: ${props => props.$scroll ? 'var(--main-bg)' : 'transparent'};
-  box-shadow: ${props => props.$scroll ? '0 2px 10px rgba(0, 0, 0, 0.1)' : 'none'};
+  background-color: transparent;
+  box-shadow: none;
   transition: all 0.3s ease;
 `;
 
@@ -51,7 +53,7 @@ const MenuButton = styled.button`
   height: 40px;
   position: relative;
   cursor: pointer;
-  z-index: 200;
+  z-index: 300;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -64,6 +66,7 @@ const MenuIcon = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  pointer-events: none;
 `;
 
 const MenuCircle = styled(motion.circle)`
@@ -77,7 +80,7 @@ const MenuDropdown = styled(motion.div)`
   right: 20px;
   width: 250px;
   background: var(--main-bg);
-  border-radius: 18px;
+  border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   z-index: 150;
@@ -101,7 +104,7 @@ const NavItem = styled(motion.li)`
 `;
 
 const NavLink = styled(Link)`
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 500;
   position: relative;
   display: block;
@@ -137,7 +140,7 @@ const CopyrightContainer = styled.div`
 
 const Copyright = styled.p`
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   letter-spacing: 0.5px;
   margin: 0;
   padding: 0 10px;
@@ -146,18 +149,35 @@ const Copyright = styled.p`
 const MobileMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scroll, setScroll] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [prevScrollPos, setPrevScrollPos] = useState(0);
   const location = useLocation();
   const menuRef = useRef(null);
   
   // Эффект для отслеживания скролла
   useEffect(() => {
     const handleScroll = () => {
-      setScroll(window.scrollY > 50);
+      const currentScrollPos = window.scrollY;
+      
+      // Определяем направление скролла
+      if (currentScrollPos > prevScrollPos && !hidden && currentScrollPos > 20) {
+        // Скролл вниз - скрываем хедер
+        setHidden(true);
+      } else if (currentScrollPos < prevScrollPos && hidden) {
+        // Скролл вверх - показываем хедер
+        setHidden(false);
+      }
+      
+      // Устанавливаем фон хедера, если позиция больше 50px
+      setScroll(currentScrollPos > 50);
+      
+      // Сохраняем текущую позицию скролла
+      setPrevScrollPos(currentScrollPos);
     };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [hidden, prevScrollPos]);
   
   // Закрываем меню при изменении маршрута
   useEffect(() => {
@@ -167,6 +187,13 @@ const MobileMenu = () => {
   // Обработчик для закрытия меню при клике вне его области
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Проверяем, что клик не по кнопке меню
+      const menuButtonEl = document.querySelector('[aria-label="Меню"]');
+      if (menuButtonEl && (menuButtonEl === event.target || menuButtonEl.contains(event.target))) {
+        return; // Не обрабатываем клик по кнопке меню здесь
+      }
+      
+      // Обрабатываем клик вне меню
       if (menuRef.current && !menuRef.current.contains(event.target) && isOpen) {
         setIsOpen(false);
       }
@@ -225,14 +252,22 @@ const MobileMenu = () => {
     }
   };
   
+  // Обработчик для самой кнопки меню
+  const handleMenuButtonClick = () => {
+    setIsOpen(!isOpen);
+  };
+  
   return (
-    <MobileMenuContainer>
+    <MobileMenuContainer $hidden={hidden}>
       <MobileHeader $scroll={scroll}>
         <Logo to="/" aria-label="На главную">
           <LogoImage src={logo} alt="Логотип" />
         </Logo>
         
-        <MenuButton onClick={() => setIsOpen(!isOpen)} aria-label="Меню">
+        <MenuButton 
+          onClick={handleMenuButtonClick} 
+          aria-label="Меню"
+        >
           <MenuIcon>
             <svg width="40" height="40" viewBox="0 0 40 40">
               <MenuCircle

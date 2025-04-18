@@ -11,7 +11,7 @@ const FooterContainer = styled.footer`
 
 const Copyright = styled.p`
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   opacity: 0.7;
   margin: 0;
 `;

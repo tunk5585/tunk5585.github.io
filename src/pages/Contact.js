@@ -6,6 +6,11 @@ const ContactContainer = styled.div`
   min-height: 100vh;
   padding-top: 100px;
   padding-bottom: 50px;
+  
+  @media (max-width: 768px) {
+    padding-top: 80px;
+    padding-bottom: 40px;
+  }
 `;
 
 const SectionTitle = styled.h1`
@@ -13,6 +18,11 @@ const SectionTitle = styled.h1`
   text-align: center;
   margin-bottom: 60px;
   letter-spacing: -1px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+  }
   
   .accent {
     display: inline-block;
@@ -40,6 +50,8 @@ const ContentContainer = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 1rem;
   }
 `;
 
@@ -54,16 +66,30 @@ const ContactText = styled.p`
   line-height: 1.8;
   margin-bottom: 2rem;
   color: var(--text-secondary);
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const InfoContainer = styled.div`
   margin-top: 3rem;
+  
+  @media (max-width: 768px) {
+    margin-top: 1.5rem;
+  }
 `;
 
 const InfoItem = styled(motion.div)`
   display: flex;
   align-items: flex-start;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const InfoLabel = styled.div`
@@ -77,6 +103,34 @@ const InfoLabel = styled.div`
 
 const InfoValue = styled.div`
   font-size: 1.1rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+`;
+
+// ASCII арт для контактов
+const contactAscii = `
+  _______  _______  _        _______  _______  _______ _________
+ (  ____ \\(  ___  )( (    /|(  ____ \\(  ___  )(  ____ \\\\__   __/
+ | (    \\/| (   ) ||  \\  ( || (    \\/| (   ) || (    \\/   ) (   
+ | |      | |   | ||   \\ | || (_____ | (___) || |         | |   
+ | |      | |   | || (\\ \\) |(_____  )|  ___  || |         | |   
+ | |      | |   | || | \\   |      ) || (   ) || |         | |   
+ | (____/\\| (___) || )  \\  |/\\____) || )   ( || (____/\\   | |   
+ (_______/(_______)|/    )_)\\_______)|/     \\|(_______/   )_(   
+`;
+
+// Упрощенная версия ASCII-арта для компактного отображения
+const contactAsciiSimple = `
+ _____    _    
+/  ___|  | |   
+| |      | |   
+| |      | |   
+| |___   | |___
+\\____/   \\____/
 `;
 
 const AsciiArt = styled.pre`
@@ -87,10 +141,19 @@ const AsciiArt = styled.pre`
   color: var(--text-primary);
   margin-top: 3rem;
   opacity: 0.5;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
 `;
 
 const FormSection = styled.div`
   position: relative;
+  
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+    padding-right: 15px;
+  }
 `;
 
 const ContactForm = styled(motion.form)`
@@ -98,10 +161,18 @@ const ContactForm = styled(motion.form)`
   background-color: rgba(30, 30, 30, 0.3);
   position: relative;
   z-index: 1;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
 `;
 
 const FormGroup = styled.div`
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const Label = styled.label`
@@ -122,6 +193,11 @@ const Input = styled.input`
   font-size: 1rem;
   transition: all 0.3s ease;
   
+  @media (max-width: 768px) {
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+  
   &:focus {
     outline: none;
     border-color: var(--text-secondary);
@@ -139,6 +215,12 @@ const Textarea = styled.textarea`
   min-height: 150px;
   resize: vertical;
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    min-height: 120px;
+    padding: 10px;
+    font-size: 0.95rem;
+  }
   
   &:focus {
     outline: none;
@@ -174,6 +256,10 @@ const FormBackground = styled.div`
   border: 1px solid var(--border);
   z-index: 0;
   pointer-events: none;
+  
+  @media (max-width: 768px) {
+    width: calc(100% - 15px);
+  }
 `;
 
 const SuccessMessage = styled(motion.div)`
@@ -211,18 +297,6 @@ const CloseButton = styled(motion.button)`
   &:hover {
     background-color: var(--accent);
   }
-`;
-
-// ASCII арт для контактов
-const contactAscii = `
-  _______  _______  _        _______  _______  _______ _________
- (  ____ \\(  ___  )( (    /|(  ____ \\(  ___  )(  ____ \\\\__   __/
- | (    \\/| (   ) ||  \\  ( || (    \\/| (   ) || (    \\/   ) (   
- | |      | |   | ||   \\ | || (_____ | (___) || |         | |   
- | |      | |   | || (\\ \\) |(_____  )|  ___  || |         | |   
- | |      | |   | || | \\   |      ) || (   ) || |         | |   
- | (____/\\| (___) || )  \\  |/\\____) || )   ( || (____/\\   | |   
- (_______/(_______)|/    )_)\\_______)|/     \\|(_______/   )_(   
 `;
 
 const Contact = () => {

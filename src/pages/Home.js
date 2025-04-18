@@ -55,6 +55,10 @@ const SecondLine = styled(TitleLine)`
   margin-top: 5px;
 `;
 
+const ThirdLine = styled(TitleLine)`
+  margin-top: 5px;
+`;
+
 // Эффект печатной машинки с фиксированным разделением строк
 const TypewriterTitle = ({ speed = 30 }) => {
   const [text, setText] = useState('');
@@ -72,14 +76,16 @@ const TypewriterTitle = ({ speed = 30 }) => {
     }
   }, [text, speed]);
   
-  // Разделяем текст на две строки в фиксированном месте
-  const firstLineText = text.slice(0, 18); // "Креативный Дизайн &"
-  const secondLineText = text.slice(18); // "Инновационные Решения"
+  // Разделяем текст на три строки в фиксированных местах
+  const firstLineText = text.slice(0, 10); // "Креативный"
+  const secondLineText = text.slice(10, 19); // "Дизайн &"
+  const thirdLineText = text.slice(19); // "Инновационные Решения"
   
   return (
     <>
       <FirstLine>{firstLineText}</FirstLine>
       <SecondLine>{secondLineText}</SecondLine>
+      <ThirdLine>{thirdLineText}</ThirdLine>
     </>
   );
 };
