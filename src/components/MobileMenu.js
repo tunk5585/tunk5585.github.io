@@ -57,6 +57,30 @@ const MenuButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  appearance: none;
+  user-select: none;
+  touch-action: manipulation;
+  
+  /* Убираем все возможные подсветки и эффекты */
+  &:focus, &:active, &:hover {
+    outline: none;
+    box-shadow: none;
+    background: none;
+    -webkit-appearance: none;
+  }
+  
+  /* Дополнительные правила для iOS Safari */
+  @media not all and (min-resolution:.001dpcm) { 
+    @supports (-webkit-appearance:none) {
+      &, &:focus, &:active {
+        -webkit-appearance: none !important;
+        border-radius: 0 !important;
+      }
+    }
+  }
 `;
 
 const MenuIcon = styled.div`
@@ -67,6 +91,7 @@ const MenuIcon = styled.div`
   justify-content: center;
   align-items: center;
   pointer-events: none;
+  touch-action: none;
 `;
 
 const MenuCircle = styled(motion.circle)`
@@ -205,6 +230,31 @@ const MobileMenu = () => {
     };
   }, [isOpen]);
   
+  // Дополнительный хак для удаления эффектов касания на мобильных
+  useEffect(() => {
+    const button = document.querySelector('[aria-label="Меню"]');
+    if (button) {
+      // Добавляем стиль напрямую к элементу
+      button.style.webkitTapHighlightColor = 'transparent';
+      button.style.WebkitAppearance = 'none';
+      button.style.boxShadow = 'none';
+      
+      // Удаляем этот обработчик, так как он блокирует нажатия
+      // button.addEventListener('touchstart', (e) => {
+      //   e.preventDefault();
+      // }, { passive: false });
+    }
+    
+    return () => {
+      // Очистка обработчика тоже не нужна
+      // if (button) {
+      //   button.removeEventListener('touchstart', (e) => {
+      //     e.preventDefault();
+      //   });
+      // }
+    };
+  }, []);
+  
   // Варианты анимации для выпадающего меню
   const dropdownVariants = {
     open: {
@@ -267,6 +317,7 @@ const MobileMenu = () => {
         <MenuButton 
           onClick={handleMenuButtonClick} 
           aria-label="Меню"
+          type="button"
         >
           <MenuIcon>
             <svg width="40" height="40" viewBox="0 0 40 40">
