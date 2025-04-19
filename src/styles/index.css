@@ -80,4 +80,10 @@ button:hover {
   .section {
     padding: 60px 0;
   }
+}
+
+/* Отключаем pull-to-refresh и bounce-эффект в современных браузерах */
+html, body {
+  overscroll-behavior-y: none;
+  overscroll-behavior-x: none;
 } 

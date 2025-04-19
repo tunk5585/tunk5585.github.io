@@ -87,6 +87,33 @@ const App = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Блокировка pull-to-refresh в Mobile Safari
+  useEffect(() => {
+    let startY = 0;
+
+    const onTouchStart = (e) => {
+      if (e.touches.length === 1) {
+        startY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      const curY = e.touches[0].clientY;
+      const diffY = curY - startY;
+      // если на вершине страницы и тянут вниз — блокируем обновление
+      if (window.scrollY === 0 && diffY > 0) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('touchstart', onTouchStart, { passive: false });
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+    };
+  }, []);
+
   // Кадры анимации большой ASCII крутилки
   const spinnerFrames = [
     `
