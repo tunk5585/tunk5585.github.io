@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom'; // Импортируем хук для получения текущего маршрута
@@ -69,6 +69,8 @@ const Arrow = styled(motion.div)`
 const ScrollIndicator = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  // ref для предотвращения повторного показа индикатора
+  const hasScrolledRef = useRef(false);
   const location = useLocation(); // Получаем текущий маршрут
   
   // Немедленно скрываем индикатор при изменении маршрута (до начала перехода)
@@ -91,6 +93,7 @@ const ScrollIndicator = () => {
     
     // Сбрасываем состояние прокрутки
     setHasScrolled(false);
+    hasScrolledRef.current = false;
     
     // Проверяем через минимальную задержку после перехода
     const checkTimer = setTimeout(checkPageHeight, 100);
@@ -99,6 +102,11 @@ const ScrollIndicator = () => {
   
   // Функция для проверки высоты страницы
   const checkPageHeight = () => {
+    // если уже скроллили или кликали — не показываем снова
+    if (hasScrolledRef.current) {
+      setIsVisible(false);
+      return;
+    }
     const pageHeight = document.body.scrollHeight;
     const viewportHeight = window.innerHeight;
     const scrollY = window.scrollY;
@@ -132,6 +140,7 @@ const ScrollIndicator = () => {
       if (window.scrollY > 150) {
         setIsVisible(false);
         setHasScrolled(true);
+        hasScrolledRef.current = true;
       } 
       // При возврате в начало на той же странице - можем показать снова
       else if (window.scrollY < 50 && !hasScrolled) {
@@ -154,6 +163,7 @@ const ScrollIndicator = () => {
     window.scrollTo(scrollOptions);
     setIsVisible(false);
     setHasScrolled(true);
+    hasScrolledRef.current = true;
   };
   
   // Анимация для контейнера
