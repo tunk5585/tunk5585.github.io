@@ -158,17 +158,15 @@ const ScrollIndicator = () => {
   
   // Анимация для контейнера
   const containerVariants = {
-    visible: { 
+    visible: {
       opacity: 1,
-      y: 0,
       transition: {
         staggerChildren: 0.1,
         delayChildren: 0.3
       }
     },
-    hidden: { 
+    hidden: {
       opacity: 0,
-      y: 20,
       transition: {
         duration: 0.15 // Быстрее исчезает
       }
@@ -178,12 +176,10 @@ const ScrollIndicator = () => {
   // Анимация для текста
   const textVariants = {
     visible: { 
-      opacity: 1,
-      y: 0
+      opacity: 1
     },
     hidden: { 
-      opacity: 0,
-      y: 10
+      opacity: 0
     }
   };
   
@@ -200,7 +196,9 @@ const ScrollIndicator = () => {
     },
     hidden: { 
       opacity: 0,
-      y: 10
+      transition: {
+        duration: 0.15
+      }
     }
   };
   
