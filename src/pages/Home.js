@@ -116,7 +116,7 @@ const ButtonRow = styled(motion.div)`
 
 const Button = styled(Link)`
   padding: 12px 24px;
-  border: 1px solid var(--text-primary);
+  border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
   background: transparent;
   font-family: 'Space Grotesk', sans-serif;
@@ -128,6 +128,7 @@ const Button = styled(Link)`
   letter-spacing: 1px;
   position: relative;
   overflow: hidden;
+  border-radius: 8px;
   
   &:before {
     content: "";

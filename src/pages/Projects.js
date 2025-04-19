@@ -9,25 +9,37 @@ const ProjectsContainer = styled.div`
   padding-bottom: 50px;
 `;
 
-const SectionTitle = styled.h1`
-  font-size: clamp(2rem, 5vw, 3rem);
-  text-align: center;
-  margin-bottom: 60px;
-  letter-spacing: -1px;
+const TitleContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-bottom: 40px;
   
-  .accent {
-    display: inline-block;
-    position: relative;
-    
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background-color: var(--text-primary);
-    }
+  @media (max-width: 768px) {
+    padding: 0 1rem;
+  }
+`;
+
+const SectionTitle = styled.div`
+  display: inline-block;
+  padding: 8px 16px;
+  border: 0.5px solid var(--text-primary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: transparent;
+  border-radius: 8px;
+`;
+
+const ContentContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: 768px) {
+    padding: 0 1rem;
   }
 `;
 
@@ -61,9 +73,7 @@ const ProjectsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 30px;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  width: 100%;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -390,48 +400,52 @@ const Projects = () => {
   
   return (
     <ProjectsContainer>
-      <SectionTitle>
-        Мои <span className="accent">проекты</span>
-      </SectionTitle>
+      <TitleContainer>
+        <SectionTitle>
+          Мои проекты
+        </SectionTitle>
+      </TitleContainer>
       
-      <FilterContainer>
-        {categories.map(category => (
-          <FilterButton
-            key={category}
-            $active={activeFilter === category}
-            onClick={() => handleFilterClick(category)}
-          >
-            {category === 'all' ? 'Все' : category}
-          </FilterButton>
-        ))}
-      </FilterContainer>
+      <ContentContainer>
+        <FilterContainer>
+          {categories.map(category => (
+            <FilterButton
+              key={category}
+              $active={activeFilter === category}
+              onClick={() => handleFilterClick(category)}
+            >
+              {category === 'all' ? 'Все' : category}
+            </FilterButton>
+          ))}
+        </FilterContainer>
       
-      <ProjectsGrid ref={ref}>
-        {filteredProjects.map((project, index) => (
-          <ProjectCard
-            key={project.id}
-            onClick={() => openModal(project)}
-            variants={cardVariants}
-            initial="hidden"
-            animate={inView ? "visible" : "hidden"}
-            custom={index}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <ProjectImage className="project-image" />
-            
-            <AsciiOverlay className="ascii-overlay">
-              {generateProjectAscii(index)}
-            </AsciiOverlay>
-            
-            <ProjectInfo className="project-info">
-              <ProjectTitle>{project.title}</ProjectTitle>
-              <ProjectCategory>{project.category}</ProjectCategory>
-              <ProjectDescription>{project.description}</ProjectDescription>
-            </ProjectInfo>
-          </ProjectCard>
-        ))}
-      </ProjectsGrid>
+        <ProjectsGrid ref={ref}>
+          {filteredProjects.map((project, index) => (
+            <ProjectCard
+              key={project.id}
+              onClick={() => openModal(project)}
+              variants={cardVariants}
+              initial="hidden"
+              animate={inView ? "visible" : "hidden"}
+              custom={index}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <ProjectImage className="project-image" />
+              
+              <AsciiOverlay className="ascii-overlay">
+                {generateProjectAscii(index)}
+              </AsciiOverlay>
+              
+              <ProjectInfo className="project-info">
+                <ProjectTitle>{project.title}</ProjectTitle>
+                <ProjectCategory>{project.category}</ProjectCategory>
+                <ProjectDescription>{project.description}</ProjectDescription>
+              </ProjectInfo>
+            </ProjectCard>
+          ))}
+        </ProjectsGrid>
+      </ContentContainer>
       
       <AnimatePresence>
         {selectedProject && (

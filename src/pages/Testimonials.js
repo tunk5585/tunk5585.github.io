@@ -9,26 +9,26 @@ const TestimonialsContainer = styled.div`
   padding-bottom: 50px;
 `;
 
-const SectionTitle = styled.h1`
-  font-size: clamp(2rem, 5vw, 3rem);
-  text-align: center;
-  margin-bottom: 60px;
-  letter-spacing: -1px;
+const TitleContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-bottom: 40px;
   
-  .accent {
-    display: inline-block;
-    position: relative;
-    
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background-color: var(--text-primary);
-    }
+  @media (max-width: 768px) {
+    padding: 0 1rem;
   }
+`;
+
+const SectionTitle = styled.div`
+  display: inline-block;
+  padding: 8px 16px;
+  border: 0.5px solid var(--text-primary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: transparent;
+  border-radius: 8px;
 `;
 
 const TestimonialsGrid = styled.div`
@@ -321,9 +321,11 @@ const Testimonials = () => {
   
   return (
     <TestimonialsContainer>
-      <SectionTitle>
-        <span className="accent">Отзывы</span> клиентов
-      </SectionTitle>
+      <TitleContainer>
+        <SectionTitle>
+          Отзывы
+        </SectionTitle>
+      </TitleContainer>
       
       <TestimonialsGrid ref={ref}>
         {testimonials.map((testimonial, index) => {

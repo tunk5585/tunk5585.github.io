@@ -15,31 +15,26 @@ const AboutContainer = styled.div`
   }
 `;
 
-const SectionTitle = styled.h1`
-  font-size: clamp(2rem, 5vw, 3rem);
-  text-align: center;
-  margin-bottom: 60px;
-  letter-spacing: -1px;
+const TitleContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-bottom: 40px;
   
   @media (max-width: 768px) {
-    margin-bottom: 40px;
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    padding: 0 1rem;
   }
-  
-  .accent {
-    display: inline-block;
-    position: relative;
-    
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background-color: var(--text-primary);
-    }
-  }
+`;
+
+const SectionTitle = styled.div`
+  display: inline-block;
+  padding: 8px 16px;
+  border: 0.5px solid var(--text-primary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: transparent;
+  border-radius: 8px;
 `;
 
 const ContentContainer = styled.div`
@@ -424,9 +419,11 @@ const About = () => {
   
   return (
     <AboutContainer>
-      <SectionTitle>
-        <span className="accent">Обо</span> мне
-      </SectionTitle>
+      <TitleContainer>
+        <SectionTitle>
+          Обо мне
+        </SectionTitle>
+      </TitleContainer>
       
       <ContentContainer>
         <ProfileSection 

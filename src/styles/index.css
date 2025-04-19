@@ -48,6 +48,10 @@ button:hover {
   background-color: var(--hover);
 }
 
+button, input, textarea {
+  border-radius: 8px;
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;

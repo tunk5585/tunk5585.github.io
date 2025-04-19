@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { FaTelegram, FaInstagram, FaBehance } from 'react-icons/fa';
 
 const ContactContainer = styled.div`
   min-height: 100vh;
@@ -13,31 +14,26 @@ const ContactContainer = styled.div`
   }
 `;
 
-const SectionTitle = styled.h1`
-  font-size: clamp(2rem, 5vw, 3rem);
-  text-align: center;
-  margin-bottom: 60px;
-  letter-spacing: -1px;
+const TitleContainer = styled.div`
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  margin-bottom: 40px;
   
   @media (max-width: 768px) {
-    margin-bottom: 40px;
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    padding: 0 1rem;
   }
-  
-  .accent {
-    display: inline-block;
-    position: relative;
-    
-    &:after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 1px;
-      background-color: var(--text-primary);
-    }
-  }
+`;
+
+const SectionTitle = styled.div`
+  display: inline-block;
+  padding: 8px 16px;
+  border: 0.5px solid var(--text-primary);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background: transparent;
+  border-radius: 8px;
 `;
 
 const ContentContainer = styled.div`
@@ -124,29 +120,50 @@ const InfoValue = styled.div`
   }
 `;
 
-// ASCII арт для контактов
-const contactAscii = `
-  _______  _______  _        _______  _______  _______ _________
- (  ____ \\(  ___  )( (    /|(  ____ \\(  ___  )(  ____ \\\\__   __/
- | (    \\/| (   ) ||  \\  ( || (    \\/| (   ) || (    \\/   ) (   
- | |      | |   | ||   \\ | || (_____ | (___) || |         | |   
- | |      | |   | || (\\ \\) |(_____  )|  ___  || |         | |   
- | |      | |   | || | \\   |      ) || (   ) || |         | |   
- | (____/\\| (___) || )  \\  |/\\____) || )   ( || (____/\\   | |   
- (_______/(_______)|/    )_)\\_______)|/     \\|(_______/   )_(   
-`;
-
-const AsciiArt = styled.pre`
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1;
-  white-space: pre;
-  color: var(--text-primary);
+// Заменяю ASCII арт на компонент с иконками соцсетей
+const SocialIcons = styled.div`
+  display: flex;
+  gap: 1.5rem;
   margin-top: 3rem;
-  opacity: 0.5;
   
   @media (max-width: 768px) {
-    display: none;
+    margin-top: 2rem;
+    justify-content: flex-start;
+  }
+`;
+
+const SocialIconBlock = styled(motion.div)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border: 0.5px solid var(--text-primary);
+  border-radius: 8px;
+  background: transparent;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateY(-3px);
+  }
+`;
+
+const SocialIconLink = styled.a`
+  color: var(--text-primary);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  
+  &:hover {
+    color: var(--accent);
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
   }
 `;
 
@@ -242,7 +259,7 @@ const Textarea = styled.textarea`
 const SubmitButton = styled(motion.button)`
   padding: 12px 24px;
   background-color: transparent;
-  border: 1px solid var(--text-primary);
+  border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1rem;
@@ -318,7 +335,7 @@ const SuccessText = styled.p`
 const CloseButton = styled(motion.button)`
   padding: 8px 16px;
   background-color: transparent;
-  border: 1px solid var(--text-primary);
+  border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
   font-family: 'Space Grotesk', sans-serif;
   font-size: 0.9rem;
@@ -408,9 +425,11 @@ const Contact = () => {
   
   return (
     <ContactContainer>
-      <SectionTitle>
-        <span className="accent">Свяжитесь</span> со мной
-      </SectionTitle>
+      <TitleContainer>
+        <SectionTitle>
+          Свяжитесь со мной
+        </SectionTitle>
+      </TitleContainer>
       
       <ContentContainer>
         <ContactInfoSection>
@@ -460,9 +479,43 @@ const Contact = () => {
             </InfoItem>
           </InfoContainer>
           
-          <AsciiArt>
-            {contactAscii}
-          </AsciiArt>
+          <SocialIcons>
+            <SocialIconBlock
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <SocialIconLink href="https://t.me/username" target="_blank" rel="noopener noreferrer">
+                <FaTelegram />
+              </SocialIconLink>
+            </SocialIconBlock>
+            
+            <SocialIconBlock
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <SocialIconLink href="https://instagram.com/username" target="_blank" rel="noopener noreferrer">
+                <FaInstagram />
+              </SocialIconLink>
+            </SocialIconBlock>
+            
+            <SocialIconBlock
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <SocialIconLink href="https://behance.net/username" target="_blank" rel="noopener noreferrer">
+                <FaBehance />
+              </SocialIconLink>
+            </SocialIconBlock>
+          </SocialIcons>
         </ContactInfoSection>
         
         <FormSection>
