@@ -159,35 +159,6 @@ const Button = styled(Link)`
   }
 `;
 
-// Эффект печатной машинки с поддержкой переносов строк
-const TypewriterText = ({ text, speed = 50 }) => {
-  const [displayText, setDisplayText] = useState('');
-  const index = useRef(0);
-  
-  useEffect(() => {
-    if (index.current < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayText(prev => prev + text.charAt(index.current));
-        index.current += 1;
-      }, speed);
-      
-      return () => clearTimeout(timeout);
-    }
-  }, [displayText, text, speed]);
-  
-  // Разбиваем текст на строки и вставляем <br> для переносов
-  return (
-    <>
-      {displayText.split('\n').map((line, i, arr) => (
-        <React.Fragment key={i}>
-          {line}
-          {i < arr.length - 1 && <br />}
-        </React.Fragment>
-      ))}
-    </>
-  );
-};
-
 const Home = () => {
   return (
     <HomeContainer>

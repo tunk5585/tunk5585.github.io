@@ -90,6 +90,10 @@ const InfoItem = styled(motion.div)`
   @media (max-width: 768px) {
     margin-bottom: 1rem;
   }
+  
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const InfoLabel = styled.div`
@@ -99,6 +103,11 @@ const InfoLabel = styled.div`
   color: var(--text-secondary);
   margin-right: 1rem;
   width: 80px;
+  
+  @media (max-width: 480px) {
+    width: 100%;
+    margin-bottom: 0.3rem;
+  }
 `;
 
 const InfoValue = styled.div`
@@ -108,6 +117,10 @@ const InfoValue = styled.div`
     font-size: 1rem;
     overflow-wrap: break-word;
     word-break: break-word;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
   }
 `;
 
@@ -121,16 +134,6 @@ const contactAscii = `
  | |      | |   | || | \\   |      ) || (   ) || |         | |   
  | (____/\\| (___) || )  \\  |/\\____) || )   ( || (____/\\   | |   
  (_______/(_______)|/    )_)\\_______)|/     \\|(_______/   )_(   
-`;
-
-// Упрощенная версия ASCII-арта для компактного отображения
-const contactAsciiSimple = `
- _____    _    
-/  ___|  | |   
-| |      | |   
-| |      | |   
-| |___   | |___
-\\____/   \\____/
 `;
 
 const AsciiArt = styled.pre`
@@ -154,6 +157,10 @@ const FormSection = styled.div`
     margin-top: 1rem;
     padding-right: 15px;
   }
+  
+  @media (max-width: 480px) {
+    padding-right: 10px;
+  }
 `;
 
 const ContactForm = styled(motion.form)`
@@ -164,6 +171,10 @@ const ContactForm = styled(motion.form)`
   
   @media (max-width: 768px) {
     padding: 1.5rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1.2rem;
   }
 `;
 
@@ -245,6 +256,12 @@ const SubmitButton = styled(motion.button)`
   &:hover {
     background-color: var(--accent);
   }
+  
+  @media (max-width: 480px) {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    width: 100%;
+  }
 `;
 
 const FormBackground = styled.div`
@@ -259,6 +276,11 @@ const FormBackground = styled.div`
   
   @media (max-width: 768px) {
     width: calc(100% - 15px);
+  }
+  
+  @media (max-width: 480px) {
+    top: 10px;
+    left: 10px;
   }
 `;
 
@@ -277,11 +299,20 @@ const SuccessMessage = styled(motion.div)`
   align-items: center;
   justify-content: center;
   z-index: 2;
+  
+  @media (max-width: 480px) {
+    padding: 1.5rem;
+  }
 `;
 
 const SuccessText = styled.p`
   font-size: 1.2rem;
   margin-bottom: 1.5rem;
+  
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const CloseButton = styled(motion.button)`

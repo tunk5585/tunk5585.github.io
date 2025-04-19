@@ -8,6 +8,11 @@ const AboutContainer = styled.div`
   min-height: 100vh;
   padding-top: 100px;
   padding-bottom: 50px;
+  
+  @media (max-width: 768px) {
+    padding-top: 80px;
+    padding-bottom: 40px;
+  }
 `;
 
 const SectionTitle = styled.h1`
@@ -15,6 +20,11 @@ const SectionTitle = styled.h1`
   text-align: center;
   margin-bottom: 60px;
   letter-spacing: -1px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 40px;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+  }
   
   .accent {
     display: inline-block;
@@ -42,6 +52,8 @@ const ContentContainer = styled.div`
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 0 1rem;
   }
 `;
 
@@ -58,6 +70,10 @@ const ProfileImageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    height: 350px;
+  }
 `;
 
 const ProfileImg = styled.img`
@@ -66,6 +82,11 @@ const ProfileImg = styled.img`
   object-fit: contain;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: 768px) {
+    width: 70%;
+    height: 70%;
+  }
 `;
 
 const AsciiFrame = styled.div`
@@ -148,6 +169,10 @@ const BioSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  
+  @media (max-width: 768px) {
+    margin-top: 1rem;
+  }
 `;
 
 const BioText = styled(motion.p)`
@@ -155,6 +180,12 @@ const BioText = styled(motion.p)`
   line-height: 1.8;
   margin-bottom: 2rem;
   color: var(--text-secondary);
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const Highlight = styled.span`
@@ -164,12 +195,21 @@ const Highlight = styled.span`
 
 const SkillsSection = styled(motion.div)`
   margin-top: 3rem;
+  
+  @media (max-width: 768px) {
+    margin-top: 2rem;
+  }
 `;
 
 const SkillsTitle = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   letter-spacing: -0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const SkillsGrid = styled.div`
@@ -179,6 +219,7 @@ const SkillsGrid = styled.div`
   
   @media (max-width: 500px) {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
 `;
 
@@ -188,20 +229,37 @@ const SkillItem = styled(motion.div)`
   display: flex;
   align-items: center;
   border-left: 3px solid var(--accent);
+  
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+  }
 `;
 
 const SkillName = styled.span`
   font-size: 1rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const ExperienceSection = styled(motion.div)`
   margin-top: 3rem;
+  
+  @media (max-width: 768px) {
+    margin-top: 2rem;
+  }
 `;
 
 const ExperienceTitle = styled.h2`
   font-size: 1.5rem;
   margin-bottom: 1.5rem;
   letter-spacing: -0.5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const TimelineContainer = styled.div`
@@ -223,6 +281,11 @@ const TimelineItem = styled(motion.div)`
   position: relative;
   margin-bottom: 30px;
   
+  @media (max-width: 768px) {
+    padding-left: 20px;
+    margin-bottom: 25px;
+  }
+  
   &:before {
     content: '';
     position: absolute;
@@ -243,17 +306,31 @@ const TimelinePeriod = styled.div`
 const TimelinePosition = styled.h3`
   font-size: 1.1rem;
   margin-bottom: 5px;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
 `;
 
 const TimelineCompany = styled.div`
   font-size: 1rem;
   color: var(--text-secondary);
   margin-bottom: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
 `;
 
 const TimelineDescription = styled.p`
   font-size: 0.9rem;
   line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
 `;
 
 // Добавляем константу для рамки

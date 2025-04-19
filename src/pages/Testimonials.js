@@ -297,21 +297,18 @@ const Testimonials = () => {
     })
   };
   
-  // Функция для расчета количества вертикальных элементов
   const calculateVerticalChars = (height) => {
     // Примерно один символ на каждые 15px высоты
     // Минимум 5 символов, максимум 20
     return Math.min(20, Math.max(5, Math.floor(height / 15)));
   };
   
-  const [verticalCharsCount, setVerticalCharsCount] = useState(10);
-  
   useEffect(() => {
     // Расчет оптимального количества вертикальных символов
     // на основе типичной высоты карточки
     const calculateChars = () => {
       const cardHeight = 250; // Примерная высота карточки
-      setVerticalCharsCount(calculateVerticalChars(cardHeight - 24)); // Минус высота верхней и нижней линий
+      calculateVerticalChars(cardHeight - 24); // Минус высота верхней и нижней линий
     };
     
     calculateChars();
