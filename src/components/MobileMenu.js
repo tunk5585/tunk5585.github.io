@@ -37,10 +37,10 @@ const MobileHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background-color: ${props => props.$scroll ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.7)'};
-  backdrop-filter: blur(5px);
+  background-color: var(--main-bg);
   box-shadow: ${props => props.$scroll ? '0 2px 10px rgba(0, 0, 0, 0.2)' : 'none'};
   transition: all 0.3s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   
   @media (max-width: 480px) {
     padding: 15px;
@@ -130,7 +130,7 @@ const MenuDropdown = styled(motion.div)`
   position: absolute;
   top: 80px;
   right: 20px;
-  width: 250px;
+  width: 175px;
   background: var(--main-bg);
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -142,8 +142,8 @@ const MenuDropdown = styled(motion.div)`
   @media (max-width: 480px) {
     top: 70px;
     right: 15px;
-    width: calc(97% - 30px);
-    max-width: 270px;
+    width: calc(68% - 30px);
+    max-width: 189px;
   }
 `;
 
@@ -250,6 +250,31 @@ const MobileMenu = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hidden, prevScrollPos]);
+  
+  // Предотвращаем pull-to-refresh в мобильных браузерах
+  useEffect(() => {
+    const preventPullToRefresh = (e) => {
+      // Предотвращаем только если скролл находится в верхней позиции
+      if (window.scrollY === 0) {
+        e.preventDefault();
+      }
+    };
+    
+    document.addEventListener('touchstart', (e) => {
+      if (window.scrollY === 0) {
+        document.body.style.overscrollBehavior = 'none';
+      }
+    }, { passive: false });
+    
+    document.addEventListener('touchend', () => {
+      document.body.style.overscrollBehavior = 'auto';
+    });
+    
+    return () => {
+      document.removeEventListener('touchstart', preventPullToRefresh);
+      document.removeEventListener('touchend', () => {});
+    };
+  }, []);
   
   // Закрываем меню при изменении маршрута
   useEffect(() => {
