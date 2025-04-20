@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom'; // Импортируем хук
 
 const IndicatorContainer = styled(motion.div)`
   position: fixed;
-  bottom: 30px;
+  bottom: 35px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -15,32 +15,32 @@ const IndicatorContainer = styled(motion.div)`
   align-items: center;
   z-index: 50;
   cursor: pointer;
-  padding: 8px 15px 12px 15px;
-  border-radius: 20px;
-  background-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0px 10px rgba(255, 255, 255, 0.77);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 6px 6px 10px;
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  box-shadow: none;
+  backdrop-filter: none;
+  border: 0.5px solid var(--text-primary);
   overflow: hidden;
   
   @media (max-width: 768px) {
-    bottom: 20px;
-    padding: 8px 15px 12px 15px;
+    bottom: 35px;
+    padding: 4px 8px 10px;
   }
 `;
 
 const ScrollText = styled(motion.p)`
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: rgba(0, 0, 0, 0.8);
-  margin-bottom: 2px;
+  color: #fff;
+  margin-bottom: 0.1px;
   opacity: 0.9;
   text-align: center;
   width: 100%;
   
   @media (max-width: 768px) {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
 `;
 
@@ -49,20 +49,21 @@ const ArrowContainer = styled(motion.div)`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 24px;
+  height: 16px;
+  overflow: hidden;
 `;
 
 const Arrow = styled(motion.div)`
-  width: 18px;
-  height: 18px;
-  border-right: 2px solid rgba(0, 0, 0, 0.8);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
   transform: rotate(45deg);
   margin: 0 auto;
   
   @media (max-width: 768px) {
-    width: 18px;
-    height: 18px;
+    width: 12px;
+    height: 12px;
   }
 `;
 
@@ -202,7 +203,7 @@ const ScrollIndicator = () => {
   const arrowVariants = {
     visible: { 
       opacity: [0.4, 1, 0.4],
-      y: [0, 5, 0],
+      y: [0, 4, 0],
       transition: {
         repeat: Infinity,
         duration: 2,

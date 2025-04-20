@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollIndicator from './components/ScrollIndicator';
+import ScrollToTop from './components/ScrollToTop';
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -272,6 +273,7 @@ const App = () => {
 
   return (
     <AppWrapper>
+      <ScrollToTop />
       <AnimatePresence>
         {loading ? (
           <motion.div
