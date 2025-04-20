@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-labels */
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -172,6 +173,15 @@ const ModalBackdrop = styled(motion.div)`
   align-items: center;
   z-index: 1000;
   padding: 2rem;
+
+  @media (min-width: 769px) {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const ModalContent = styled(motion.div)`
@@ -181,12 +191,31 @@ const ModalContent = styled(motion.div)`
   position: relative;
   max-height: 90vh;
   overflow-y: auto;
+
+  /* Hide scrollbar on desktop */
+  &::-webkit-scrollbar {
+    width: 0;
+    background: transparent;
+  }
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+    max-height: 100%;
+    height: 100%;
+  }
 `;
 
 const ModalHeader = styled.div`
   padding: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
   border-bottom: 1px solid var(--border);
 `;
 
@@ -203,6 +232,10 @@ const ModalCategory = styled.span`
 const ModalBody = styled.div`
   padding: 2rem;
   flex: 1;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
 `;
 
 const ModalDescription = styled.p`
@@ -243,12 +276,18 @@ const DetailLabel = styled.div`
   color: var(--text-secondary);
   
   @media (max-width: 768px) {
+    flex: none;
+    width: auto;
     margin-bottom: 0.5rem;
   }
 `;
 
 const DetailValue = styled.div`
   flex: 1;
+  @media (max-width: 768px) {
+    flex: none;
+    width: auto;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -261,6 +300,84 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: var(--text-primary);
   z-index: 10;
+`;
+
+// Добавляем стили для индикатора прокрутки внутри модалки
+const ModalScrollIndicator = styled(motion.div)`
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 5;
+  cursor: pointer;
+  padding: 6px 6px 10px;
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  border: 0.5px solid var(--text-primary);
+  overflow: hidden;
+
+  @media (min-width: 769px) {
+    display: none;
+  }
+`;
+const ModalScrollText = styled(motion.p)`
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 0.1px;
+  opacity: 0.9;
+  text-align: center;
+  width: 100%;
+`;
+const ModalArrowContainer = styled(motion.div)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 16px;
+  overflow: hidden;
+`;
+const ModalArrow = styled(motion.div)`
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: rotate(45deg);
+`;
+
+// Добавляем стили для кнопки "наверх" внутри модалки
+const ModalScrollTopButton = styled(motion.div)`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1001;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  border: 0.5px solid var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  @media (min-width: 769px) {
+    bottom: 45px;
+  }
+`;
+const ModalScrollTopArrow = styled.div`
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border-right: 1.5px solid #fff;
+  border-bottom: 1.5px solid #fff;
+  transform: translateY(3.5px) rotate(-135deg);
+  transform-origin: center center;
 `;
 
 // ASCII арт для проектов
@@ -361,6 +478,10 @@ const Projects = () => {
     threshold: 0.1
   });
   
+  const modalContentRef = useRef(null);
+  const [modalIndicatorVisible, setModalIndicatorVisible] = useState(false);
+  const [modalScrollTopVisible, setModalScrollTopVisible] = useState(false);
+  
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredProjects(projects);
@@ -369,6 +490,39 @@ const Projects = () => {
     }
   }, [activeFilter]);
   
+  useEffect(() => {
+    if (selectedProject) {
+      setModalScrollTopVisible(false);
+      const timer = setTimeout(() => {
+        const c = modalContentRef.current;
+        if (c && c.scrollHeight > c.clientHeight * 1.8) {
+          setModalIndicatorVisible(true);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setModalIndicatorVisible(false);
+      setModalScrollTopVisible(false);
+    }
+  }, [selectedProject]);
+  
+  useEffect(() => {
+    const c = modalContentRef.current;
+    if (!c) return;
+    const onScroll = () => {
+      if (c.scrollTop > 150) {
+        if (modalIndicatorVisible) {
+          setModalIndicatorVisible(false);
+        }
+        setModalScrollTopVisible(true);
+      } else {
+        setModalScrollTopVisible(false);
+      }
+    };
+    c.addEventListener('scroll', onScroll);
+    return () => c.removeEventListener('scroll', onScroll);
+  }, [modalIndicatorVisible]);
+  
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
   };
@@ -376,11 +530,13 @@ const Projects = () => {
   const openModal = (project) => {
     setSelectedProject(project);
     document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
   };
   
   const closeModal = () => {
     setSelectedProject(null);
     document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
   };
   
   // Получаем уникальные категории проектов
@@ -456,6 +612,7 @@ const Projects = () => {
             onClick={closeModal}
           >
             <ModalContent
+              ref={modalContentRef}
               onClick={(e) => e.stopPropagation()}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -490,7 +647,35 @@ const Projects = () => {
                   </DetailRow>
                 </ModalDetails>
               </ModalBody>
+              {modalIndicatorVisible && (
+                <ModalScrollIndicator
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  onClick={() => {
+                    const c = modalContentRef.current;
+                    if (c) c.scrollTo({ top: c.clientHeight, behavior: 'smooth' });
+                  }}
+                >
+                  <ModalScrollText>Прокрутите вниз</ModalScrollText>
+                  <ModalArrowContainer><ModalArrow /></ModalArrowContainer>
+                </ModalScrollIndicator>
+              )}
             </ModalContent>
+            {modalScrollTopVisible && (
+              <ModalScrollTopButton
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const c = modalContentRef.current;
+                  if (c) c.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+              >
+                <ModalScrollTopArrow />
+              </ModalScrollTopButton>
+            )}
           </ModalBackdrop>
         )}
       </AnimatePresence>

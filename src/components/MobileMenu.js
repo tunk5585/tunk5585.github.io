@@ -37,6 +37,8 @@ const MobileHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
+  padding-left: calc(20px + env(safe-area-inset-left));
+  padding-right: calc(20px + env(safe-area-inset-right));
   background-color: var(--main-bg);
   box-shadow: ${props => props.$scroll ? '0 2px 10px rgba(0, 0, 0, 0.2)' : 'none'};
   transition: all 0.3s ease;
@@ -44,6 +46,8 @@ const MobileHeader = styled.div`
   
   @media (max-width: 480px) {
     padding: 15px;
+    padding-left: calc(15px + env(safe-area-inset-left));
+    padding-right: calc(10px + env(safe-area-inset-right));
   }
 `;
 

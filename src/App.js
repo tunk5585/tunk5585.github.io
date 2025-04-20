@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -8,6 +8,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollIndicator from './components/ScrollIndicator';
 import ScrollToTop from './components/ScrollToTop';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -57,6 +58,7 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
+  const location = useLocation();
 
   // Анимация точек загрузки
   useEffect(() => {
@@ -297,6 +299,7 @@ const App = () => {
             </MainContent>
             <Footer />
             <ScrollIndicator />
+            {location.pathname !== '/contact' && <ScrollToTopButton />}
           </>
         )}
       </AnimatePresence>

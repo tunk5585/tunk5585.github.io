@@ -62,7 +62,7 @@ const ProfileSection = styled(motion.div)`
 const ProfileImageContainer = styled.div`
   width: 100%;
   height: 500px;
-  background-color: #2a2a2a;
+  background-color: transparent;
   position: relative;
   overflow: hidden;
   display: flex;

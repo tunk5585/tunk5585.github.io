@@ -22,6 +22,7 @@ const IndicatorContainer = styled(motion.div)`
   backdrop-filter: none;
   border: 0.5px solid var(--text-primary);
   overflow: hidden;
+  transition: bottom 0.3s ease-out;
   
   @media (max-width: 768px) {
     bottom: 35px;
@@ -73,6 +74,15 @@ const ScrollIndicator = () => {
   // ref для предотвращения повторного показа индикатора
   const hasScrolledRef = useRef(false);
   const location = useLocation(); // Получаем текущий маршрут
+  const [bottomOffset, setBottomOffset] = useState(() => {
+    if (typeof window === 'undefined') return 35;
+    const base = 35;
+    if (window.visualViewport) {
+      const diff = window.innerHeight - window.visualViewport.height;
+      return base + (diff > 0 ? diff : 0);
+    }
+    return base;
+  });
   
   // Немедленно скрываем индикатор при изменении маршрута (до начала перехода)
   useEffect(() => {
@@ -153,6 +163,30 @@ const ScrollIndicator = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [hasScrolled]);
   
+  // Обработка изменения высоты вьюпорта (для плавного смещения при скрытии Safari UI)
+  useEffect(() => {
+    const updateBottomOffset = () => {
+      const base = 35;
+      let diff = 0;
+      if (window.visualViewport) {
+        diff = window.innerHeight - window.visualViewport.height;
+      }
+      setBottomOffset(base + (diff > 0 ? diff : 0));
+    };
+
+    updateBottomOffset();
+    window.addEventListener('resize', updateBottomOffset);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateBottomOffset);
+    }
+    return () => {
+      window.removeEventListener('resize', updateBottomOffset);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateBottomOffset);
+      }
+    };
+  }, []);
+  
   // Функция для прокрутки страницы вниз
   const scrollDown = () => {
     const windowHeight = window.innerHeight;
@@ -223,6 +257,7 @@ const ScrollIndicator = () => {
     <AnimatePresence mode="wait">
       {isVisible && (
         <IndicatorContainer
+          style={{ bottom: bottomOffset }}
           key="scroll-indicator"
           initial="hidden"
           animate="visible"
