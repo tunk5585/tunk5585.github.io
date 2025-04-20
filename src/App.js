@@ -82,12 +82,32 @@ const App = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  // Имитация загрузки
+  // Имитация загрузки: минимум 3с и ожидание события загрузки страницы
   useEffect(() => {
-    const timer = setTimeout(() => {
+    let timerId;
+    let loadHandler;
+
+    const timerPromise = new Promise(resolve => {
+      timerId = setTimeout(resolve, 3000);
+    });
+
+    const loadPromise = new Promise(resolve => {
+      if (document.readyState === 'complete') {
+        resolve();
+      } else {
+        loadHandler = () => resolve();
+        window.addEventListener('load', loadHandler);
+      }
+    });
+
+    Promise.all([timerPromise, loadPromise]).then(() => {
       setLoading(false);
-    }, 3000);
-    return () => clearTimeout(timer);
+    });
+
+    return () => {
+      clearTimeout(timerId);
+      if (loadHandler) window.removeEventListener('load', loadHandler);
+    };
   }, []);
 
   // Блокировка pull-to-refresh в Mobile Safari

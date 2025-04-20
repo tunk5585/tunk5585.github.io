@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/images/header/Lolo_tunk_1.svg';
+import { ReactComponent as LogoSvg } from '../assets/images/header/Lolo_tunk_1.svg';
 import MobileMenu from './MobileMenu';
 
 const HeaderContainer = styled.header`
@@ -42,15 +42,14 @@ const Logo = styled(motion.div)`
   align-items: center;
   transition: transform 0.3s ease;
   cursor: pointer;
-`;
+  svg {
+    height: 40px;
+    width: auto;
+    transition: filter 0.3s ease;
 
-const LogoImage = styled.img`
-  height: 40px;
-  width: auto;
-  transition: filter 0.3s ease;
-  
-  &:hover {
-    filter: brightness(1.1);
+    &:hover {
+      filter: brightness(1.1);
+    }
   }
 `;
 
@@ -368,7 +367,7 @@ const Header = () => {
             variants={logoVariants}
             whileHover={{ scale: 1.05 }}
           >
-            <LogoImage src={logo} alt="Логотип" />
+            <LogoSvg aria-label="Логотип" />
           </Logo>
           
           <MenuButton 

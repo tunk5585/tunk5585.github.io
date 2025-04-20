@@ -294,12 +294,38 @@ const CloseButton = styled.button`
   position: absolute;
   top: 20px;
   right: 20px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
+  z-index: 1001;
   cursor: pointer;
-  color: var(--text-primary);
-  z-index: 10;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--main-bg);
+  border: 0.5px solid var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const CloseIcon = styled.div`
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  position: relative;
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background-color: var(--text-primary);
+    transform-origin: center;
+  }
+  &::before {
+    transform: translateX(-50%) rotate(45deg);
+  }
+  &::after {
+    transform: translateX(-50%) rotate(-45deg);
+  }
 `;
 
 // Добавляем стили для индикатора прокрутки внутри модалки
@@ -618,7 +644,9 @@ const Projects = () => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
             >
-              <CloseButton onClick={closeModal}>×</CloseButton>
+              <CloseButton onClick={closeModal}>
+                <CloseIcon />
+              </CloseButton>
               
               <ModalHeader>
                 <ModalTitle>{selectedProject.title}</ModalTitle>
