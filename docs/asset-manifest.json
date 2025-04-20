@@ -1,15 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.64564e88.css",
-    "main.js": "/static/js/main.dc4ba65a.js",
-    "static/media/about_img.svg": "/static/media/about_img.9c5c68daa9ad1f7037900252b3436f84.svg",
+    "main.js": "/static/js/main.4e87046a.js",
     "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.a5fc6dd0d438d6224fb028303039ac53.svg",
     "index.html": "/index.html",
     "main.64564e88.css.map": "/static/css/main.64564e88.css.map",
-    "main.dc4ba65a.js.map": "/static/js/main.dc4ba65a.js.map"
+    "main.4e87046a.js.map": "/static/js/main.4e87046a.js.map"
   },
   "entrypoints": [
     "static/css/main.64564e88.css",
-    "static/js/main.dc4ba65a.js"
+    "static/js/main.4e87046a.js"
   ]
 }
