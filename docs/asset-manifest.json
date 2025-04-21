@@ -1,14 +1,20 @@
 {
   "files": {
-    "main.css": "/static/css/main.64564e88.css",
-    "main.js": "/static/js/main.4336ddfb.js",
+    "main.css": "/static/css/main.6e192d9d.css",
+    "main.js": "/static/js/main.56ccc897.js",
+    "static/media/preview_guru.png": "/static/media/preview_guru.5b2156e7d9c5c343c19e.png",
+    "static/media/preview_0not1.png": "/static/media/preview_0not1.cac57e6c348d1c2b3846.png",
+    "static/media/preview_fable.png": "/static/media/preview_fable.36ae8cb6cec3b59de08a.png",
+    "static/media/preview_welcom.png": "/static/media/preview_welcom.cc747e4eff9b19f75b61.png",
+    "static/media/preview_samb.png": "/static/media/preview_samb.c6025844be633181260d.png",
     "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.a5fc6dd0d438d6224fb028303039ac53.svg",
+    "static/media/preview_site.png": "/static/media/preview_site.9d3773a951cc3b69f6ab.png",
     "index.html": "/index.html",
-    "main.64564e88.css.map": "/static/css/main.64564e88.css.map",
-    "main.4336ddfb.js.map": "/static/js/main.4336ddfb.js.map"
+    "main.6e192d9d.css.map": "/static/css/main.6e192d9d.css.map",
+    "main.56ccc897.js.map": "/static/js/main.56ccc897.js.map"
   },
   "entrypoints": [
-    "static/css/main.64564e88.css",
-    "static/js/main.4336ddfb.js"
+    "static/css/main.6e192d9d.css",
+    "static/js/main.56ccc897.js"
   ]
 }
