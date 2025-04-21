@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion, AnimatePresence } from 'framer-motion';
-
 // Импорт компонентов
 import Header from './components/Header';
 import Footer from './components/Footer';
