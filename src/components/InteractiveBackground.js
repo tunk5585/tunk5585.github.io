@@ -32,7 +32,17 @@ const InteractiveBackground = () => {
   const requestIdRef = useRef(null);
   const containerRef = useRef(null);
   
+  // Подготовка для динамического радиуса затухания
+  const pointerActiveRef = useRef(false);
+  const radiusRef = useRef(0);
+  const MAX_RADIUS = 80;
+  const ZONE_FACTOR = 150 / 80;
+  const DECAY_RATE = 2; // px за кадр для уменьшения радиуса
+  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
+    // Таймаут для сброса координат после окончания pointer
+    let touchEndTimeout = null;
     const canvas = canvasRef.current;
     const container = containerRef.current;
     if (!canvas || !container) return;
@@ -47,13 +57,35 @@ const InteractiveBackground = () => {
       initSymbols(width, height);
     };
     
-    // Обработчик движения мыши
-    const handleMouseMove = (e) => {
+    container.style.touchAction = 'none';
+    
+    // Обработчик pointerdown: устанавливаем позицию при первом касании и сбрасываем затухание
+    const handlePointerDown = (e) => {
+      pointerActiveRef.current = true;
+      radiusRef.current = MAX_RADIUS;
+      if (e.target.closest('button, a')) return;
       const rect = container.getBoundingClientRect();
-      mouseRef.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      };
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      if (e.pointerId) container.setPointerCapture(e.pointerId);
+    };
+    
+    // Обработчик pointermove: обрабатываем движение указателя
+    const handlePointerMove = (e) => {
+      pointerActiveRef.current = true;
+      radiusRef.current = MAX_RADIUS;
+      if (e.target.closest('button, a')) return;
+      const rect = container.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    };
+    
+    // Обработчик pointerup: сброс координат через таймаут
+    const handlePointerUp = (e) => {
+      pointerActiveRef.current = false;
+      if (e.pointerId) container.releasePointerCapture(e.pointerId);
+      if (touchEndTimeout) clearTimeout(touchEndTimeout);
+      touchEndTimeout = setTimeout(() => {
+        mouseRef.current = { x: -1000, y: -1000 };
+      }, 300);
     };
     
     // Инициализация символов
@@ -90,6 +122,10 @@ const InteractiveBackground = () => {
     
     // Функция анимации
     const animate = () => {
+      // Плавно уменьшаем радиус, если нет активности
+      if (!pointerActiveRef.current && radiusRef.current > 0) {
+        radiusRef.current = Math.max(0, radiusRef.current - DECAY_RATE);
+      }
       const ctx = canvas.getContext('2d');
       const { width, height } = canvas;
       
@@ -107,11 +143,12 @@ const InteractiveBackground = () => {
         const dx = symbol.x - mousePos.x;
         const dy = symbol.y - mousePos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
+        const R1 = radiusRef.current;
+        const R2 = R1 * ZONE_FACTOR;
         
-        // Анимация в зависимости от расстояния до курсора
-        if (distance < 80) {
-          // Активная зона - раскрываем символ
-          const factor = 1 - distance / 80;
+        if (distance < R1) {
+          // Активная зона
+          const factor = 1 - distance / R1;
           symbol.opacity = 0.1 + factor * 0.3;
           symbol.scale = 1 + factor * 0.5;
           symbol.offsetX = (Math.random() * 3 - 1.5) * factor;
@@ -120,9 +157,9 @@ const InteractiveBackground = () => {
           // Раскрываем символ
           symbol.displayChar = symbol.realChar;
           symbol.revealed = true;
-        } else if (distance < 150) {
-          // Зона влияния - повышаем видимость, но не раскрываем
-          const factor = 1 - (distance - 80) / 70;
+        } else if (distance < R2) {
+          // Зона влияния
+          const factor = 1 - (distance - R1) / (R2 - R1);
           symbol.opacity = 0.03 + factor * 0.07;
           symbol.scale = 1 + factor * 0.1;
           symbol.offsetX = 0;
@@ -183,19 +220,27 @@ const InteractiveBackground = () => {
     requestIdRef.current = requestAnimationFrame(animate);
     
     // Добавляем обработчики событий
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
     window.addEventListener('resize', updateCanvasSize);
     
     // Отписываемся при размонтировании
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
       window.removeEventListener('resize', updateCanvasSize);
+      
+      if (touchEndTimeout) clearTimeout(touchEndTimeout);
       
       if (requestIdRef.current) {
         cancelAnimationFrame(requestIdRef.current);
       }
     };
-  }, []);
+  }, [MAX_RADIUS, ZONE_FACTOR, DECAY_RATE]);
   
   return (
     <BackgroundContainer ref={containerRef}>

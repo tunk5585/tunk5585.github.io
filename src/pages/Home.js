@@ -5,16 +5,22 @@ import { Link } from 'react-router-dom';
 import InteractiveBackground from '../components/InteractiveBackground';
 
 const HomeContainer = styled.div`
-  min-height: 100vh;
+  touch-action: none;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
 `;
 
 const HeroSection = styled.section`
   height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 17vh;
   justify-content: center;
   position: relative;
   overflow: hidden;
@@ -91,6 +97,7 @@ const TypewriterTitle = ({ speed = 30 }) => {
 };
 
 const Subtitle = styled(motion.h2)`
+  font-family: 'Jost', sans-serif;
   font-size: clamp(1rem, 2vw, 1.5rem);
   color: var(--text-secondary);
   margin-bottom: 2rem;
@@ -119,7 +126,7 @@ const Button = styled(Link)`
   border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
   background: transparent;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -161,6 +168,15 @@ const Button = styled(Link)`
 `;
 
 const Home = () => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   return (
     <HomeContainer>
       <HeroSection>

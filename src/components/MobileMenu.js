@@ -230,6 +230,25 @@ const MobileMenu = () => {
   const navigate = useNavigate();
   const menuRef = useRef(null);
   
+  // Полностью блокируем прокрутку при открытом меню, включая touch-джесты
+  useEffect(() => {
+    const preventScroll = (e) => e.preventDefault();
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+    } else {
+      document.removeEventListener('touchmove', preventScroll);
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    }
+    return () => {
+      document.removeEventListener('touchmove', preventScroll);
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, [isOpen]);
+  
   // Эффект для отслеживания скролла
   useEffect(() => {
     const handleScroll = () => {

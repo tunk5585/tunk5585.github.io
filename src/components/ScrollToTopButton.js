@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ButtonContainer = styled(motion.div)`
   position: fixed;
   bottom: 45px;
-  left: 20px;
+  left: 2rem;
   z-index: 50;
   cursor: pointer;
   padding: 8px;
@@ -19,7 +19,7 @@ const ButtonContainer = styled(motion.div)`
   
   @media (max-width: 768px) {
     bottom: 45px;
-    left: 15px;
+    left: 1.2rem;
   }
 `;
 

@@ -217,7 +217,7 @@ const Input = styled.input`
   background-color: rgba(20, 20, 20, 0.5);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 1rem;
   transition: all 0.3s ease;
   
@@ -238,7 +238,7 @@ const Textarea = styled.textarea`
   background-color: rgba(20, 20, 20, 0.5);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 1rem;
   min-height: 150px;
   resize: vertical;
@@ -261,7 +261,7 @@ const SubmitButton = styled(motion.button)`
   background-color: transparent;
   border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -337,7 +337,7 @@ const CloseButton = styled(motion.button)`
   background-color: transparent;
   border: 0.5px solid var(--text-primary);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;

@@ -245,15 +245,14 @@ const SkillItem = styled(motion.div)`
   }
 `;
 
-const SkillProgress = styled.div`
+const SkillProgress = styled(motion.div)`
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  width: ${props => props.level}%;
+  width: ${props => props.$level}%;
   background-color: rgba(255, 255, 255, 0.07);
   z-index: 0;
-  transition: width 1s ease-in-out;
 `;
 
 const SkillName = styled.span`
@@ -589,7 +588,7 @@ const About = () => {
               {skills.map((skill, index) => (
                 <SkillItem key={index} variants={itemVariants}>
                   <SkillProgress 
-                    level={skill.level}
+                    $level={skill.level}
                     initial={{ width: 0 }}
                     animate={skillsInView ? { width: `${skill.level}%` } : { width: 0 }}
                     transition={{ duration: 1, delay: 0.2 + index * 0.1 }}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -25,6 +25,8 @@ const LoadingContainer = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  touch-action: none;
+  overscroll-behavior: none;
   width: 100%;
   height: 100%;
   display: flex;
@@ -55,10 +57,12 @@ const LoadingText = styled.div`
 `;
 
 const App = () => {
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const [initialLoad, setInitialLoad] = useState(true);
+  const navigation = useNavigation();
+  const loading = initialLoad || navigation.state !== 'idle';
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
-  const location = useLocation();
 
   // Анимация точек загрузки
   useEffect(() => {
@@ -82,7 +86,7 @@ const App = () => {
     return () => clearInterval(interval);
   }, [loading]);
 
-  // Имитация загрузки: минимум 3с и ожидание события загрузки страницы
+  // Initial load: минимум 3с и ожидание события загрузки страницы
   useEffect(() => {
     let timerId;
     let loadHandler;
@@ -101,7 +105,7 @@ const App = () => {
     });
 
     Promise.all([timerPromise, loadPromise]).then(() => {
-      setLoading(false);
+      setInitialLoad(false);
     });
 
     return () => {
@@ -109,6 +113,28 @@ const App = () => {
       if (loadHandler) window.removeEventListener('load', loadHandler);
     };
   }, []);
+
+  // Блокируем прокрутку страницы на время загрузки, включая touch и колесо
+  useEffect(() => {
+    const prevent = (e) => e.preventDefault();
+    if (loading) {
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.body.addEventListener('touchmove', prevent, { passive: false });
+      document.body.addEventListener('wheel', prevent, { passive: false });
+    } else {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.removeEventListener('touchmove', prevent);
+      document.body.removeEventListener('wheel', prevent);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+      document.body.removeEventListener('touchmove', prevent);
+      document.body.removeEventListener('wheel', prevent);
+    };
+  }, [loading]);
 
   // Блокировка pull-to-refresh в Mobile Safari
   useEffect(() => {
@@ -296,7 +322,7 @@ const App = () => {
   return (
     <AppWrapper>
       <ScrollToTop />
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {loading ? (
           <motion.div
             key="loader"
@@ -312,15 +338,21 @@ const App = () => {
             </LoadingContainer>
           </motion.div>
         ) : (
-          <>
-            <Header />
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {!location.pathname.startsWith('/projects/') && <Header />}
             <MainContent>
               <Outlet />
             </MainContent>
-            <Footer />
-            <ScrollIndicator />
-            {location.pathname !== '/contact' && <ScrollToTopButton />}
-          </>
+            {location.pathname !== '/' && <Footer />}
+            {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
+            {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
+          </motion.div>
         )}
       </AnimatePresence>
     </AppWrapper>

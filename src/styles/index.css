@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&subset=cyrillic&display=swap");
+
 :root {
   --main-bg: #0f0f0f;
   --text-primary: #ffffff;
@@ -16,7 +18,7 @@
 }
 
 body {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   background-color: var(--main-bg);
   color: var(--text-primary);
   line-height: 1.6;
@@ -38,7 +40,7 @@ button {
   background: none;
   border: 1px solid var(--text-primary);
   color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Space Grotesk', 'Jost', sans-serif;
   padding: 8px 16px;
   cursor: pointer;
   transition: all 0.3s ease;
