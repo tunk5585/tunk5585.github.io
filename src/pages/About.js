@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend } from 'chart.js';
+import { useLoading } from '../context/LoadingContext';
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
 
@@ -420,6 +421,8 @@ const ChartContainer = styled(motion.div)`
 `;
 
 const About = () => {
+  const { initialLoadComplete } = useLoading();
+  
   const [bioRef, bioInView] = useInView({
     triggerOnce: true,
     threshold: 0.2
@@ -521,7 +524,7 @@ const About = () => {
         <ProfileSection 
           ref={profileRef}
           initial={{ opacity: 0, y: 50 }}
-          animate={profileInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+          animate={profileInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
           transition={{ duration: 0.8 }}
         >
           <ProfileImageContainer>
@@ -557,21 +560,21 @@ const About = () => {
           <BioText
             ref={bioRef}
             initial={{ opacity: 0, y: 30 }}
-            animate={bioInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.7 }}
           >
             Привет! Меня зовут <Highlight>Толя — креативный дизайнер и арт‑директор</Highlight> с более чем пятилетним опытом создания визуальных коммуникаций, где <Highlight>эстетика</Highlight> органично сочетается с <Highlight>функциональностью</Highlight>.
           </BioText>
           <BioText
             initial={{ opacity: 0, y: 30 }}
-            animate={bioInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
             Мой подход базируется на <Highlight>глубоком анализе задач бренда и изучении его аудитории</Highlight>: это позволяет создавать <Highlight>решения</Highlight>, которые действительно работают на достижение <Highlight>бизнес‑целей</Highlight>. Я регулярно тестирую новые форматы и техники, чтобы внедрять свежие и нестандартные решения.
           </BioText>
           <BioText
             initial={{ opacity: 0, y: 30 }}
-            animate={bioInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+            animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.7, delay: 0.4 }}
           >
             Вне работы я не стою на месте: изучаю маркетинговые тренды и погружаюсь в менеджмент, осваиваю хард‑скиллы. <Highlight>Интегрирую</Highlight> всё самое свежее в свой воркфлоу. С широко раскрытыми глазами открываю для себя <Highlight>будущее</Highlight>, в котором уже живём.
@@ -581,7 +584,7 @@ const About = () => {
             ref={skillsRef}
             variants={containerVariants}
             initial="hidden"
-            animate={skillsInView ? "visible" : "hidden"}
+            animate={skillsInView && initialLoadComplete ? "visible" : "hidden"}
           >
             <SkillsTitle>Навыки</SkillsTitle>
             <SkillsGrid>
@@ -590,7 +593,7 @@ const About = () => {
                   <SkillProgress 
                     $level={skill.level}
                     initial={{ width: 0 }}
-                    animate={skillsInView ? { width: `${skill.level}%` } : { width: 0 }}
+                    animate={skillsInView && initialLoadComplete ? { width: `${skill.level}%` } : { width: 0 }}
                     transition={{ duration: 1, delay: 0.2 + index * 0.1 }}
                   />
                   <SkillName>{skill.name}</SkillName>
@@ -603,13 +606,13 @@ const About = () => {
             ref={qualitiesRef}
             variants={containerVariants}
             initial="hidden"
-            animate={qualitiesInView ? "visible" : "hidden"}
+            animate={qualitiesInView && initialLoadComplete ? "visible" : "hidden"}
             style={{ marginTop: '2.5rem' }}
           >
             <SkillsTitle>Личные качества</SkillsTitle>
             <ChartContainer
               initial={{ scale: 0.7, opacity: 0, rotate: -10 }}
-              animate={qualitiesInView ? { scale: 1, opacity: 1, rotate: 0 } : { scale: 0.7, opacity: 0, rotate: -10 }}
+              animate={qualitiesInView && initialLoadComplete ? { scale: 1, opacity: 1, rotate: 0 } : { scale: 0.7, opacity: 0, rotate: -10 }}
               transition={{ duration: 0.8, ease: "easeOut" }}
             >
               <Radar data={qualitiesChartData} options={qualitiesChartOptions} />
@@ -620,7 +623,7 @@ const About = () => {
             ref={experienceRef}
             variants={containerVariants}
             initial="hidden"
-            animate={experienceInView ? "visible" : "hidden"}
+            animate={experienceInView && initialLoadComplete ? "visible" : "hidden"}
           >
             <ExperienceTitle>Опыт работы</ExperienceTitle>
             <TimelineContainer>

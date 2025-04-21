@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import InteractiveBackground from '../components/InteractiveBackground';
+import { useLoading } from '../context/LoadingContext';
 
 const HomeContainer = styled.div`
   touch-action: none;
@@ -66,13 +67,28 @@ const ThirdLine = styled(TitleLine)`
 `;
 
 // Эффект печатной машинки с фиксированным разделением строк
-const TypewriterTitle = ({ speed = 30 }) => {
+const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
   const [text, setText] = useState('');
+  const [shouldStart, setShouldStart] = useState(false);
   const fullText = "Креативный Дизайн & Инновационные Решения";
   const index = useRef(0);
+  const { initialLoadComplete } = useLoading();
+  
+  // Запускаем анимацию только после загрузки приложения
+  useEffect(() => {
+    if (initialLoadComplete) {
+      // Добавляем небольшую задержку для плавности
+      const timer = setTimeout(() => {
+        setShouldStart(true);
+        index.current = 0; // Сбрасываем индекс на случай, если анимация уже началась
+        setText(''); // Очищаем текст на случай, если уже что-то отображалось
+      }, startDelay);
+      return () => clearTimeout(timer);
+    }
+  }, [initialLoadComplete, startDelay]);
   
   useEffect(() => {
-    if (index.current < fullText.length) {
+    if (shouldStart && index.current < fullText.length) {
       const timeout = setTimeout(() => {
         setText(fullText.substring(0, index.current + 1));
         index.current += 1;
@@ -80,7 +96,7 @@ const TypewriterTitle = ({ speed = 30 }) => {
       
       return () => clearTimeout(timeout);
     }
-  }, [text, speed]);
+  }, [text, speed, shouldStart]);
   
   // Разделяем текст на три строки в фиксированных местах
   const firstLineText = text.slice(0, 10); // "Креативный"
@@ -168,6 +184,8 @@ const Button = styled(Link)`
 `;
 
 const Home = () => {
+  const { initialLoadComplete } = useLoading();
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     document.documentElement.style.overflow = 'hidden';
@@ -185,7 +203,7 @@ const Home = () => {
         <HeroContent>
           <Title
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8 }}
           >
             <TypewriterTitle speed={30} />
@@ -193,7 +211,7 @@ const Home = () => {
           
           <Subtitle
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             Соединяю технологии и эстетику, создавая уникальные цифровые впечатления, которые запоминаются и вдохновляют.
@@ -201,7 +219,7 @@ const Home = () => {
           
           <ButtonRow
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             <Button to="/projects" className="primary">Посмотреть проекты</Button>

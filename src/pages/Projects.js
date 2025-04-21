@@ -11,6 +11,7 @@ import preview0not1 from '../assets/images/preview_0not1.png';
 import previewSamb from '../assets/images/preview_samb.png';
 import previewSite from '../assets/images/preview_site.png';
 import previewWelcom from '../assets/images/preview_welcom.png';
+import { useLoading } from '../context/LoadingContext';
 
 const ProjectsContainer = styled.div`
   min-height: 100vh;
@@ -177,6 +178,7 @@ const Projects = () => {
     triggerOnce: true,
     threshold: 0.1
   });
+  const { initialLoadComplete } = useLoading();
   
   useEffect(() => {
     if (activeFilter === 'all') {
@@ -245,7 +247,7 @@ const Projects = () => {
               key={project.id}
               variants={cardVariants}
               initial="hidden"
-              animate={inView ? "visible" : "hidden"}
+              animate={inView && initialLoadComplete ? "visible" : "hidden"}
               custom={index}
             >
               <ProjectLink

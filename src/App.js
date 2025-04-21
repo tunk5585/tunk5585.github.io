@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
+import { useLoading } from './context/LoadingContext';
 // Импорт компонентов
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -63,6 +64,7 @@ const App = () => {
   const loading = initialLoad || showNavSpinner;
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
+  const { setInitialLoadComplete } = useLoading();
 
   // Анимация точек загрузки
   useEffect(() => {
@@ -106,13 +108,14 @@ const App = () => {
 
     Promise.all([timerPromise, loadPromise]).then(() => {
       setInitialLoad(false);
+      setInitialLoadComplete(true);
     });
 
     return () => {
       clearTimeout(timerId);
       if (loadHandler) window.removeEventListener('load', loadHandler);
     };
-  }, []);
+  }, [setInitialLoadComplete]);
 
   // Навигационный спиннер с минимальным временем отображения
   useEffect(() => {

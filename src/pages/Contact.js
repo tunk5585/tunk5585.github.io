@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaTelegram, FaInstagram, FaBehance } from 'react-icons/fa';
+import { useLoading } from '../context/LoadingContext';
 
 const ContactContainer = styled.div`
   min-height: 100vh;
@@ -348,6 +349,7 @@ const CloseButton = styled(motion.button)`
 `;
 
 const Contact = () => {
+  const { initialLoadComplete } = useLoading();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -435,7 +437,7 @@ const Contact = () => {
         <ContactInfoSection>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.7 }}
           >
             <ContactText>
@@ -451,7 +453,7 @@ const Contact = () => {
             <InfoItem
               variants={infoVariants}
               initial="hidden"
-              animate="visible"
+              animate={initialLoadComplete ? "visible" : "hidden"}
               transition={{ delay: 0.2 }}
             >
               <InfoLabel>Email:</InfoLabel>
@@ -461,7 +463,7 @@ const Contact = () => {
             <InfoItem
               variants={infoVariants}
               initial="hidden"
-              animate="visible"
+              animate={initialLoadComplete ? "visible" : "hidden"}
               transition={{ delay: 0.3 }}
             >
               <InfoLabel>Телефон:</InfoLabel>
@@ -471,7 +473,7 @@ const Contact = () => {
             <InfoItem
               variants={infoVariants}
               initial="hidden"
-              animate="visible"
+              animate={initialLoadComplete ? "visible" : "hidden"}
               transition={{ delay: 0.4 }}
             >
               <InfoLabel>Адрес:</InfoLabel>
@@ -482,7 +484,7 @@ const Contact = () => {
           <SocialIcons>
             <SocialIconBlock
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.5 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -494,7 +496,7 @@ const Contact = () => {
             
             <SocialIconBlock
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.6 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -506,7 +508,7 @@ const Contact = () => {
             
             <SocialIconBlock
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ delay: 0.7 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -522,7 +524,7 @@ const Contact = () => {
           <ContactForm
             variants={formVariants}
             initial="hidden"
-            animate="visible"
+            animate={initialLoadComplete ? "visible" : "hidden"}
             onSubmit={handleSubmit}
           >
             <FormGroup>

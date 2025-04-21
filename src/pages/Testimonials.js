@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
+import { useLoading } from '../context/LoadingContext';
 
 const TestimonialsContainer = styled.div`
   min-height: 100vh;
@@ -274,6 +275,7 @@ const Testimonials = () => {
     triggerOnce: true,
     threshold: 0.1
   });
+  const { initialLoadComplete } = useLoading();
   
   const openModal = (testimonial) => {
     setSelectedTestimonial(testimonial);
@@ -339,7 +341,7 @@ const Testimonials = () => {
               key={testimonial.id}
               variants={cardVariants}
               initial="hidden"
-              animate={inView ? "visible" : "hidden"}
+              animate={inView && initialLoadComplete ? "visible" : "hidden"}
               custom={index}
               onClick={() => openModal(testimonial)}
               whileHover={{ scale: 1.02 }}
