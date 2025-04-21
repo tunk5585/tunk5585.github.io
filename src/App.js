@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -58,9 +58,11 @@ const LoadingText = styled.div`
 
 const App = () => {
   const location = useLocation();
-  const [initialLoad, setInitialLoad] = useState(true);
   const navigation = useNavigation();
-  const loading = initialLoad || navigation.state !== 'idle';
+  const navStartTime = useRef(null);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [showNavSpinner, setShowNavSpinner] = useState(false);
+  const loading = initialLoad || showNavSpinner;
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
 
@@ -113,6 +115,23 @@ const App = () => {
       if (loadHandler) window.removeEventListener('load', loadHandler);
     };
   }, []);
+
+  // Навигационный спиннер с минимальным временем отображения
+  useEffect(() => {
+    if (navigation.state === 'loading') {
+      setShowNavSpinner(true);
+      navStartTime.current = Date.now();
+    } else if (navigation.state === 'idle') {
+      const elapsed = Date.now() - navStartTime.current;
+      const remaining = 500 - elapsed;
+      if (remaining > 0) {
+        const timer = setTimeout(() => setShowNavSpinner(false), remaining);
+        return () => clearTimeout(timer);
+      } else {
+        setShowNavSpinner(false);
+      }
+    }
+  }, [navigation.state]);
 
   // Блокируем прокрутку страницы на время загрузки, включая touch и колесо
   useEffect(() => {
@@ -322,39 +341,25 @@ const App = () => {
   return (
     <AppWrapper>
       <ScrollToTop />
-      <AnimatePresence mode="wait">
-        {loading ? (
-          <motion.div
-            key="loader"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <LoadingContainer>
-              <LoadingAscii>
-                {spinnerFrames[frame]}
-                <LoadingText>loading{'.'.repeat(dots)}</LoadingText>
-              </LoadingAscii>
-            </LoadingContainer>
-          </motion.div>
-        ) : (
-          <motion.div
-            key="content"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {!location.pathname.startsWith('/projects/') && <Header />}
-            <MainContent>
-              <Outlet />
-            </MainContent>
-            {location.pathname !== '/' && <Footer />}
-            {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-            {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Spinner overlay during initial load or navigation */}
+      {loading && (
+        <LoadingContainer>
+          <LoadingAscii>
+            {spinnerFrames[frame]}
+            <LoadingText>loading{'.'.repeat(dots)}</LoadingText>
+          </LoadingAscii>
+        </LoadingContainer>
+      )}
+      {/* Основной контент */}
+      <>
+        {!location.pathname.startsWith('/projects/') && <Header />}
+        <MainContent>
+          <Outlet />
+        </MainContent>
+        {location.pathname !== '/' && <Footer />}
+        {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
+        {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
+      </>
     </AppWrapper>
   );
 };
