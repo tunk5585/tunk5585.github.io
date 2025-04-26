@@ -5,13 +5,15 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link, useNavigate } from 'react-router-dom';
 import projects from '../data/projects';
-import previewGuru from '../assets/images/preview_guru.png';
-import previewFable from '../assets/images/preview_fable.png';
-import preview0not1 from '../assets/images/preview_0not1.png';
-import previewSamb from '../assets/images/preview_samb.png';
+import previewGuru from '../assets/images/preview_guru.jpg';
+import previewFable from '../assets/images/preview_fable.jpg';
+import preview0not1 from '../assets/images/preview_0not1.jpg';
+import previewSamb from '../assets/images/preview_samb.jpg';
 import previewSite from '../assets/images/preview_site.png';
-import previewWelcom from '../assets/images/preview_welcom.png';
+import previewWelcom from '../assets/images/preview_welcom.jpg';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const ProjectsContainer = styled.div`
   min-height: 100vh;
@@ -179,7 +181,22 @@ const Projects = () => {
     threshold: 0.1
   });
   const { initialLoadComplete } = useLoading();
+  const { language } = useLanguage();
+  const t = translations.projects[language];
   
+  // Получаем локализованный заголовок проекта
+  const getLocalizedTitle = (project) => {
+    if (language === 'en' && project.titleEn) {
+      return project.titleEn;
+    }
+    return project.title;
+  };
+  
+  // Получаем локализованное описание проекта
+  const getLocalizedDescription = (project) => {
+    return project.description[language] || project.description.ru;
+  };
+
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredProjects(projects);
@@ -220,11 +237,18 @@ const Projects = () => {
     })
   };
   
+  // Функция для перевода категорий
+  const translateCategory = (category) => {
+    if (category === 'all') return t.all;
+    // Если в другом языке, и есть перевод категории, используем его
+    return language === 'en' && t.categories[category] ? t.categories[category] : category;
+  };
+  
   return (
     <ProjectsContainer>
       <TitleContainer>
         <SectionTitle>
-          Мои проекты
+          {t.title}
         </SectionTitle>
       </TitleContainer>
       
@@ -236,7 +260,7 @@ const Projects = () => {
               $active={activeFilter === category}
               onClick={() => handleFilterClick(category)}
             >
-              {category === 'all' ? 'Все' : category}
+              {translateCategory(category)}
             </FilterButton>
           ))}
         </FilterContainer>
@@ -260,9 +284,9 @@ const Projects = () => {
                   className="project-info"
                   $active={selectedProjectId === project.id}
                 >
-                  <ProjectTitle>{project.title}</ProjectTitle>
-                  <ProjectCategory>{'#' + project.category.join(' #')}</ProjectCategory>
-                  <ProjectDescription>{project.description}</ProjectDescription>
+                  <ProjectTitle>{getLocalizedTitle(project)}</ProjectTitle>
+                  <ProjectCategory>{'#' + project.category.map(cat => translateCategory(cat)).join(' #')}</ProjectCategory>
+                  <ProjectDescription>{getLocalizedDescription(project)}</ProjectDescription>
                 </ProjectInfo>
               </ProjectLink>
             </ProjectCard>

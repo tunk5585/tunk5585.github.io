@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaTelegram, FaInstagram, FaBehance } from 'react-icons/fa';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const ContactContainer = styled.div`
   min-height: 100vh;
@@ -350,6 +352,9 @@ const CloseButton = styled(motion.button)`
 
 const Contact = () => {
   const { initialLoadComplete } = useLoading();
+  const { language } = useLanguage();
+  const t = translations[language];
+  
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -429,7 +434,7 @@ const Contact = () => {
     <ContactContainer>
       <TitleContainer>
         <SectionTitle>
-          Свяжитесь со мной
+          {t.contact_me.title}
         </SectionTitle>
       </TitleContainer>
       
@@ -441,11 +446,11 @@ const Contact = () => {
             transition={{ duration: 0.7 }}
           >
             <ContactText>
-              Если у вас есть вопросы о моих услугах, предложения о сотрудничестве или вы хотите обсудить ваш проект, пожалуйста, свяжитесь со мной любым удобным способом.
+              {t.contact_text1}
             </ContactText>
             
             <ContactText>
-              Я всегда открыт для интересных и креативных проектов, и буду рад обсудить, как мой опыт может помочь в реализации ваших идей.
+              {t.contact_text2}
             </ContactText>
           </motion.div>
           
@@ -466,7 +471,7 @@ const Contact = () => {
               animate={initialLoadComplete ? "visible" : "hidden"}
               transition={{ delay: 0.3 }}
             >
-              <InfoLabel>Телефон:</InfoLabel>
+              <InfoLabel>{t.phone}:</InfoLabel>
               <InfoValue>+7 (123) 456-78-90</InfoValue>
             </InfoItem>
             
@@ -476,8 +481,8 @@ const Contact = () => {
               animate={initialLoadComplete ? "visible" : "hidden"}
               transition={{ delay: 0.4 }}
             >
-              <InfoLabel>Адрес:</InfoLabel>
-              <InfoValue>г. Москва, ул. Креативная, д. 42</InfoValue>
+              <InfoLabel>{t.address}:</InfoLabel>
+              <InfoValue>{t.address_value}</InfoValue>
             </InfoItem>
           </InfoContainer>
           
@@ -528,7 +533,7 @@ const Contact = () => {
             onSubmit={handleSubmit}
           >
             <FormGroup>
-              <Label htmlFor="name">Имя</Label>
+              <Label htmlFor="name">{t.name}</Label>
               <Input
                 type="text"
                 id="name"
@@ -552,7 +557,7 @@ const Contact = () => {
             </FormGroup>
             
             <FormGroup>
-              <Label htmlFor="subject">Тема</Label>
+              <Label htmlFor="subject">{t.subject}</Label>
               <Input
                 type="text"
                 id="subject"
@@ -564,7 +569,7 @@ const Contact = () => {
             </FormGroup>
             
             <FormGroup>
-              <Label htmlFor="message">Сообщение</Label>
+              <Label htmlFor="message">{t.message}</Label>
               <Textarea
                 id="message"
                 name="message"
@@ -579,7 +584,7 @@ const Contact = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Отправить
+              {t.send}
             </SubmitButton>
             
             {showSuccess && (
@@ -589,13 +594,13 @@ const Contact = () => {
                 animate="visible"
                 exit="exit"
               >
-                <SuccessText>Спасибо за сообщение! Я свяжусь с вами в ближайшее время.</SuccessText>
+                <SuccessText>{t.success_message}</SuccessText>
                 <CloseButton
                   onClick={closeSuccess}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  Закрыть
+                  {t.close}
                 </CloseButton>
               </SuccessMessage>
             )}

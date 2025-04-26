@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReactComponent as LogoSvg } from '../assets/images/header/Lolo_tunk_1.svg';
 import MobileMenu from './MobileMenu';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const HeaderContainer = styled.header`
   position: fixed;
@@ -16,6 +18,7 @@ const HeaderContainer = styled.header`
   background-color: ${props => props.$scroll ? 'var(--main-bg)' : 'transparent'};
   box-shadow: ${props => props.$scroll ? '0 2px 10px rgba(0, 0, 0, 0.1)' : 'none'};
   transform: translateY(${props => props.$hidden ? '-100%' : '0'});
+  border-bottom: ${props => props.$notHome ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'};
   
   @media (max-width: 768px) {
     display: none;
@@ -35,7 +38,7 @@ const HeaderContent = styled.div`
 const Logo = styled(motion.div)`
   font-family: monospace;
   font-size: 1.5rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -1px;
   position: relative;
   display: flex;
@@ -172,15 +175,102 @@ const Copyright = styled.p`
   padding: 0 8px;
 `;
 
+// Добавляем компонент переключателя языка
+const LanguageSwitcherContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const LanguageButton = styled.button`
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  
+  &:hover {
+    background-color: var(--accent);
+    color: var(--text-secondary);
+  }
+`;
+
+// Компонент для анимированного текста при наведении
+const ScrambleText = ({ text, isHovered }) => {
+  const [displayText, setDisplayText] = useState(text);
+  
+  // Набор символов для скремблинга
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+  
+  useEffect(() => {
+    if (!isHovered) {
+      setDisplayText(text);
+      return;
+    }
+    
+    let animationFrame;
+    let iterations = 0;
+    const maxIterations = 15;
+    
+    // Определяем самый длинный текст
+    const maxLength = text.length;
+    
+    const getRandomChar = () => chars[Math.floor(Math.random() * chars.length)];
+    
+    const animate = () => {
+      iterations++;
+      
+      const probability = 0.5 * (iterations / maxIterations);
+      
+      let newText = '';
+      for (let i = 0; i < maxLength; i++) {
+        if (Math.random() < probability) {
+          newText += text[i];
+        } else {
+          newText += getRandomChar();
+        }
+      }
+      
+      setDisplayText(newText);
+      
+      if (iterations < maxIterations) {
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        setDisplayText(text);
+      }
+    };
+    
+    animationFrame = requestAnimationFrame(animate);
+    
+    return () => {
+      cancelAnimationFrame(animationFrame);
+    };
+  }, [isHovered, text]);
+  
+  return <span>{displayText}</span>;
+};
+
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scroll, setScroll] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const menuRef = useRef(null);
+  
+  // Используем контекст языка
+  const { language, toggleLanguage } = useLanguage();
+  const t = translations[language];
   
   useEffect(() => {
     const handleScroll = () => {
@@ -198,13 +288,18 @@ const Header = () => {
       // Устанавливаем фон хедера, если позиция больше 50px
       setScroll(currentScrollPos > 50);
       
+      // Закрываем меню при скролле
+      if (isOpen) {
+        setIsOpen(false);
+      }
+      
       // Сохраняем текущую позицию скролла
       setPrevScrollPos(currentScrollPos);
     };
     
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [hidden, prevScrollPos]);
+  }, [hidden, prevScrollPos, isOpen]);
   
   // Закрываем меню при изменении маршрута
   useEffect(() => {
@@ -357,7 +452,7 @@ const Header = () => {
         )}
       </AnimatePresence>
       
-      <HeaderContainer $scroll={scroll} $hidden={hidden}>
+      <HeaderContainer $scroll={scroll} $hidden={hidden} $notHome={location.pathname !== '/'}>
         <HeaderContent>
           <Logo 
             onClick={handleLogoClick}
@@ -370,51 +465,60 @@ const Header = () => {
             <LogoSvg aria-label="Логотип" />
           </Logo>
           
-          <MenuButton 
-            onClick={handleMenuButtonClick} 
-            aria-label="Меню десктоп"
-            type="button"
-          >
-            <MenuIcon>
-              <svg width="40" height="40" viewBox="0 0 40 40">
-                <MenuCircle
-                  cx="20"
-                  cy="20"
-                  r="20"
-                  initial={false}
-                  animate={isOpen ? { scale: 1 } : { scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,16 L27,16"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { rotate: 45, translateY: 4 } : { rotate: 0, translateY: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,24 L27,24"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { rotate: -45, translateY: -4 } : { rotate: 0, translateY: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,20 L27,20"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </svg>
-            </MenuIcon>
-          </MenuButton>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {/* Добавляем переключатель языка */}
+            <LanguageSwitcherContainer>
+              <LanguageButton onClick={toggleLanguage}>
+                {language === 'en' ? 'RU' : 'EN'}
+              </LanguageButton>
+            </LanguageSwitcherContainer>
+            
+            <MenuButton 
+              onClick={handleMenuButtonClick} 
+              aria-label="Меню десктоп"
+              type="button"
+            >
+              <MenuIcon>
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <MenuCircle
+                    cx="20"
+                    cy="20"
+                    r="20"
+                    initial={false}
+                    animate={isOpen ? { scale: 1 } : { scale: 0.8 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,16 L27,16"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { rotate: 45, translateY: 4 } : { rotate: 0, translateY: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,24 L27,24"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { rotate: -45, translateY: -4 } : { rotate: 0, translateY: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,20 L27,20"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </svg>
+              </MenuIcon>
+            </MenuButton>
+          </div>
           
           <AnimatePresence>
             {isOpen && (
@@ -427,38 +531,63 @@ const Header = () => {
               >
                 <NavList>
                   <NavItem variants={itemVariants}>
-                    <NavLink to="/" className={location.pathname === '/' ? 'active' : ''}>
-                      Главная
+                    <NavLink 
+                      to="/" 
+                      className={location.pathname === '/' ? 'active' : ''}
+                      onMouseEnter={() => setHoveredItem('main')}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      <ScrambleText text={t.main} isHovered={hoveredItem === 'main'} />
                     </NavLink>
                   </NavItem>
                   
                   <NavItem variants={itemVariants}>
-                    <NavLink to="/about" className={location.pathname === '/about' ? 'active' : ''}>
-                      Обо мне
+                    <NavLink 
+                      to="/about" 
+                      className={location.pathname === '/about' ? 'active' : ''}
+                      onMouseEnter={() => setHoveredItem('about')}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      <ScrambleText text={t.about} isHovered={hoveredItem === 'about'} />
                     </NavLink>
                   </NavItem>
                   
                   <NavItem variants={itemVariants}>
-                    <NavLink to="/projects" className={location.pathname === '/projects' ? 'active' : ''}>
-                      Проекты
+                    <NavLink 
+                      to="/projects" 
+                      className={location.pathname === '/projects' ? 'active' : ''}
+                      onMouseEnter={() => setHoveredItem('projects')}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      <ScrambleText text={t.projects} isHovered={hoveredItem === 'projects'} />
                     </NavLink>
                   </NavItem>
                   
                   <NavItem variants={itemVariants}>
-                    <NavLink to="/testimonials" className={location.pathname === '/testimonials' ? 'active' : ''}>
-                      Отзывы
+                    <NavLink 
+                      to="/testimonials" 
+                      className={location.pathname === '/testimonials' ? 'active' : ''}
+                      onMouseEnter={() => setHoveredItem('feedback')}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      <ScrambleText text={t.feedback} isHovered={hoveredItem === 'feedback'} />
                     </NavLink>
                   </NavItem>
                   
                   <NavItem variants={itemVariants}>
-                    <NavLink to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>
-                      Контакты
+                    <NavLink 
+                      to="/contact" 
+                      className={location.pathname === '/contact' ? 'active' : ''}
+                      onMouseEnter={() => setHoveredItem('contact')}
+                      onMouseLeave={() => setHoveredItem(null)}
+                    >
+                      <ScrambleText text={t.contact} isHovered={hoveredItem === 'contact'} />
                     </NavLink>
                   </NavItem>
                 </NavList>
                 
                 <CopyrightContainer>
-                  <Copyright>©2025 DEVELOPMENT AND DESIGN BY TUNK5585</Copyright>
+                  <Copyright>{t.copyright}</Copyright>
                 </CopyrightContainer>
               </MenuDropdown>
             )}

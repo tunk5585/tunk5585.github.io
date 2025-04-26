@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom'; // Импортируем хук для получения текущего маршрута
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const IndicatorContainer = styled(motion.div)`
   position: fixed;
@@ -74,6 +76,7 @@ const ScrollIndicator = () => {
   // ref для предотвращения повторного показа индикатора
   const hasScrolledRef = useRef(false);
   const location = useLocation(); // Получаем текущий маршрут
+  const { language } = useLanguage();
   const [bottomOffset, setBottomOffset] = useState(() => {
     if (typeof window === 'undefined') return 35;
     const base = 35;
@@ -215,7 +218,7 @@ const ScrollIndicator = () => {
       opacity: 0,
       y: 20,
       transition: {
-        duration: 0.15 // Быстрее исчезает
+        duration: 1 // Быстрее исчезает
       }
     }
   };
@@ -229,7 +232,7 @@ const ScrollIndicator = () => {
     hidden: { 
       opacity: 0,
       y: 10,
-      transition: { duration: 0.1 }
+      transition: { duration: 0.7 }
     }
   };
   
@@ -248,7 +251,7 @@ const ScrollIndicator = () => {
       opacity: 0,
       y: 10,
       transition: {
-        duration: 0.1
+        duration: 0.7
       }
     }
   };
@@ -267,7 +270,7 @@ const ScrollIndicator = () => {
           whileHover={{ scale: 1.1 }}
         >
           <ScrollText variants={textVariants}>
-            Прокрутите вниз
+            {translations[language].scroll_down}
           </ScrollText>
           <ArrowContainer
             variants={arrowVariants}

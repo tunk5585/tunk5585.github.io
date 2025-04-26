@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../assets/images/header/Lolo_tunk_1.svg';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 // Стилизованные компоненты для мобильного меню
 const MobileMenuContainer = styled.div`
@@ -63,6 +65,31 @@ const LogoImage = styled.img`
   
   @media (max-width: 480px) {
     height: 35px;
+  }
+`;
+
+// Переключатель языка для мобильного меню
+const LanguageButton = styled.button`
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-right: 15px;
+  
+  &:hover {
+    background-color: var(--accent);
+    color: var(--text-secondary);
+  }
+  
+  @media (max-width: 480px) {
+    margin-right: 10px;
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
 `;
 
@@ -229,6 +256,10 @@ const MobileMenu = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const menuRef = useRef(null);
+  
+  // Используем контекст языка
+  const { language, toggleLanguage } = useLanguage();
+  const t = translations[language];
   
   // Полностью блокируем прокрутку при открытом меню, включая touch-джесты
   useEffect(() => {
@@ -488,51 +519,58 @@ const MobileMenu = () => {
             <LogoImage src={logo} alt="Логотип" />
           </Logo>
           
-          <MenuButton 
-            onClick={handleMenuButtonClick} 
-            aria-label="Меню"
-            type="button"
-          >
-            <MenuIcon>
-              <svg width="40" height="40" viewBox="0 0 40 40">
-                <MenuCircle
-                  cx="20"
-                  cy="20"
-                  r="20"
-                  initial={false}
-                  animate={isOpen ? { scale: 1 } : { scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,16 L27,16"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { rotate: 45, translateY: 4 } : { rotate: 0, translateY: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,24 L27,24"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { rotate: -45, translateY: -4 } : { rotate: 0, translateY: 0 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <motion.path
-                  d="M13,20 L27,20"
-                  stroke="var(--text-primary)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  initial={false}
-                  animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </svg>
-            </MenuIcon>
-          </MenuButton>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {/* Добавляем переключатель языка */}
+            <LanguageButton onClick={toggleLanguage}>
+              {language === 'en' ? 'RU' : 'EN'}
+            </LanguageButton>
+            
+            <MenuButton 
+              onClick={handleMenuButtonClick} 
+              aria-label="Меню"
+              type="button"
+            >
+              <MenuIcon>
+                <svg width="40" height="40" viewBox="0 0 40 40">
+                  <MenuCircle
+                    cx="20"
+                    cy="20"
+                    r="20"
+                    initial={false}
+                    animate={isOpen ? { scale: 1 } : { scale: 0.8 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,16 L27,16"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { rotate: 45, translateY: 4 } : { rotate: 0, translateY: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,24 L27,24"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { rotate: -45, translateY: -4 } : { rotate: 0, translateY: 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                  <motion.path
+                    d="M13,20 L27,20"
+                    stroke="var(--text-primary)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    initial={false}
+                    animate={isOpen ? { opacity: 0 } : { opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </svg>
+              </MenuIcon>
+            </MenuButton>
+          </div>
         </MobileHeader>
         
         <AnimatePresence>
@@ -546,38 +584,58 @@ const MobileMenu = () => {
             >
               <NavList>
                 <NavItem variants={itemVariants}>
-                  <NavLink to="/" className={location.pathname === '/' ? 'active' : ''}>
-                    Главная
+                  <NavLink 
+                    to="/" 
+                    className={location.pathname === '/' ? 'active' : ''}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t.main}
                   </NavLink>
                 </NavItem>
                 
                 <NavItem variants={itemVariants}>
-                  <NavLink to="/about" className={location.pathname === '/about' ? 'active' : ''}>
-                    Обо мне
+                  <NavLink 
+                    to="/about" 
+                    className={location.pathname === '/about' ? 'active' : ''}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t.about}
                   </NavLink>
                 </NavItem>
                 
                 <NavItem variants={itemVariants}>
-                  <NavLink to="/projects" className={location.pathname === '/projects' ? 'active' : ''}>
-                    Проекты
+                  <NavLink 
+                    to="/projects" 
+                    className={location.pathname === '/projects' ? 'active' : ''}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t.projects}
                   </NavLink>
                 </NavItem>
                 
                 <NavItem variants={itemVariants}>
-                  <NavLink to="/testimonials" className={location.pathname === '/testimonials' ? 'active' : ''}>
-                    Отзывы
+                  <NavLink 
+                    to="/testimonials" 
+                    className={location.pathname === '/testimonials' ? 'active' : ''}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t.feedback}
                   </NavLink>
                 </NavItem>
                 
                 <NavItem variants={itemVariants}>
-                  <NavLink to="/contact" className={location.pathname === '/contact' ? 'active' : ''}>
-                    Контакты
+                  <NavLink 
+                    to="/contact" 
+                    className={location.pathname === '/contact' ? 'active' : ''}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {t.contact}
                   </NavLink>
                 </NavItem>
               </NavList>
               
               <CopyrightContainer>
-                <Copyright>©2025 DEVELOPMENT AND DESIGN BY TUNK5585</Copyright>
+                <Copyright>{t.copyright}</Copyright>
               </CopyrightContainer>
             </MenuDropdown>
           )}

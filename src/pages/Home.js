@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import InteractiveBackground from '../components/InteractiveBackground';
 import { useLoading } from '../context/LoadingContext';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const HomeContainer = styled.div`
   touch-action: none;
@@ -40,7 +42,7 @@ const Title = styled(motion.h1)`
   margin-bottom: 1rem;
   line-height: 1.1;
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
+  font-weight: 600;
   mix-blend-mode: difference;
   max-width: 100%;
   width: 100%;
@@ -70,7 +72,9 @@ const ThirdLine = styled(TitleLine)`
 const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
   const [text, setText] = useState('');
   const [shouldStart, setShouldStart] = useState(false);
-  const fullText = "Креативный Дизайн & Инновационные Решения";
+  const { language } = useLanguage();
+  const t = translations[language];
+  const fullText = t.hero_title;
   const index = useRef(0);
   const { initialLoadComplete } = useLoading();
   
@@ -96,12 +100,20 @@ const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
       
       return () => clearTimeout(timeout);
     }
-  }, [text, speed, shouldStart]);
+  }, [text, speed, shouldStart, fullText]);
   
   // Разделяем текст на три строки в фиксированных местах
-  const firstLineText = text.slice(0, 10); // "Креативный"
-  const secondLineText = text.slice(10, 19); // "Дизайн &"
-  const thirdLineText = text.slice(19); // "Инновационные Решения"
+  const firstLineText = language === 'en' 
+    ? text.slice(0, 8) // "Creative"
+    : text.slice(0, 10); // "Креативный"
+    
+  const secondLineText = language === 'en'
+    ? text.slice(8, 17) // "Design &"
+    : text.slice(10, 19); // "Дизайн &"
+    
+  const thirdLineText = language === 'en'
+    ? text.slice(17) // "Innovative Solutions"
+    : text.slice(19); // "Инновационные Решения"
   
   return (
     <>
@@ -185,6 +197,8 @@ const Button = styled(Link)`
 
 const Home = () => {
   const { initialLoadComplete } = useLoading();
+  const { language } = useLanguage();
+  const t = translations[language];
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -214,7 +228,7 @@ const Home = () => {
             animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Соединяю технологии и эстетику, создавая уникальные цифровые впечатления, которые запоминаются и вдохновляют.
+            {t.hero_subtitle}
           </Subtitle>
           
           <ButtonRow
@@ -222,8 +236,8 @@ const Home = () => {
             animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            <Button to="/projects" className="primary">Посмотреть проекты</Button>
-            <Button to="/contact">Связаться</Button>
+            <Button to="/projects" className="primary">{t.view_projects}</Button>
+            <Button to="/contact">{t.get_in_touch}</Button>
           </ButtonRow>
         </HeroContent>
       </HeroSection>

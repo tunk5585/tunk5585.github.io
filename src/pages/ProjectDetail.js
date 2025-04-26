@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import projects, { generateProjectAscii } from '../data/projects';
+import { useLanguage } from '../context/LanguageContext';
+import translations from '../data/translations';
 
 const ProjectDetailContainer = styled.div`
   min-height: 100vh;
@@ -268,6 +270,8 @@ const ProjectDetail = () => {
   const [indicatorVisible, setIndicatorVisible] = useState(false);
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
   const [bottomOffset, setBottomOffset] = useState(() => (window.innerWidth >= 769 ? 45 : 20));
+  const { language } = useLanguage();
+  const t = translations.projects[language];
   
   useEffect(() => {
     const updateBottomOffset = () => {
@@ -313,6 +317,48 @@ const ProjectDetail = () => {
     }
   }, [project, navigate]);
   
+  // Функция для перевода категорий
+  const translateCategory = (category) => {
+    return language === 'en' && t.categories[category] ? t.categories[category] : category;
+  };
+  
+  // Получаем локализованный заголовок проекта
+  const getLocalizedTitle = () => {
+    if (language === 'en' && project.titleEn) {
+      return project.titleEn;
+    }
+    return project.title;
+  };
+  
+  // Получаем локализованное описание проекта
+  const getLocalizedLongDescription = () => {
+    return project.longDescription[language] || project.longDescription.ru;
+  };
+  
+  // Получаем локализованные данные клиента
+  const getLocalizedClient = () => {
+    if (typeof project.client === 'object' && project.client[language]) {
+      return project.client[language];
+    }
+    return project.client;
+  };
+  
+  // Получаем локализованные данные года
+  const getLocalizedYear = () => {
+    if (typeof project.year === 'object' && project.year[language]) {
+      return project.year[language];
+    }
+    return project.year;
+  };
+  
+  // Получаем локализованные данные роли
+  const getLocalizedRole = () => {
+    if (typeof project.role === 'object' && project.role[language]) {
+      return project.role[language];
+    }
+    return project.role;
+  };
+
   // Показываем индикатор прокрутки, если контент длинный
   useEffect(() => {
     if (project) {
@@ -360,7 +406,7 @@ const ProjectDetail = () => {
   return (
     <ProjectDetailContainer ref={containerRef}>
       <ProjectHeader>
-        <ProjectTitle>{project.title}</ProjectTitle>
+        <ProjectTitle>{getLocalizedTitle()}</ProjectTitle>
         <CloseButton onClick={handleBack}>
           <CloseIcon />
         </CloseButton>
@@ -377,23 +423,23 @@ const ProjectDetail = () => {
         
         <TagContainer>
           {project.category.map(cat => (
-            <Tag key={cat}>{cat}</Tag>
+            <Tag key={cat}>{translateCategory(cat)}</Tag>
           ))}
         </TagContainer>
-        <ProjectDescription>{project.longDescription}</ProjectDescription>
+        <ProjectDescription>{getLocalizedLongDescription()}</ProjectDescription>
         
         <ProjectDetails>
           <DetailRow>
-            <DetailLabel>Клиент:</DetailLabel>
-            <DetailValue>{project.client}</DetailValue>
+            <DetailLabel>{t.client}</DetailLabel>
+            <DetailValue>{getLocalizedClient()}</DetailValue>
           </DetailRow>
           <DetailRow>
-            <DetailLabel>Год:</DetailLabel>
-            <DetailValue>{project.year}</DetailValue>
+            <DetailLabel>{t.year}</DetailLabel>
+            <DetailValue>{getLocalizedYear()}</DetailValue>
           </DetailRow>
           <DetailRow>
-            <DetailLabel>Роль:</DetailLabel>
-            <DetailValue>{project.role}</DetailValue>
+            <DetailLabel>{t.role}</DetailLabel>
+            <DetailValue>{getLocalizedRole()}</DetailValue>
           </DetailRow>
         </ProjectDetails>
       </ContentContainer>
@@ -405,7 +451,7 @@ const ProjectDetail = () => {
           exit={{ opacity: 0, y: 20 }}
           onClick={scrollDown}
         >
-          <ScrollText>Прокрутите вниз</ScrollText>
+          <ScrollText>{t.scroll_down}</ScrollText>
           <ArrowContainer><Arrow /></ArrowContainer>
         </ScrollIndicator>
       )}

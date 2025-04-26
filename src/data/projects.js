@@ -4,75 +4,163 @@ const projects = [
     id: 1,
     title: "Textile.Guru",
     category: ["Брендинг", "Упаковка", "Типографика"],
-    description: "Поддержка внутренних и клиентских задач: от бренд-носителей до визуального оформления макетов под производство.",
-    longDescription: `Проект с производством полного цикла, работающим в сегменте B2B. В рамках сотрудничества я отвечаю за визуальную часть — как внутренних материалов, так и задач, поступающих от их клиентов.
+    description: {
+      ru: "Поддержка внутренних и клиентских задач: от бренд-носителей до визуального оформления макетов под производство.",
+      en: "Supporting internal and client tasks: from brand assets to visual design of production-ready layouts."
+    },
+    longDescription: {
+      ru: `Проект с производством полного цикла, работающим в сегменте B2B. В рамках сотрудничества я отвечаю за визуальную часть — как внутренних материалов, так и задач, поступающих от их клиентов.
 
 Внутри процесса — создание бренд-носителей, типографических решений, оформление макетов под запуск в производство. Важно было не просто "сделать красиво", а встроить визуальные элементы в реальный рабочий процесс: адаптировать под технические требования, подать с учётом специфики индустрии, донести эстетику до заказчиков Textile.guru.
 
 Также участвую в доработке клиентских проектов, которые приходят от производства — помогая доводить их до финала или адаптируя под выпуск.`,
+      en: `A project with a full-cycle production company operating in the B2B segment. As part of the collaboration, I am responsible for the visual aspect — both internal materials and tasks coming from their clients.
+
+The process includes creating brand assets, typographic solutions, and preparing layouts for production. It was important not just to "make it beautiful," but to integrate visual elements into a real working process: adapting to technical requirements, presenting with industry specifics in mind, and conveying aesthetics to Textile.guru's customers.
+
+I also participate in finalizing client projects that come from production — helping to bring them to completion or adapting them for release.`
+    },
     client: "Textile.Guru",
-    year: "2023–н.в.",
-    role: "Графический дизайнер"
+    year: {
+      ru: "2023–н.в.",
+      en: "2023–Present"
+    },
+    role: {
+      ru: "Графический дизайнер",
+      en: "Graphic Designer"
+    }
   },
   {
     id: 2,
     title: "F|ABLE",
     category: ["Брендинг", "Упаковка", "Типографика", "Веб-дизайн"],
-    description: "Работаю в паре с арт-директором: развиваю визуальную часть, обеспечиваю графическую целостность бренда.",
-    longDescription: `Сотрудничество с брендом Fable строится на регулярной работе в тандеме с их внутренним арт-директором. Я подключаюсь ко всем визуальным задачам — от digital-материалов до печатной продукции, от фирменной графики до оформления коллекций.
+    description: {
+      ru: "Работаю в паре с арт-директором: развиваю визуальную часть, обеспечиваю графическую целостность бренда.",
+      en: "Working alongside the art director: developing the visual elements, ensuring the brand's graphic integrity."
+    },
+    longDescription: {
+      ru: `Сотрудничество с брендом Fable строится на регулярной работе в тандеме с их внутренним арт-директором. Я подключаюсь ко всем визуальным задачам — от digital-материалов до печатной продукции, от фирменной графики до оформления коллекций.
 
 Основная цель — поддерживать и развивать визуальный язык бренда, обеспечивая его актуальность, узнаваемость и стилистическую целостность. Рабочие процессы включают быстрые итерации, адаптацию графики под новые запуски и участие в разработке визуального контента на всех этапах.`,
+      en: `Collaboration with the Fable brand is built on regular work in tandem with their in-house art director. I am involved in all visual tasks — from digital materials to print products, from brand graphics to collection design.
+
+The main goal is to maintain and develop the brand's visual language, ensuring its relevance, recognition, and stylistic integrity. Work processes include rapid iterations, adapting graphics for new launches, and participating in the development of visual content at all stages.`
+    },
     client: "F|ABLE",
-    year: "2023–н.в.",
-    role: "Графический дизайнер"
+    year: {
+      ru: "2023–н.в.",
+      en: "2023–Present"
+    },
+    role: {
+      ru: "Графический дизайнер",
+      en: "Graphic Designer"
+    }
   },
   {
     id: 3,
     title: "0NOT1",
     category: ["Брендинг", "Упаковка", "Типографика"],
-    description: "Креативные концепции и принты для массового сегмента: современно, цепко и в визуальном ритме культуры.",
-    longDescription: `Работа с брендом 0not1 сосредоточена на разработке принтов и визуальных концепций для одежды в сегменте масс-маркет. Основной фокус — на трендовости, узнаваемости и визуальной новизне.
+    description: {
+      ru: "Креативные концепции и принты для массового сегмента: современно, цепко и в визуальном ритме культуры.",
+      en: "Creative concepts and prints for the mass market segment: contemporary, captivating and in the visual rhythm of culture."
+    },
+    longDescription: {
+      ru: `Работа с брендом 0not1 сосредоточена на разработке принтов и визуальных концепций для одежды в сегменте масс-маркет. Основной фокус — на трендовости, узнаваемости и визуальной новизне.
 
 Я предлагал креативные решения, в которых принт становился ключевым носителем идеи, работал с референсами уличной культуры и с актуальными визуальными кодами. Концепции включали и графику, и текстовые элементы, и работу с ритмом на плоскости одежды.`,
+      en: `Work with the 0not1 brand focuses on developing prints and visual concepts for clothing in the mass market segment. The main focus is on trendiness, recognition, and visual novelty.
+
+I offered creative solutions where the print became the key carrier of the idea, worked with street culture references and current visual codes. Concepts included graphics, text elements, and work with rhythm on the clothing surface.`
+    },
     client: "0NOT1",
     year: "2022–2023",
-    role: "Арт-директор, концепт-дизайнер, графический дизайнер"
+    role: {
+      ru: "Арт-директор, концепт-дизайнер, графический дизайнер",
+      en: "Art Director, Concept Designer, Graphic Designer"
+    }
   },
   {
     id: 4,
     title: "SAMB",
     category: ["Брендинг", "Упаковка", "Типографика"],
-    description: "Постоянное визуальное сопровождение бренда: от key visuals до презентаций и носителей.",
-    longDescription: `Сотрудничаю с SAMB на постоянной основе как основной дизайнер. Я сопровождаю визуальную коммуникацию бренда на всех этапах: от графических материалов для коллекций до презентационных и корпоративных носителей.
+    description: {
+      ru: "Постоянное визуальное сопровождение бренда: от key visuals до презентаций и носителей.",
+      en: "Continuous visual support for the brand: from key visuals to presentations and brand assets."
+    },
+    longDescription: {
+      ru: `Сотрудничаю с SAMB на постоянной основе как основной дизайнер. Я сопровождаю визуальную коммуникацию бренда на всех этапах: от графических материалов для коллекций до презентационных и корпоративных носителей.
 
 Основная задача — выстраивать стабильную визуальную среду бренда, реагируя на текущие потребности, но сохраняя характер и эстетику марки. Часто работаю напрямую с командой бренда, обеспечивая оперативную и системную визуальную поддержку.`,
+      en: `I collaborate with SAMB on an ongoing basis as their primary designer. I support the brand's visual communication at all stages: from graphic materials for collections to presentation and corporate assets.
+
+The main task is to build a consistent visual environment for the brand, responding to current needs while maintaining the character and aesthetics of the brand. I often work directly with the brand team, providing prompt and systematic visual support.`
+    },
     client: "SAMB",
-    year: "2023–н.в.",
-    role: "Арт-директор, графический дизайнер"
+    year: {
+      ru: "2023–н.в.",
+      en: "2023–Present"
+    },
+    role: {
+      ru: "Арт-директор, графический дизайнер",
+      en: "Art Director, Graphic Designer"
+    }
   },
   {
     id: 5,
     title: "Личный сайт",
+    titleEn: "Personal Website",
     category: ["Веб-дизайн", "Интерактивный дизайн", "Брендинг"],
-    description: "Структура, язык и взаимодействие — самостоятельный проект, воплощающий мой подход к дизайну.",
-    longDescription: `Создание собственного портфолио стало полноценным дизайнерским кейсом — от концепции и структуры до реализации. Главная задача — передать моё профессиональное видение и опыт в максимально честной и комфортной для восприятия форме.
+    description: {
+      ru: "Структура, язык и взаимодействие — самостоятельный проект, воплощающий мой подход к дизайну.",
+      en: "Structure, language, and interaction — an independent project embodying my approach to design."
+    },
+    longDescription: {
+      ru: `Создание собственного портфолио стало полноценным дизайнерским кейсом — от концепции и структуры до реализации. Главная задача — передать моё профессиональное видение и опыт в максимально честной и комфортной для восприятия форме.
 
 Визуальный язык построен на контрастах, читаемости и чётком иерархическом ритме. Особое внимание — навигации, пользовательским сценариям и адаптации под разные устройства. Это не просто "визитка", а инструмент для коммуникации с профессиональной аудиторией.`,
-    client: "Tunk5585",
+      en: `Creating my own portfolio became a full-fledged design case — from concept and structure to implementation. The main task was to convey my professional vision and experience in the most honest and comfortable form for perception.
+
+The visual language is built on contrasts, readability, and clear hierarchical rhythm. Special attention is paid to navigation, user scenarios, and adaptation for different devices. It's not just a "business card," but a tool for communication with a professional audience.`
+    },
+    client: {
+      ru: "Tunk5585",
+      en: "Tunk5585"
+    },
     year: "2025",
-    role: "Арт-директор, графический дизайнер, разработчик"
+    role: {
+      ru: "Арт-директор, графический дизайнер, разработчик",
+      en: "Art Director, Graphic Designer, Developer"
+    }
   },
   {
     id: 6,
     title: "Ищу сильные проекты",
+    titleEn: "Looking for Strong Projects",
     category: ["Брендинг", "Упаковка", "Типографика", "Веб-дизайн", "AR/VR", "Интерактивный дизайн"],
-    description: " Открыт к сотрудничеству — от точечных задач до глубоких дизайн-процессов.",
-    longDescription: `Готов подключаться к новым задачам — как в роли исполнителя, так и на позиции, требующей стратегического видения. Мой опыт охватывает брендинг, визуальную коммуникацию, упаковку, веб-дизайн и цифровую среду.
+    description: {
+      ru: "Открыт к сотрудничеству — от точечных задач до глубоких дизайн-процессов.",
+      en: "Open for collaboration — from specific tasks to in-depth design processes."
+    },
+    longDescription: {
+      ru: `Готов подключаться к новым задачам — как в роли исполнителя, так и на позиции, требующей стратегического видения. Мой опыт охватывает брендинг, визуальную коммуникацию, упаковку, веб-дизайн и цифровую среду.
 
 Интересны как краткосрочные креативные задачи, так и долгосрочные проекты, где можно влиять на визуальную стратегию и рост бренда. Умею встраиваться в команды, вести проекты в одиночку и адаптироваться под разные рабочие процессы.`,
-    client: "Вы",
-    year: "Актуально",
-    role: "Графический дизайнер, арт-директор, креативный партнёр"
+      en: `I'm ready to engage in new tasks — both as an executor and in a position requiring strategic vision. My experience encompasses branding, visual communication, packaging, web design, and digital environment.
+
+I'm interested in both short-term creative tasks and long-term projects where I can influence visual strategy and brand growth. I know how to integrate into teams, lead projects independently, and adapt to different work processes.`
+    },
+    client: {
+      ru: "Вы",
+      en: "You"
+    },
+    year: {
+      ru: "Актуально",
+      en: "Current"
+    },
+    role: {
+      ru: "Графический дизайнер, арт-директор, креативный партнёр",
+      en: "Graphic Designer, Art Director, Creative Partner"
+    }
   }
 ];
 

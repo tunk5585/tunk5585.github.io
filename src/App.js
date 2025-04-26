@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useLoading } from './context/LoadingContext';
+import { LanguageProvider } from './context/LanguageContext';
 // Импорт компонентов
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -55,38 +56,118 @@ const LoadingText = styled.div`
   font-family: 'Space Grotesk', sans-serif;
 `;
 
+// Компонент, скрывающий детей до явного указания о готовности
+const DelayedContent = ({ isReady, children }) => {
+  const [shouldRender, setShouldRender] = useState(false);
+  
+  useEffect(() => {
+    if (isReady) {
+      // Добавляем небольшую задержку перед показом контента
+      const timer = setTimeout(() => {
+        setShouldRender(true);
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setShouldRender(false);
+    }
+  }, [isReady]);
+  
+  if (!shouldRender) {
+    return null;
+  }
+  
+  return <>{children}</>;
+};
+
 const App = () => {
   const location = useLocation();
   const navigation = useNavigation();
   const navStartTime = useRef(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [showNavSpinner, setShowNavSpinner] = useState(false);
-  const loading = initialLoad || showNavSpinner;
+  const [loadingPercent, setLoadingPercent] = useState(0);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
+  const loadingFinishing = useRef(false);
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
   const { setInitialLoadComplete } = useLoading();
 
+  // Вычисляем базовое состояние загрузки
+  const isLoading = initialLoad || showNavSpinner;
+  
+  // Состояние готовности контента
+  const [contentReady, setContentReady] = useState(false);
+
   // Анимация точек загрузки
   useEffect(() => {
     let interval;
-    if (loading) {
+    if (showLoadingScreen) {
       interval = setInterval(() => {
         setDots(prev => (prev >= 3 ? 0 : prev + 1));
       }, 400);
     }
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [showLoadingScreen]);
 
   // Анимация ASCII крутилки
   useEffect(() => {
     let interval;
-    if (loading) {
+    if (showLoadingScreen) {
       interval = setInterval(() => {
         setFrame(prev => (prev >= 7 ? 0 : prev + 1));
       }, 150);
     }
     return () => clearInterval(interval);
-  }, [loading]);
+  }, [showLoadingScreen]);
+
+  // Управление экраном загрузки и плавным завершением
+  useEffect(() => {
+    if (isLoading) {
+      setShowLoadingScreen(true);
+      setContentReady(false);
+      loadingFinishing.current = false;
+    } else if (!loadingFinishing.current) {
+      // Если загрузка окончена, но мы еще не запустили процесс завершения
+      loadingFinishing.current = true;
+      
+      // Быстро увеличиваем проценты до 100%
+      const finishInterval = setInterval(() => {
+        setLoadingPercent(prev => {
+          if (prev >= 100) {
+            clearInterval(finishInterval);
+            // Добавляем задержку перед скрытием экрана загрузки
+            setTimeout(() => {
+              setShowLoadingScreen(false);
+              // Устанавливаем готовность контента ПОСЛЕ скрытия экрана загрузки
+              setTimeout(() => {
+                setContentReady(true);
+              }, 50);
+            }, 300);
+            return 100;
+          }
+          return prev + 2; // Ускоренное заполнение до 100%
+        });
+      }, 20);
+      
+      return () => clearInterval(finishInterval);
+    }
+  }, [isLoading]);
+
+  // Анимация процентов загрузки
+  useEffect(() => {
+    let interval;
+    if (showLoadingScreen && !loadingFinishing.current && loadingPercent < 98) {
+      interval = setInterval(() => {
+        setLoadingPercent(prev => {
+          // Ускоряем рост процентов по мере увеличения значения
+          const increment = prev < 50 ? 1 : prev < 80 ? 0.8 : prev < 95 ? 0.3 : 0.1;
+          return Math.min(prev + increment, 98); // Максимум 98% для обычной загрузки
+        });
+      }, 100);
+    }
+    
+    return () => clearInterval(interval);
+  }, [showLoadingScreen, loadingPercent]);
 
   // Initial load: минимум 3с и ожидание события загрузки страницы
   useEffect(() => {
@@ -122,6 +203,7 @@ const App = () => {
     if (navigation.state === 'loading') {
       setShowNavSpinner(true);
       navStartTime.current = Date.now();
+      setLoadingPercent(0);
     } else if (navigation.state === 'idle') {
       const elapsed = Date.now() - navStartTime.current;
       const remaining = 500 - elapsed;
@@ -137,7 +219,7 @@ const App = () => {
   // Блокируем прокрутку страницы на время загрузки, включая touch и колесо
   useEffect(() => {
     const prevent = (e) => e.preventDefault();
-    if (loading) {
+    if (showLoadingScreen) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
       document.body.addEventListener('touchmove', prevent, { passive: false });
@@ -154,7 +236,7 @@ const App = () => {
       document.body.removeEventListener('touchmove', prevent);
       document.body.removeEventListener('wheel', prevent);
     };
-  }, [loading]);
+  }, [showLoadingScreen]);
 
   // Блокировка pull-to-refresh в Mobile Safari
   useEffect(() => {
@@ -340,28 +422,30 @@ const App = () => {
   ];
 
   return (
-    <AppWrapper>
-      <ScrollToTop />
-      {/* Spinner overlay during initial load or navigation */}
-      {loading && (
-        <LoadingContainer>
-          <LoadingAscii>
-            {spinnerFrames[frame]}
-            <LoadingText>loading{'.'.repeat(dots)}</LoadingText>
-          </LoadingAscii>
-        </LoadingContainer>
-      )}
-      {/* Основной контент */}
-      <>
-        {!location.pathname.startsWith('/projects/') && <Header />}
-        <MainContent>
-          <Outlet />
-        </MainContent>
-        {location.pathname !== '/' && <Footer />}
-        {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-        {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-      </>
-    </AppWrapper>
+    <LanguageProvider>
+      <AppWrapper>
+        <ScrollToTop />
+        {/* Spinner overlay during initial load or navigation */}
+        {showLoadingScreen && (
+          <LoadingContainer>
+            <LoadingAscii>
+              {spinnerFrames[frame]}
+              <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
+            </LoadingAscii>
+          </LoadingContainer>
+        )}
+        {/* Основной контент загружается только после полного скрытия экрана загрузки */}
+        <DelayedContent isReady={contentReady || !showLoadingScreen}>
+          {!location.pathname.startsWith('/projects/') && <Header />}
+          <MainContent>
+            <Outlet />
+          </MainContent>
+          {location.pathname !== '/' && <Footer />}
+          {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
+          {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
+        </DelayedContent>
+      </AppWrapper>
+    </LanguageProvider>
   );
 };
 
