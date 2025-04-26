@@ -28,11 +28,36 @@ jobs:
         run: npm ci
       - name: Build project
         run: npm run build
+      - name: Backup important files
+        run: |
+          mkdir -p temp_backup
+          if [ -f "docs/CNAME" ]; then
+            cp docs/CNAME temp_backup/
+          fi
+          if [ -f "docs/.nojekyll" ]; then
+            cp docs/.nojekyll temp_backup/
+          fi
       - name: Deploy to docs
         run: |
           rm -rf docs
           mv build docs
           cp docs/index.html docs/404.html
+      - name: Restore important files
+        run: |
+          if [ -f "temp_backup/CNAME" ]; then
+            cp temp_backup/CNAME docs/
+          fi
+          if [ -f "temp_backup/.nojekyll" ]; then
+            cp temp_backup/.nojekyll docs/
+          fi
+          rm -rf temp_backup
+      - name: Create .nojekyll if not exists
+        run: |
+          if [ ! -f "docs/.nojekyll" ]; then
+            touch docs/.nojekyll
+          fi
+      - name: Commit and push changes
+        run: |
           git config user.name "${{ github.actor }}"
           git config user.email "${{ github.actor }}@users.noreply.github.com"
           git add docs
