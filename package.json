@@ -6,7 +6,7 @@
   "dependencies": {
     "@react-three/drei": "^9.101.0",
     "@react-three/fiber": "^8.15.19",
-    "@react-three/postprocessing": "^3.0.4",
+    "@react-three/postprocessing": "^2.7.1",
     "chart.js": "^4.4.9",
     "framer-motion": "^10.16.4",
     "gsap": "^3.12.2",
