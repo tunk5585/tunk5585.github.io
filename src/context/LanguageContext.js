@@ -8,12 +8,6 @@ export const useLanguage = () => useContext(LanguageContext);
 
 // Провайдер языка
 export const LanguageProvider = ({ children }) => {
-  // Получаем сохраненный язык или используем язык браузера
-  const getBrowserLanguage = () => {
-    const browserLang = navigator.language || navigator.userLanguage;
-    return browserLang.startsWith('ru') ? 'ru' : 'en';
-  };
-
   // Получаем сохраненный язык или используем английский по умолчанию
   const getSavedLanguage = () => {
     const savedLang = localStorage.getItem('language');

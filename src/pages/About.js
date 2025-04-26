@@ -282,11 +282,6 @@ const BioText = styled(motion.p)`
   }
 `;
 
-const Highlight = styled.span`
-  color: var(--text-primary);
-  font-weight: 500;
-`;
-
 const SkillsSection = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -663,50 +658,6 @@ function MobileModel({ scrollY }) {
     />
   );
 }
-
-// Данные о навыках с процентами владения
-const skills = [
-  { name: "Графический дизайн", level: 88 },
-  { name: "UI/UX дизайн", level: 30 },
-  { name: "Брендинг", level: 70 },
-  { name: "Типографика", level: 65 },
-  { name: "Иллюстрация", level: 85 },
-  { name: "Моушн-дизайн", level: 40 },
-  { name: "Фотография", level: 20 },
-  { name: "Прототипирование", level: 65 }
-];
-
-// Личные качества
-const personalQualities = [
-  { name: "Креативность", level: 95 },
-  { name: "Смекалка", level: 90 },
-  { name: "Любопытство", level: 95 },
-  { name: "Пунктуальность", level: 85 },
-  { name: "Адаптивность", level: 75 },
-  { name: "Участие", level: 65 }
-];
-
-// Данные об опыте
-const experience = [
-  {
-    period: "Февраль 2023 — наст. время",
-    position: "Арт-директор",
-    company: "Self-Employed / Freelance",
-    description: "Управление творческими проектами, разработка визуальных концепций и арт‑дирекшн кампаний."
-  },
-  {
-    period: "Январь 2019 — наст. время",
-    position: "Графический дизайнер",
-    company: "Self-Employed / Freelance",
-    description: "Создание технических дизайнов и верстка полиграфической продукции, контроль качества макетов."
-  },
-  {
-    period: "Октябрь 2021 — Август 2022",
-    position: "Ассистент руководителя отдела \"Новых клиентов\"",
-    company: "Digital Agency / DxB",
-    description: "Брифинг, эскизы и сметы, сбор данных, общение с клиентом и отчёты"
-  }
-];
 
 const ChartContainer = styled(motion.div)`
   width: 100%;
@@ -1191,19 +1142,6 @@ const About = () => {
   const verticalPositions = [10, 30, 50, 70, 90];
   
   // Данные и настройки для Radar Chart личных качеств
-  const qualitiesChartData = {
-    labels: personalQualities.map(q => q.name),
-    datasets: [{
-      label: 'Личные качества',
-      data: personalQualities.map(q => q.level),
-      backgroundColor: 'rgba(160, 160, 160, 0.2)',
-      borderColor: 'rgb(133, 133, 133)',
-      borderWidth: 1,
-      borderDash: [5, 5],
-      tension: 0.4,
-      pointBackgroundColor: 'rgb(188, 188, 188)',
-    }]
-  };
   const qualitiesChartOptions = {
     scales: {
       r: {

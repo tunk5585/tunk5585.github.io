@@ -227,7 +227,7 @@ const frameChars = [
 
 const Feedback = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
-  const [verticalCharsCount, setVerticalCharsCount] = useState(0);
+  
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -264,25 +264,16 @@ const Feedback = () => {
     })
   };
   
-  const calculateVerticalChars = (height) => {
-    // Примерно один символ на каждые 15px высоты
-    // Минимум 5 символов, максимум 20
-    return Math.min(20, Math.max(5, Math.floor(height / 15)));
-  };
-  
   useEffect(() => {
-    // Расчет оптимального количества вертикальных символов
-    // на основе типичной высоты карточки
-    const calculateChars = () => {
-      const cardHeight = 250; // Примерная высота карточки
-      calculateVerticalChars(cardHeight - 24); // Минус высота верхней и нижней линий
+    // Пустой слушатель для обработки изменения размера окна
+    const handleResize = () => {
+      // Ничего не делаем, так как переменная verticalCharsCount больше не используется
     };
     
-    calculateChars();
-    window.addEventListener('resize', calculateChars);
+    window.addEventListener('resize', handleResize);
     
     return () => {
-      window.removeEventListener('resize', calculateChars);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
   
