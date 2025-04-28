@@ -1,7 +1,7 @@
 {
   "name": "tunk5585",
   "short_name": "5585",
-  "description": "Портфолио креативного дизайнера",
+  "description": "Look, enjoy, cooperate.",
   "icons": [
     {
       "src": "favicon.ico",
@@ -28,6 +28,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#ffffff",
-  "background_color": "#ffffff"
+  "theme_color": "#000000",
+  "background_color": "#0f0f0f"
 } 
