@@ -10,11 +10,16 @@ import translations from '../data/translations';
 const ProjectDetailContainer = styled.div`
   min-height: 100vh;
   padding-top: 0;
-  padding-bottom: 50px;
+  padding-bottom: 48px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: 100%;
+  overflow-x: hidden;
   
   @media (max-width: 768px) {
-    padding-top: 0;
-    padding-bottom: 30px;
+    padding-bottom: 32px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 `;
 
@@ -22,7 +27,11 @@ const ProjectHeader = styled.div`
   position: sticky;
   top: 0;
   background-color: var(--main-bg);
-  padding: 1.25rem;
+  padding: 1.25rem 0;
+  margin-left: -24px;
+  margin-right: -24px;
+  padding-left: 24px;
+  padding-right: 24px;
   z-index: 10;
   display: flex;
   justify-content: space-between;
@@ -30,7 +39,11 @@ const ProjectHeader = styled.div`
   border-bottom: 1px solid var(--border);
   
   @media (max-width: 768px) {
-    padding: 1rem;
+    padding: 1rem 0;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-left: -16px;
+    margin-right: -16px;
   }
 `;
 
@@ -85,11 +98,7 @@ const CloseIcon = styled.div`
 const ContentContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
-  
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
+  padding: 0;
 `;
 
 const ProjectImageContainer = styled.div`

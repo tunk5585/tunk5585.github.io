@@ -8,19 +8,26 @@ import translations from '../data/translations';
 
 const FeedbackContainer = styled.div`
   min-height: 100vh;
-  padding-top: 100px;
-  padding-bottom: 50px;
+  padding-top: 124px;
+  padding-bottom: 64px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: 100%;
+  overflow-x: hidden;
+  
+  @media (max-width: 768px) {
+    padding-top: 88px;
+    padding-bottom: 48px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 `;
 
 const TitleContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
-  margin-bottom: 40px;
-  
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
+  margin-bottom: 48px;
+  padding: 0;
 `;
 
 const SectionTitle = styled.div`
@@ -36,14 +43,14 @@ const SectionTitle = styled.div`
 
 const FeedbackGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 32px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
 `;
 
@@ -97,7 +104,6 @@ const FeedbackAsciiFrame = styled.div`
     right: 5px;
   }
   
-  /* Вертикальные линии */
   .left::before, .right::before {
     content: "";
     position: absolute;
@@ -115,7 +121,6 @@ const FeedbackAsciiFrame = styled.div`
     right: 0;
   }
   
-  /* Символы вертикальных линий - всего 5 символов */
   .v-symbol {
     position: absolute;
     left: 0;
@@ -126,37 +131,54 @@ const FeedbackAsciiFrame = styled.div`
 const FeedbackCard = styled(motion.div)`
   position: relative;
   cursor: pointer;
-  padding: 30px;
-  min-height: 250px;
+  padding: 24px;
+  min-height: 220px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(30, 30, 30, 0.3);
+  background-color: rgba(30, 30, 30, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
   
   &:hover {
-    background-color: rgba(40, 40, 40, 0.5);
+    background-color: rgba(40, 40, 40, 0.3);
     transform: translateY(-5px);
+    border-color: rgba(255, 255, 255, 0.1);
     
     .ascii-frame {
-      opacity: 1;
+      opacity: 0.5;
     }
+  }
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+    min-height: 200px;
   }
 `;
 
 const FeedbackContent = styled.div`
   position: relative;
   z-index: 1;
-  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 `;
 
 const Quote = styled.blockquote`
   font-size: 1.1rem;
   line-height: 1.6;
-  margin-bottom: 15px;
-  max-width: 500px;
+  margin: 0 0 auto;
+  padding: 0;
   font-style: italic;
+  color: var(--text-primary);
+  text-align: left;
+  flex-grow: 1;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
 `;
 
 const Author = styled.cite`
@@ -164,12 +186,14 @@ const Author = styled.cite`
   font-size: 0.9rem;
   color: var(--text-secondary);
   font-style: normal;
-  margin-top: 15px;
+  margin-top: 16px;
+  text-align: right;
   
   .company {
     display: block;
-    margin-top: 5px;
+    margin-top: 4px;
     font-size: 0.8rem;
+    opacity: 0.7;
   }
 `;
 
@@ -179,42 +203,131 @@ const ModalBackdrop = styled(motion.div)`
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 2rem;
+  padding: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 const ModalContent = styled(motion.div)`
-  max-width: 700px;
+  max-width: 650px;
   width: 100%;
   background-color: var(--main-bg);
-  padding: 2rem;
   position: relative;
   border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   
-  .quote {
-    font-size: 1.3rem;
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
+  @media (max-width: 600px) {
+    max-width: 100%;
   }
+`;
+
+const ModalHeader = styled.div`
+  position: relative;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--border);
   
-  .author {
-    font-size: 1.1rem;
+  @media (max-width: 768px) {
+    height: 50px;
+    padding: 0 20px;
+  }
+`;
+
+const ModalBody = styled.div`
+  padding: 28px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+`;
+
+const ModalQuote = styled.blockquote`
+  font-size: 1.2rem;
+  line-height: 1.7;
+  margin: 0 0 24px;
+  font-style: italic;
+  color: var(--text-primary);
+  
+  @media (max-width: 768px) {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+`;
+
+const ModalAuthor = styled.cite`
+  display: block;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-style: normal;
+  text-align: right;
+  
+  .company {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    opacity: 0.7;
   }
 `;
 
 const CloseButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
   cursor: pointer;
-  color: var(--text-primary);
+  padding: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: transparent;
+  border: 0.5px solid var(--text-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+`;
+
+const CloseIcon = styled.div`
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  position: relative;
+  
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 100%;
+    background-color: var(--text-primary);
+    transform-origin: center;
+  }
+  
+  &::before {
+    transform: translateX(-50%) rotate(45deg);
+  }
+  
+  &::after {
+    transform: translateX(-50%) rotate(-45deg);
+  }
 `;
 
 // Рамки для отзывов
@@ -253,13 +366,14 @@ const Feedback = () => {
   };
   
   const cardVariants = {
-    hidden: { opacity: 0, y: 50 },
+    hidden: { opacity: 0, y: 30 },
     visible: (i) => ({
       opacity: 1,
       y: 0,
       transition: {
         delay: i * 0.1,
-        duration: 0.5
+        duration: 0.5,
+        ease: "easeOut"
       }
     })
   };
@@ -277,6 +391,18 @@ const Feedback = () => {
     };
   }, []);
   
+  // Блокировка скролла при открытии модального окна и сброс при размонтировании
+  useEffect(() => {
+    if (selectedFeedback) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [selectedFeedback]);
+  
   return (
     <FeedbackContainer>
       <TitleContainer>
@@ -292,6 +418,11 @@ const Feedback = () => {
           // Позиции для вертикальных символов (в процентах)
           const verticalPositions = [10, 30, 50, 70, 90];
           
+          // Ограничиваем длину цитаты для превью
+          const previewQuote = feedback.quote.length > 120 
+            ? feedback.quote.substring(0, 120) + '...' 
+            : feedback.quote;
+          
           return (
             <FeedbackCard
               key={feedback.id}
@@ -300,8 +431,8 @@ const Feedback = () => {
               animate={inView && initialLoadComplete ? "visible" : "hidden"}
               custom={index}
               onClick={() => openModal(feedback)}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.99 }}
             >
               <FeedbackAsciiFrame className="ascii-frame">
                 <div className="top">
@@ -338,7 +469,7 @@ const Feedback = () => {
               </FeedbackAsciiFrame>
               
               <FeedbackContent>
-                <Quote>"{feedback.quote.length > 120 ? feedback.quote.substring(0, 120) + '...' : feedback.quote}"</Quote>
+                <Quote>"{previewQuote}"</Quote>
                 <Author>
                   {feedback.author}
                   <span className="company">{feedback.company}</span>
@@ -359,16 +490,23 @@ const Feedback = () => {
           >
             <ModalContent
               onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
-              <CloseButton onClick={closeModal}>×</CloseButton>
-              <Quote className="quote">"{selectedFeedback.quote}"</Quote>
-              <Author className="author">
-                {selectedFeedback.author}
-                <span className="company">{selectedFeedback.company}</span>
-              </Author>
+              <ModalHeader>
+                <CloseButton onClick={closeModal}>
+                  <CloseIcon />
+                </CloseButton>
+              </ModalHeader>
+              <ModalBody>
+                <ModalQuote>"{selectedFeedback.quote}"</ModalQuote>
+                <ModalAuthor>
+                  {selectedFeedback.author}
+                  <span className="company">{selectedFeedback.company}</span>
+                </ModalAuthor>
+              </ModalBody>
             </ModalContent>
           </ModalBackdrop>
         )}

@@ -48,24 +48,55 @@ const Title = styled(motion.h1)`
   width: 100%;
   white-space: pre-wrap;
   word-wrap: break-word;
+  
+  @media (max-width: 768px) {
+    font-size: clamp(3.2rem, 10vw, 5rem);
+    line-height: 1;
+  }
 `;
 
 // Добавляем компоненты для контроля переносов
 const TitleLine = styled.div`
   display: block;
   white-space: normal;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0.1rem;
+  }
 `;
 
 const FirstLine = styled(TitleLine)`
   margin-bottom: 5px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+  }
 `;
 
 const SecondLine = styled(TitleLine)`
   margin-top: 5px;
+  
+  @media (max-width: 768px) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 `;
 
 const ThirdLine = styled(TitleLine)`
   margin-top: 5px;
+  
+  @media (max-width: 768px) {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+`;
+
+const FourthLine = styled(TitleLine)`
+  margin-top: 5px;
+  
+  @media (max-width: 768px) {
+    margin-top: 10px;
+  }
 `;
 
 // Эффект печатной машинки с фиксированным разделением строк
@@ -102,24 +133,35 @@ const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
     }
   }, [text, speed, shouldStart, fullText]);
   
-  // Разделяем текст на три строки в фиксированных местах
-  const firstLineText = language === 'en' 
-    ? text.slice(0, 8) // "Creative"
-    : text.slice(0, 10); // "Креативный"
+  // Получаем отдельные строки из переводов
+  const firstLineText = text.length >= t.hero_title_line1.length 
+    ? t.hero_title_line1 
+    : text;
     
-  const secondLineText = language === 'en'
-    ? text.slice(8, 17) // "Design &"
-    : text.slice(10, 19); // "Дизайн &"
+  const secondLineText = text.length > t.hero_title_line1.length 
+    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length 
+      ? t.hero_title_line2 
+      : text.slice(t.hero_title_line1.length)) 
+    : '';
     
-  const thirdLineText = language === 'en'
-    ? text.slice(17) // "Innovative Solutions"
-    : text.slice(19); // "Инновационные Решения"
+  const thirdLineText = text.length > t.hero_title_line1.length + t.hero_title_line2.length 
+    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length 
+      ? t.hero_title_line3 
+      : text.slice(t.hero_title_line1.length + t.hero_title_line2.length)) 
+    : '';
+    
+  const fourthLineText = text.length > t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length 
+    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length + t.hero_title_line4.length
+      ? t.hero_title_line4
+      : text.slice(t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length))
+    : '';
   
   return (
     <>
       <FirstLine>{firstLineText}</FirstLine>
       <SecondLine>{secondLineText}</SecondLine>
       <ThirdLine>{thirdLineText}</ThirdLine>
+      <FourthLine>{fourthLineText}</FourthLine>
     </>
   );
 };

@@ -615,8 +615,8 @@ const MobileMenu = () => {
                 
                 <NavItem variants={itemVariants}>
                   <NavLink 
-                    to="/testimonials" 
-                    className={location.pathname === '/testimonials' ? 'active' : ''}
+                    to="/feedback" 
+                    className={location.pathname === '/feedback' ? 'active' : ''}
                     onClick={() => setIsOpen(false)}
                   >
                     {t.feedback}

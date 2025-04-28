@@ -9,10 +9,11 @@ const translations = {
     contact: "Contact",
     
     // Home page
-    hero_title: "Creative Design & Innovative Solutions",
+    hero_title: "Creative Design Innovation Solutions",
     hero_title_line1: "Creative",
-    hero_title_line2: "Design &",
-    hero_title_line3: "Innovative Solutions",
+    hero_title_line2: "Design",
+    hero_title_line3: "Innovation",
+    hero_title_line4: "Solutions",
     hero_subtitle: "I connect technology and aesthetics, creating unique digital experiences that are memorable and inspiring.",
     view_projects: "View Projects",
     get_in_touch: "Get in Touch",
@@ -53,10 +54,11 @@ const translations = {
     contact: "Контакты",
     
     // Home page
-    hero_title: "Креативный Дизайн & Инновационные Решения",
-    hero_title_line1: "Креативный",
-    hero_title_line2: "Дизайн &",
-    hero_title_line3: "Инновационные Решения",
+    hero_title: "Креатив Дизайн Инновации Решения",
+    hero_title_line1: "Креатив",
+    hero_title_line2: "Дизайн",
+    hero_title_line3: "Инновации",
+    hero_title_line4: "Решения",
     hero_subtitle: "Соединяю технологии и эстетику, создавая уникальные цифровые впечатления, которые запоминаются и вдохновляют.",
     view_projects: "Посмотреть проекты",
     get_in_touch: "Связаться",

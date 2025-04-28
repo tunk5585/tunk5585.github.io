@@ -1,7 +1,7 @@
 /* eslint-disable no-labels */
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link, useNavigate } from 'react-router-dom';
 import projects from '../data/projects';
@@ -17,19 +17,26 @@ import translations from '../data/translations';
 
 const ProjectsContainer = styled.div`
   min-height: 100vh;
-  padding-top: 100px;
-  padding-bottom: 50px;
+  padding-top: 124px;   /* высота хедера 60px + 64px (2 шага) */
+  padding-bottom: 48px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: 100%;
+  overflow-x: hidden;
+  
+  @media (max-width: 768px) {
+    padding-top: 88px;   /* высота хедера 60px + 28px (1.75 шага моб) */
+    padding-bottom: 32px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 `;
 
 const TitleContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
-  margin-bottom: 40px;
-  
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
+  margin-bottom: 48px; /* 2 шага */
+  padding: 0;
 `;
 
 const SectionTitle = styled.div`
@@ -46,13 +53,8 @@ const SectionTitle = styled.div`
 const ContentContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
   flex-direction: column;
-  
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
 `;
 
 const FilterContainer = styled.div`
@@ -84,11 +86,12 @@ const FilterButton = styled.button`
 const ProjectsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 30px;
+  gap: 48px;
   width: 100%;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
+    gap: 32px;
   }
 `;
 
@@ -98,10 +101,17 @@ const ProjectCard = styled(motion.div)`
   height: 300px;
   cursor: pointer;
   box-shadow: none;
+  transition: all 0.3s ease;
   
   &:hover .project-info {
     opacity: 1;
   }
+  
+  ${props => props.$selected && `
+    box-shadow: 0 0 0 3px var(--accent);
+    transform: scale(1.02);
+    z-index: 5;
+  `}
 `;
 
 const ProjectLink = styled(Link)`
@@ -161,6 +171,32 @@ const ProjectDescription = styled.p`
   color: var(--text-primary);
 `;
 
+const MobileNotification = styled(motion.div)`
+  position: absolute;
+  background: var(--overlay);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 100%;
+  z-index: 999;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  display: none;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  
+  @media (max-width: 768px) {
+    display: block;
+  }
+`;
+
+const ProjectCardWrapper = styled.div`
+  position: relative;
+`;
+
 // Map project IDs to preview images
 const previewImages = {
   1: previewGuru,
@@ -176,6 +212,7 @@ const Projects = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [filteredProjects, setFilteredProjects] = useState(projects);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [showNotification, setShowNotification] = useState(false);
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -208,6 +245,7 @@ const Projects = () => {
   const handleFilterClick = (filter) => {
     setActiveFilter(filter);
     setSelectedProjectId(null);
+    setShowNotification(false);
   };
   
   const handleProjectClick = (e, projectId) => {
@@ -216,8 +254,15 @@ const Projects = () => {
       e.preventDefault();
       if (selectedProjectId === projectId) {
         navigate(`/projects/${projectId}`);
+        setShowNotification(false);
       } else {
         setSelectedProjectId(projectId);
+        setShowNotification(true);
+        
+        // Авто-скрытие уведомления через 3 секунды
+        setTimeout(() => {
+          setShowNotification(false);
+        }, 3000);
       }
     }
   };
@@ -267,29 +312,44 @@ const Projects = () => {
       
         <ProjectsGrid ref={ref}>
           {filteredProjects.map((project, index) => (
-            <ProjectCard
-              key={project.id}
-              variants={cardVariants}
-              initial="hidden"
-              animate={inView && initialLoadComplete ? "visible" : "hidden"}
-              custom={index}
-            >
-              <ProjectLink
-                to={`/projects/${project.id}`}
-                onClick={e => handleProjectClick(e, project.id)}
+            <ProjectCardWrapper key={project.id}>
+              <ProjectCard
+                variants={cardVariants}
+                initial="hidden"
+                animate={inView && initialLoadComplete ? "visible" : "hidden"}
+                custom={index}
+                $selected={selectedProjectId === project.id}
               >
-                <ProjectImage className="project-image" $src={previewImages[project.id]} />
-                
-                <ProjectInfo
-                  className="project-info"
-                  $active={selectedProjectId === project.id}
+                <ProjectLink
+                  to={`/projects/${project.id}`}
+                  onClick={e => handleProjectClick(e, project.id)}
                 >
-                  <ProjectTitle>{getLocalizedTitle(project)}</ProjectTitle>
-                  <ProjectCategory>{'#' + project.category.map(cat => translateCategory(cat)).join(' #')}</ProjectCategory>
-                  <ProjectDescription>{getLocalizedDescription(project)}</ProjectDescription>
-                </ProjectInfo>
-              </ProjectLink>
-            </ProjectCard>
+                  <ProjectImage className="project-image" $src={previewImages[project.id]} />
+                  
+                  <ProjectInfo
+                    className="project-info"
+                    $active={selectedProjectId === project.id}
+                  >
+                    <ProjectTitle>{getLocalizedTitle(project)}</ProjectTitle>
+                    <ProjectCategory>{'#' + project.category.map(cat => translateCategory(cat)).join(' #')}</ProjectCategory>
+                    <ProjectDescription>{getLocalizedDescription(project)}</ProjectDescription>
+                  </ProjectInfo>
+                </ProjectLink>
+              </ProjectCard>
+              
+              <AnimatePresence>
+                {showNotification && selectedProjectId === project.id && (
+                  <MobileNotification
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз, чтобы просмотреть детали проекта'}
+                  </MobileNotification>
+                )}
+              </AnimatePresence>
+            </ProjectCardWrapper>
           ))}
         </ProjectsGrid>
       </ContentContainer>

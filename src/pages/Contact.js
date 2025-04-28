@@ -8,24 +8,26 @@ import translations from '../data/translations';
 
 const ContactContainer = styled.div`
   min-height: 100vh;
-  padding-top: 100px;
-  padding-bottom: 50px;
+  padding-top: 124px;   /* высота хедера 60px + 64px (2 шага) */
+  padding-bottom: 48px;
+  padding-left: 24px;
+  padding-right: 24px;
+  width: 100%;
+  overflow-x: hidden;
   
   @media (max-width: 768px) {
-    padding-top: 80px;
-    padding-bottom: 40px;
+    padding-top: 88px;   /* высота хедера 60px + 28px (1.75 шага моб) */
+    padding-bottom: 32px;
+    padding-left: 16px;
+    padding-right: 16px;
   }
 `;
 
 const TitleContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
-  margin-bottom: 40px;
-  
-  @media (max-width: 768px) {
-    padding: 0 1rem;
-  }
+  margin-bottom: 48px; /* 2 шага */
+  padding: 0;
 `;
 
 const SectionTitle = styled.div`
@@ -42,15 +44,13 @@ const SectionTitle = styled.div`
 const ContentContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 50px;
+  gap: 48px;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
-    gap: 30px;
-    padding: 0 1rem;
+    gap: 32px;
   }
 `;
 
@@ -462,7 +462,7 @@ const Contact = () => {
               transition={{ delay: 0.2 }}
             >
               <InfoLabel>Email:</InfoLabel>
-              <InfoValue>creative.director@example.com</InfoValue>
+              <InfoValue>t.project5585@gmail.com</InfoValue>
             </InfoItem>
             
             <InfoItem
@@ -472,7 +472,7 @@ const Contact = () => {
               transition={{ delay: 0.3 }}
             >
               <InfoLabel>{t.phone}:</InfoLabel>
-              <InfoValue>+7 (123) 456-78-90</InfoValue>
+              <InfoValue>+7 (977) 571-20-22</InfoValue>
             </InfoItem>
             
             <InfoItem
@@ -494,7 +494,7 @@ const Contact = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <SocialIconLink href="https://t.me/username" target="_blank" rel="noopener noreferrer">
+              <SocialIconLink href="https://t.me/tunk5585" target="_blank" rel="noopener noreferrer">
                 <FaTelegram />
               </SocialIconLink>
             </SocialIconBlock>
@@ -506,7 +506,7 @@ const Contact = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <SocialIconLink href="https://instagram.com/username" target="_blank" rel="noopener noreferrer">
+              <SocialIconLink href="https://instagram.com/tunk5585" target="_blank" rel="noopener noreferrer">
                 <FaInstagram />
               </SocialIconLink>
             </SocialIconBlock>

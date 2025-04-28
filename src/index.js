@@ -27,7 +27,7 @@ const router = createBrowserRouter(
         { path: "about", element: <About />, loader: async () => { await delay(300); return null; } },
         { path: "projects", element: <Projects />, loader: async () => { await delay(300); return null; } },
         { path: "projects/:id", element: <ProjectDetail />, loader: async () => { await delay(300); return null; } },
-        { path: "testimonials", element: <Feedback />, loader: async () => { await delay(300); return null; } },
+        { path: "feedback", element: <Feedback />, loader: async () => { await delay(300); return null; } },
         { path: "contact", element: <Contact />, loader: async () => { await delay(300); return null; } }
       ]
     }
