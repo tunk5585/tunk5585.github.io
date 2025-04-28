@@ -135,6 +135,9 @@ const ProjectImage = styled.div`
   background-size: cover;
   background-position: center;
   position: relative;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 `;
 
 const ProjectInfo = styled.div`
@@ -222,6 +225,8 @@ const Projects = () => {
   const { language } = useLanguage();
   const t = translations.projects[language];
   
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  
   // Получаем локализованный заголовок проекта
   const getLocalizedTitle = (project) => {
     if (language === 'en' && project.titleEn) {
@@ -271,6 +276,21 @@ const Projects = () => {
   // Получаем уникальные категории проектов
   const categories = ['all', ...new Set(projects.flatMap(project => project.category))];
   
+  // Предзагрузка изображений
+  useEffect(() => {
+    const imagePromises = Object.values(previewImages).map(src => {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve();
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      setImagesLoaded(true);
+    });
+  }, []);
+  
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: (i) => ({
@@ -278,7 +298,8 @@ const Projects = () => {
       y: 0,
       transition: {
         delay: i * 0.1,
-        duration: 0.5
+        duration: 0.5,
+        ease: "easeOut"
       }
     })
   };
@@ -317,7 +338,7 @@ const Projects = () => {
               <ProjectCard
                 variants={cardVariants}
                 initial="hidden"
-                animate={inView && initialLoadComplete ? "visible" : "hidden"}
+                animate={(inView && initialLoadComplete && imagesLoaded) ? "visible" : "hidden"}
                 custom={index}
                 $selected={selectedProjectId === project.id}
               >

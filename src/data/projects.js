@@ -22,11 +22,11 @@ I also participate in finalizing client projects that come from production — h
     },
     client: "Textile.Guru",
     year: {
-      ru: "2023–н.в.",
-      en: "2023–Present"
+      ru: "2023 → Н.в.",
+      en: "2023 → Present"
     },
     role: {
-      ru: "Графический дизайнер",
+      ru: "Графический Дизайнер",
       en: "Graphic Designer"
     }
   },
@@ -48,11 +48,11 @@ The main goal is to maintain and develop the brand's visual language, ensuring i
     },
     client: "F|ABLE",
     year: {
-      ru: "2023–н.в.",
-      en: "2023–Present"
+      ru: "2023 → н.в.",
+      en: "2023 → Present"
     },
     role: {
-      ru: "Графический дизайнер",
+      ru: "Графический Дизайнер",
       en: "Graphic Designer"
     }
   },
@@ -75,7 +75,7 @@ I offered creative solutions where the print became the key carrier of the idea,
     client: "0NOT1",
     year: "2022–2023",
     role: {
-      ru: "Арт-директор, концепт-дизайнер, графический дизайнер",
+      ru: "Арт-директор, Концепт-Дизайнер, Графический Дизайнер",
       en: "Art Director, Concept Designer, Graphic Designer"
     }
   },
@@ -97,18 +97,18 @@ The main task is to build a consistent visual environment for the brand, respond
     },
     client: "SAMB",
     year: {
-      ru: "2023–н.в.",
-      en: "2023–Present"
+      ru: "2023 → Н.в.",
+      en: "2023 → Present"
     },
     role: {
-      ru: "Арт-директор, графический дизайнер",
+      ru: "Арт-директор, Графический дизайнер",
       en: "Art Director, Graphic Designer"
     }
   },
   {
     id: 5,
-    title: "Личный сайт",
-    titleEn: "Personal Website",
+    title: "tunk5585.xyz",
+    titleEn: "tunk5585.xyz",
     category: ["Веб-дизайн", "Интерактивный дизайн", "Брендинг"],
     description: {
       ru: "Структура, язык и взаимодействие — самостоятельный проект, воплощающий мой подход к дизайну.",
@@ -128,7 +128,7 @@ The visual language is built on contrasts, readability, and clear hierarchical r
     },
     year: "2025",
     role: {
-      ru: "Арт-директор, графический дизайнер, разработчик",
+      ru: "Арт-директор, Графический Дизайнер, Разработчик",
       en: "Art Director, Graphic Designer, Developer"
     }
   },
@@ -158,7 +158,7 @@ I'm interested in both short-term creative tasks and long-term projects where I 
       en: "Current"
     },
     role: {
-      ru: "Графический дизайнер, арт-директор, креативный партнёр",
+      ru: "Графический Дизайнер, Арт-директор, Креативный партнёр",
       en: "Graphic Designer, Art Director, Creative Partner"
     }
   }

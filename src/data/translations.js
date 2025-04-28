@@ -14,7 +14,7 @@ const translations = {
     hero_title_line2: "Design",
     hero_title_line3: "Innovation",
     hero_title_line4: "Solutions",
-    hero_subtitle: "I connect technology and aesthetics, creating unique digital experiences that are memorable and inspiring.",
+    hero_subtitle: "Connecting technology and aesthetics, creating unique digital experiences that are memorable and inspiring.",
     view_projects: "View Projects",
     get_in_touch: "Get in Touch",
     
@@ -203,7 +203,7 @@ const translations = {
       client: "Client:",
       year: "Year:",
       role: "Role:",
-      scroll_down: "Scroll down",
+      scroll_down: "Down",
       categories: {
         // Map existing categories to their English translations
         "Брендинг": "Branding",

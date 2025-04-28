@@ -323,6 +323,9 @@ const ProjectDetail = () => {
   useEffect(() => {
     if (!project) {
       navigate('/projects');
+    } else {
+      // Принудительно прокручиваем страницу вверх при открытии проекта
+      window.scrollTo(0, 0);
     }
   }, [project, navigate]);
   
@@ -371,12 +374,24 @@ const ProjectDetail = () => {
   // Показываем индикатор прокрутки, если контент длинный
   useEffect(() => {
     if (project) {
+      // Сбрасываем состояние видимости обоих индикаторов
       setScrollTopVisible(false);
+      setIndicatorVisible(false);
+      
+      // Принудительно прокручиваем в начало при загрузке проекта
+      window.scrollTo(0, 0);
+      
       const timer = setTimeout(() => {
-        if (document.body.scrollHeight > window.innerHeight * 1.8) {
+        const pageHeight = document.body.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        
+        // Показываем индикатор только если страница достаточно длинная
+        // и не зависим от текущей позиции прокрутки
+        if (pageHeight > viewportHeight * 1.8) {
           setIndicatorVisible(true);
         }
-      }, 100);
+      }, 300); // Увеличиваем задержку для надежности
+      
       return () => clearTimeout(timer);
     }
   }, [project]);
@@ -384,12 +399,17 @@ const ProjectDetail = () => {
   // Отслеживаем скролл для показа/скрытия индикаторов
   useEffect(() => {
     const onScroll = () => {
-      if (window.scrollY > 150) {
+      const scrollY = window.scrollY;
+      
+      if (scrollY > 150) {
+        // Скрываем индикатор прокрутки вниз только если он видим
         if (indicatorVisible) {
           setIndicatorVisible(false);
         }
+        // Показываем кнопку прокрутки вверх
         setScrollTopVisible(true);
       } else {
+        // Скрываем кнопку прокрутки вверх
         setScrollTopVisible(false);
       }
     };
