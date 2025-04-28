@@ -108,8 +108,6 @@ const ProjectCard = styled(motion.div)`
   }
   
   ${props => props.$selected && `
-    box-shadow: 0 0 0 3px var(--accent);
-    transform: scale(1.02);
     z-index: 5;
   `}
 `;
@@ -175,18 +173,19 @@ const MobileNotification = styled(motion.div)`
   position: absolute;
   background: var(--overlay);
   color: var(--text-primary);
-  padding: 12px 16px;
+  padding: 8px 12px;
   border-radius: 8px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   text-align: center;
-  max-width: 100%;
-  z-index: 999;
+  max-width: 90%;
+  z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: none;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  margin: 0 auto;
+  top: 10px;
+  right: 10px;
+  transform: none;
+  margin: 0;
+  border: 1px solid var(--accent);
   
   @media (max-width: 768px) {
     display: block;
@@ -259,10 +258,10 @@ const Projects = () => {
         setSelectedProjectId(projectId);
         setShowNotification(true);
         
-        // Авто-скрытие уведомления через 3 секунды
+        // Авто-скрытие уведомления через 5 секунд
         setTimeout(() => {
           setShowNotification(false);
-        }, 3000);
+        }, 5000);
       }
     }
   };
@@ -333,22 +332,22 @@ const Projects = () => {
                     <ProjectTitle>{getLocalizedTitle(project)}</ProjectTitle>
                     <ProjectCategory>{'#' + project.category.map(cat => translateCategory(cat)).join(' #')}</ProjectCategory>
                     <ProjectDescription>{getLocalizedDescription(project)}</ProjectDescription>
+                    
+                    <AnimatePresence>
+                      {showNotification && selectedProjectId === project.id && (
+                        <MobileNotification
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз, чтобы просмотреть детали проекта'}
+                        </MobileNotification>
+                      )}
+                    </AnimatePresence>
                   </ProjectInfo>
                 </ProjectLink>
               </ProjectCard>
-              
-              <AnimatePresence>
-                {showNotification && selectedProjectId === project.id && (
-                  <MobileNotification
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз, чтобы просмотреть детали проекта'}
-                  </MobileNotification>
-                )}
-              </AnimatePresence>
             </ProjectCardWrapper>
           ))}
         </ProjectsGrid>

@@ -226,7 +226,7 @@ const translations = {
       client: "Клиент:",
       year: "Год:",
       role: "Роль:",
-      scroll_down: "Прокрутите вниз",
+      scroll_down: "Вниз",
       categories: {
         // Keep original category names mapped to themselves for convenience
         "Брендинг": "Брендинг",
