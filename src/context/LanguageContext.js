@@ -18,17 +18,29 @@ export const LanguageProvider = ({ children }) => {
 
   // Функция переключения языка
   const toggleLanguage = () => {
+    // Добавляем стиль для скрытия контента перед перезагрузкой
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 0.2s ease';
+    
     const newLang = language === 'en' ? 'ru' : 'en';
-    setLanguage(newLang);
-    localStorage.setItem('language', newLang);
-    // Перезагружаем страницу после смены языка
-    window.location.reload();
+    
+    // Используем setTimeout для задержки перед обновлением страницы
+    setTimeout(() => {
+      setLanguage(newLang);
+      localStorage.setItem('language', newLang);
+      window.location.reload();
+    }, 200); // 200мс должно хватить для плавного исчезновения
   };
 
   // Сохраняем выбранный язык в localStorage
   useEffect(() => {
     localStorage.setItem('language', language);
   }, [language]);
+
+  // Добавляем эффект для восстановления видимости после загрузки страницы
+  useEffect(() => {
+    document.body.style.opacity = '1';
+  }, []);
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage }}>

@@ -137,13 +137,11 @@ const FeedbackCard = styled(motion.div)`
   flex-direction: column;
   background-color: rgba(30, 30, 30, 0.2);
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
   
   &:hover {
     background-color: rgba(40, 40, 40, 0.3);
     transform: translateY(-5px);
-    border-color: rgba(255, 255, 255, 0.1);
     
     .ascii-frame {
       opacity: 0.5;
@@ -393,13 +391,22 @@ const Feedback = () => {
   
   // Блокировка скролла при открытии модального окна и сброс при размонтировании
   useEffect(() => {
+    const preventScroll = (e) => e.preventDefault();
+    
     if (selectedFeedback) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+      document.addEventListener('touchmove', preventScroll, { passive: false });
     } else {
       document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('touchmove', preventScroll);
     }
+    
     return () => {
       document.body.style.overflow = 'auto';
+      document.documentElement.style.overflow = '';
+      document.removeEventListener('touchmove', preventScroll);
     };
   }, [selectedFeedback]);
   

@@ -177,7 +177,9 @@ const MobileNotification = styled(motion.div)`
   border-radius: 8px;
   font-size: 0.8rem;
   text-align: center;
-  max-width: 90%;
+  width: auto;
+  max-width: 160px;
+  white-space: normal;
   z-index: 1000;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: none;
@@ -341,7 +343,7 @@ const Projects = () => {
                           exit={{ opacity: 0, y: 10 }}
                           transition={{ duration: 0.3 }}
                         >
-                          {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз, чтобы просмотреть детали проекта'}
+                          {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз для просмотра'}
                         </MobileNotification>
                       )}
                     </AnimatePresence>
