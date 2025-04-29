@@ -22,8 +22,8 @@ I also participate in finalizing client projects that come from production — h
     },
     client: "Textile.Guru",
     year: {
-      ru: "2023 → Н.в.",
-      en: "2023 → Present"
+      ru: "2022 → Наст.время",
+      en: "2022 → Present"
     },
     role: {
       ru: "Графический Дизайнер",
@@ -48,8 +48,8 @@ The main goal is to maintain and develop the brand's visual language, ensuring i
     },
     client: "F|ABLE",
     year: {
-      ru: "2023 → н.в.",
-      en: "2023 → Present"
+      ru: "2024 → Наст.время",
+      en: "2024 → Present"
     },
     role: {
       ru: "Графический Дизайнер",
@@ -73,7 +73,7 @@ The main goal is to maintain and develop the brand's visual language, ensuring i
 I offered creative solutions where the print became the key carrier of the idea, worked with street culture references and current visual codes. Concepts included graphics, text elements, and work with rhythm on the clothing surface.`
     },
     client: "0NOT1",
-    year: "2022–2023",
+    year: "2023 → 2024",
     role: {
       ru: "Арт-директор, Концепт-Дизайнер, Графический Дизайнер",
       en: "Art Director, Concept Designer, Graphic Designer"
@@ -97,7 +97,7 @@ The main task is to build a consistent visual environment for the brand, respond
     },
     client: "SAMB",
     year: {
-      ru: "2023 → Н.в.",
+      ru: "2023 → Наст.время",
       en: "2023 → Present"
     },
     role: {

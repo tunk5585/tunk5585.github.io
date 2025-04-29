@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -101,73 +101,85 @@ const FourthLine = styled(TitleLine)`
 
 // Эффект печатной машинки с фиксированным разделением строк
 const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
-  const [text, setText] = useState('');
-  const [shouldStart, setShouldStart] = useState(false);
+  const [line1, setLine1] = useState('');
+  const [line2, setLine2] = useState('');
+  const [line3, setLine3] = useState('');
+  const [line4, setLine4] = useState('');
+  const [currentLine, setCurrentLine] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [animationStarted, setAnimationStarted] = useState(false);
   const { language } = useLanguage();
   const t = translations[language];
-  const fullText = t.hero_title;
-  const index = useRef(0);
   const { initialLoadComplete } = useLoading();
   
-  // Запускаем анимацию только после загрузки приложения
+  // Используем useMemo для создания массива lines
+  const lines = React.useMemo(() => [
+    t.hero_title_line1.trim(),
+    t.hero_title_line2.trim(),
+    t.hero_title_line3.trim(),
+    t.hero_title_line4.trim()
+  ], [t.hero_title_line1, t.hero_title_line2, t.hero_title_line3, t.hero_title_line4]);
+  
+  // Запускаем анимацию только один раз после загрузки
   useEffect(() => {
-    if (initialLoadComplete) {
-      // Добавляем небольшую задержку для плавности
-      const timer = setTimeout(() => {
-        setShouldStart(true);
-        index.current = 0; // Сбрасываем индекс на случай, если анимация уже началась
-        setText(''); // Очищаем текст на случай, если уже что-то отображалось
+    let timer;
+    if (initialLoadComplete && !animationStarted) {
+      timer = setTimeout(() => {
+        setAnimationStarted(true);
+        setCurrentLine(0);
+        setCurrentIndex(0);
       }, startDelay);
-      return () => clearTimeout(timer);
     }
-  }, [initialLoadComplete, startDelay]);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [initialLoadComplete, startDelay, animationStarted]);
   
+  // Анимация печатной машинки
   useEffect(() => {
-    if (shouldStart && index.current < fullText.length) {
-      const timeout = setTimeout(() => {
-        setText(fullText.substring(0, index.current + 1));
-        index.current += 1;
+    if (!animationStarted || currentLine >= lines.length) return;
+    
+    const currentText = lines[currentLine];
+    let timer;
+    
+    if (currentIndex < currentText.length) {
+      timer = setTimeout(() => {
+        if (currentLine === 0) {
+          setLine1(currentText.substring(0, currentIndex + 1));
+        } else if (currentLine === 1) {
+          setLine2(currentText.substring(0, currentIndex + 1));
+        } else if (currentLine === 2) {
+          setLine3(currentText.substring(0, currentIndex + 1));
+        } else if (currentLine === 3) {
+          setLine4(currentText.substring(0, currentIndex + 1));
+        }
+        
+        setCurrentIndex(currentIndex + 1);
       }, speed);
-      
-      return () => clearTimeout(timeout);
+    } else if (currentLine < lines.length - 1) {
+      timer = setTimeout(() => {
+        setCurrentLine(currentLine + 1);
+        setCurrentIndex(0);
+      }, 50); // Небольшая пауза между строками
     }
-  }, [text, speed, shouldStart, fullText]);
-  
-  // Получаем отдельные строки из переводов
-  const firstLineText = text.length >= t.hero_title_line1.length 
-    ? t.hero_title_line1 
-    : text;
     
-  const secondLineText = text.length > t.hero_title_line1.length 
-    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length 
-      ? t.hero_title_line2 
-      : text.slice(t.hero_title_line1.length)) 
-    : '';
-    
-  const thirdLineText = text.length > t.hero_title_line1.length + t.hero_title_line2.length 
-    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length 
-      ? t.hero_title_line3 
-      : text.slice(t.hero_title_line1.length + t.hero_title_line2.length)) 
-    : '';
-    
-  const fourthLineText = text.length > t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length 
-    ? (text.length >= t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length + t.hero_title_line4.length
-      ? t.hero_title_line4
-      : text.slice(t.hero_title_line1.length + t.hero_title_line2.length + t.hero_title_line3.length))
-    : '';
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [animationStarted, currentLine, currentIndex, lines, speed]);
   
   return (
     <>
-      <FirstLine>{firstLineText}</FirstLine>
-      <SecondLine>{secondLineText}</SecondLine>
-      <ThirdLine>{thirdLineText}</ThirdLine>
-      <FourthLine>{fourthLineText}</FourthLine>
+      <FirstLine>{line1}</FirstLine>
+      <SecondLine>{line2}</SecondLine>
+      <ThirdLine>{line3}</ThirdLine>
+      <FourthLine>{line4}</FourthLine>
     </>
   );
 };
 
 const Subtitle = styled(motion.h2)`
-  font-family: 'Jost', sans-serif;
+  font-family: ${props => props.language === 'en' ? "'Space Grotesk', sans-serif" : "'Jost', sans-serif"};
   font-size: clamp(1rem, 2vw, 1.5rem);
   color: var(--text-secondary);
   margin-bottom: 2rem;
@@ -266,6 +278,7 @@ const Home = () => {
           </Title>
           
           <Subtitle
+            language={language}
             initial={{ opacity: 0, y: 30 }}
             animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
             transition={{ duration: 0.8, delay: 0.2 }}
