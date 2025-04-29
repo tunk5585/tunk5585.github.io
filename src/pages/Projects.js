@@ -95,20 +95,25 @@ const ProjectsGrid = styled.div`
   }
 `;
 
+const ProjectCardWrapper = styled.div`
+  position: relative;
+`;
+
 const ProjectCard = styled(motion.div)`
   position: relative;
   overflow: hidden;
   height: 300px;
   cursor: pointer;
-  box-shadow: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transition: all 0.3s ease;
   
-  &:hover .project-info {
-    opacity: 1;
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
   
   ${props => props.$selected && `
-    z-index: 5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   `}
 `;
 
@@ -120,6 +125,7 @@ const ProjectLink = styled(Link)`
   color: inherit;
   outline: none;
   border: none;
+  
   &:focus {
     outline: none;
   }
@@ -135,40 +141,117 @@ const ProjectImage = styled.div`
   background-size: cover;
   background-position: center;
   position: relative;
+  transition: filter 0.4s ease;
+
+  ${ProjectCard}:hover & {
+    filter: blur(2px) brightness(0.9);
+  }
+  
+  @media (max-width: 768px) {
+    ${ProjectCard}:hover & {
+      transform: none;
+    }
+  }
 `;
 
 const ProjectInfo = styled.div`
   position: absolute;
   inset: 0;
   padding: 20px;
-  background: var(--overlay);
-  opacity: ${props => (props.$active ? 1 : 0)};
-  transition: opacity 0.3s ease;
-  z-index: 2;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: opacity;
+  
+  /* Создаем затемнение отдельным элементом */
+  &:before {
+    content: '';
+    position: absolute;
+    inset: -10px; /* Выходим за границы на 10px со всех сторон */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(0, 0, 0, 0.6) 40%,
+      rgba(0, 0, 0, 0.2) 70%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    z-index: -1;
+  }
+  
+  ${ProjectCard}:hover & {
+    opacity: 1;
+  }
+  
+  /* На мобильных устройствах показываем информацию только для выбранного проекта */
+  ${props => props.$active && `
+    opacity: 1;
+  `}
 `;
 
 const ProjectTitle = styled.h3`
-  font-size: 1.5rem;
-  margin-bottom: 5px;
-  color: var(--text-primary);
+  position: relative; /* Для позиционирования поверх затемнения */
+  font-size: 1.3rem;
+  margin-bottom: 10px;
+  color: #fff;
   font-family: 'Inter', 'Space Grotesk', 'Jost', sans-serif;
   font-weight: 600;
 `;
 
-const ProjectCategory = styled.span`
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+const ProjectCategory = styled.div`
+  position: relative; /* Для позиционирования поверх затемнения */
+  display: flex;
+  flex-wrap: wrap;
   margin-bottom: 10px;
+  
+  span {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
 `;
 
 const ProjectDescription = styled.p`
-  font-size: 0.9rem;
-  line-height: 1.5;
+  position: relative; /* Для позиционирования поверх затемнения */
+  font-size: 0.85rem;
+  line-height: 1.4;
   margin-bottom: 0;
-  color: var(--text-primary);
+  color: rgba(255, 255, 255, 0.9);
+`;
+
+const ProjectCaption = styled.div`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--accent);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  border-radius: 4px;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  will-change: opacity;
+  
+  ${ProjectCard}:hover & {
+    opacity: 1;
+  }
+  
+  /* На мобильных устройствах показываем год только для выбранного проекта */
+  ${props => props.$active && `
+    opacity: 1;
+  `}
 `;
 
 const MobileNotification = styled(motion.div)`
@@ -186,7 +269,7 @@ const MobileNotification = styled(motion.div)`
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: none;
   top: 10px;
-  right: 10px;
+  left: 10px;
   transform: none;
   margin: 0;
   border: 1px solid var(--accent);
@@ -194,10 +277,6 @@ const MobileNotification = styled(motion.div)`
   @media (max-width: 768px) {
     display: block;
   }
-`;
-
-const ProjectCardWrapper = styled.div`
-  position: relative;
 `;
 
 // Map project IDs to preview images
@@ -237,6 +316,40 @@ const Projects = () => {
     return project.description[language] || project.description.ru;
   };
 
+  // Получаем локализованный год проекта
+  const getLocalizedYear = (project, isPreview = true) => {
+    // Значение по умолчанию в случае отсутствия года
+    const defaultValue = language === 'en' ? 'Current' : 'Текущий';
+    
+    // Если год отсутствует, возвращаем значение по умолчанию
+    if (!project.year) return defaultValue;
+    
+    // Если год - объект с локализацией
+    if (typeof project.year === 'object' && (project.year.ru || project.year.en)) {
+      const yearValue = project.year[language] || project.year.ru;
+      
+      // Для превьюшек: если год содержит указание на настоящее время, заменяем на "Текущий"/"Current"
+      if (isPreview) {
+        if ((language === 'ru' && yearValue.includes('Наст.время')) || 
+            (language === 'en' && yearValue.includes('Present'))) {
+          return language === 'en' ? 'Current' : 'Текущий';
+        }
+      }
+      
+      return yearValue;
+    }
+    
+    // Для превьюшек: если год (строка) содержит указание на настоящее время
+    if (isPreview && typeof project.year === 'string') {
+      if (project.year.includes('Наст.время') || project.year.includes('Present')) {
+        return language === 'en' ? 'Current' : 'Текущий';
+      }
+    }
+    
+    // Если год - строка или число, возвращаем как есть
+    return project.year;
+  };
+
   useEffect(() => {
     if (activeFilter === 'all') {
       setFilteredProjects(projects);
@@ -274,13 +387,17 @@ const Projects = () => {
   const categories = ['all', ...new Set(projects.flatMap(project => project.category))];
   
   const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 50, scale: 0.95 },
     visible: (i) => ({
       opacity: 1,
       y: 0,
+      scale: 1,
       transition: {
         delay: i * 0.1,
-        duration: 0.5
+        duration: 0.6,
+        type: "spring",
+        stiffness: 100,
+        damping: 15
       }
     })
   };
@@ -290,6 +407,13 @@ const Projects = () => {
     if (category === 'all') return t.all;
     // Если в другом языке, и есть перевод категории, используем его
     return language === 'en' && t.categories[category] ? t.categories[category] : category;
+  };
+  
+  // Функция для форматирования категорий в отдельные элементы
+  const formatCategories = (categoriesArray, translateFn) => {
+    return categoriesArray.map((cat, index) => (
+      <span key={index}>{translateFn(cat)}</span>
+    ));
   };
   
   return (
@@ -328,28 +452,33 @@ const Projects = () => {
                   onClick={e => handleProjectClick(e, project.id)}
                 >
                   <ProjectImage className="project-image" $src={previewImages[project.id]} />
-                  
+                  <ProjectCaption $active={selectedProjectId === project.id}>{getLocalizedYear(project)}</ProjectCaption>
                   <ProjectInfo
-                    className="project-info"
                     $active={selectedProjectId === project.id}
                   >
-                    <ProjectTitle>{getLocalizedTitle(project)}</ProjectTitle>
-                    <ProjectCategory>{'#' + project.category.map(cat => translateCategory(cat)).join(' #')}</ProjectCategory>
-                    <ProjectDescription>{getLocalizedDescription(project)}</ProjectDescription>
-                    
-                    <AnimatePresence>
-                      {showNotification && selectedProjectId === project.id && (
-                        <MobileNotification
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз для просмотра'}
-                        </MobileNotification>
-                      )}
-                    </AnimatePresence>
+                    <ProjectTitle>
+                      {getLocalizedTitle(project)}
+                    </ProjectTitle>
+                    <ProjectCategory>
+                      {formatCategories(project.category, translateCategory)}
+                    </ProjectCategory>
+                    <ProjectDescription>
+                      {getLocalizedDescription(project)}
+                    </ProjectDescription>
                   </ProjectInfo>
+                  
+                  <AnimatePresence>
+                    {showNotification && selectedProjectId === project.id && (
+                      <MobileNotification
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз для просмотра'}
+                      </MobileNotification>
+                    )}
+                  </AnimatePresence>
                 </ProjectLink>
               </ProjectCard>
             </ProjectCardWrapper>
