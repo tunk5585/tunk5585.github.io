@@ -5,12 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { Link, useNavigate } from 'react-router-dom';
 import projects from '../data/projects';
-import previewGuru from '../assets/images/preview_guru.jpg';
-import previewFable from '../assets/images/preview_fable.jpg';
-import preview0not1 from '../assets/images/preview_0not1.jpg';
-import previewSamb from '../assets/images/preview_samb.jpg';
-import previewSite from '../assets/images/preview_site.png';
-import previewWelcom from '../assets/images/preview_welcom.jpg';
+import previewGuru from '../assets/images/preview_guru.webp';
+import previewFable from '../assets/images/preview_fable.webp';
+import preview0not1 from '../assets/images/preview_0not1.webp';
+import previewSamb from '../assets/images/preview_samb.webp';
+import previewSite from '../assets/images/preview_site.webp';
+import previewWelcom from '../assets/images/preview_welcom.webp';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
@@ -135,9 +135,6 @@ const ProjectImage = styled.div`
   background-size: cover;
   background-position: center;
   position: relative;
-  will-change: transform;
-  backface-visibility: hidden;
-  transform: translateZ(0);
 `;
 
 const ProjectInfo = styled.div`
@@ -157,6 +154,8 @@ const ProjectTitle = styled.h3`
   font-size: 1.5rem;
   margin-bottom: 5px;
   color: var(--text-primary);
+  font-family: 'Inter', 'Space Grotesk', 'Jost', sans-serif;
+  font-weight: 600;
 `;
 
 const ProjectCategory = styled.span`
@@ -225,8 +224,6 @@ const Projects = () => {
   const { language } = useLanguage();
   const t = translations.projects[language];
   
-  const [imagesLoaded, setImagesLoaded] = useState(false);
-  
   // Получаем локализованный заголовок проекта
   const getLocalizedTitle = (project) => {
     if (language === 'en' && project.titleEn) {
@@ -276,21 +273,6 @@ const Projects = () => {
   // Получаем уникальные категории проектов
   const categories = ['all', ...new Set(projects.flatMap(project => project.category))];
   
-  // Предзагрузка изображений
-  useEffect(() => {
-    const imagePromises = Object.values(previewImages).map(src => {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.src = src;
-        img.onload = () => resolve();
-      });
-    });
-
-    Promise.all(imagePromises).then(() => {
-      setImagesLoaded(true);
-    });
-  }, []);
-  
   const cardVariants = {
     hidden: { opacity: 0, y: 30 },
     visible: (i) => ({
@@ -298,8 +280,7 @@ const Projects = () => {
       y: 0,
       transition: {
         delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut"
+        duration: 0.5
       }
     })
   };
@@ -338,7 +319,7 @@ const Projects = () => {
               <ProjectCard
                 variants={cardVariants}
                 initial="hidden"
-                animate={(inView && initialLoadComplete && imagesLoaded) ? "visible" : "hidden"}
+                animate={(inView && initialLoadComplete) ? "visible" : "hidden"}
                 custom={index}
                 $selected={selectedProjectId === project.id}
               >
