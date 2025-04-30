@@ -3,9 +3,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import projects, { generateProjectAscii } from '../data/projects';
+import projects from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+// Импортируем изображения проектов для десктопной версии
+import insideGuru from '../assets/images/inside_project_guru.webp';
+import insideFable from '../assets/images/inside_project_fable.webp';
+import inside0not1 from '../assets/images/inside_project_0not1.webp';
+import insideSamb from '../assets/images/inside_project_samb.webp';
+// Импортируем изображения проектов для мобильной версии
+import insideGuruMobile from '../assets/images/inside_project_mob_guru.webp';
+import insideFableMobile from '../assets/images/inside_project_mob_fable.webp';
+import inside0not1Mobile from '../assets/images/inside_project_mob_0not1.webp';
+import insideSambMobile from '../assets/images/inside_project_mob_samb.webp';
 
 const ProjectDetailContainer = styled.div`
   min-height: 100vh;
@@ -47,14 +57,23 @@ const ProjectHeader = styled.div`
   }
 `;
 
-const ProjectTitle = styled.h1`
-  font-size: 1.5rem;
-  margin: 0;
-  text-align: center;
-  flex: 1;
+const LanguageButton = styled.button`
+  background: none;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
-  @media (max-width: 480px) {
-    font-size: 1.2rem;
+  &:hover {
+    background-color: var(--accent);
+    color: var(--text-secondary);
   }
 `;
 
@@ -108,87 +127,77 @@ const ProjectImageContainer = styled.div`
   justify-content: center;
 `;
 
-const ProjectImage = styled.div`
+const ProjectImage = styled.img`
   width: 100%;
   height: 400px;
-  background-color: #252525;
-  position: relative;
-  overflow: hidden;
-`;
-
-const AsciiOverlay = styled.pre`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 8px;
-  line-height: 1;
-  color: var(--text-primary);
-  padding: 10px;
-  white-space: pre;
-  user-select: none;
+  object-fit: cover;
+  object-position: center;
 `;
 
 const TagContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 1.5rem;
+  gap: 12px;
+  margin: 2rem 0;
 `;
 
 const Tag = styled.div`
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border);
   color: var(--text-secondary);
   padding: 8px 16px;
-  font-family: 'Space Grotesk', 'Jost', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  border-radius: 8px;
+  border-radius: 4px;
+`;
+
+const ProjectContent = styled.div`
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3rem;
+  margin-top: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 `;
 
 const ProjectDescription = styled.p`
   font-size: 1.1rem;
   line-height: 1.7;
-  margin-bottom: 2.5rem;
+  margin-bottom: 0;
+  color: var(--text-primary);
 `;
 
 const ProjectDetails = styled.div`
-  margin-top: 2.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
 `;
 
 const DetailRow = styled.div`
-  display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   
-  @media (max-width: 768px) {
-    flex-direction: column;
+  &:last-child {
+    margin-bottom: 0;
   }
 `;
 
 const DetailLabel = styled.div`
-  flex: 0 0 150px;
   color: var(--text-secondary);
-  
-  @media (max-width: 768px) {
-    flex: none;
-    width: auto;
-    margin-bottom: 0.5rem;
-  }
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
 `;
 
 const DetailValue = styled.div`
-  flex: 1;
-  
-  @media (max-width: 768px) {
-    flex: none;
-    width: auto;
-  }
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
 `;
 
 const ScrollIndicator = styled(motion.div)`
@@ -279,8 +288,45 @@ const ProjectDetail = () => {
   const [indicatorVisible, setIndicatorVisible] = useState(false);
   const [scrollTopVisible, setScrollTopVisible] = useState(false);
   const [bottomOffset, setBottomOffset] = useState(() => (window.innerWidth >= 769 ? 45 : 20));
-  const { language } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const t = translations.projects[language];
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Обработчик изменения размера окна для определения мобильного представления
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  // Map project IDs to detail project images
+  const projectImages = {
+    1: insideGuru,
+    2: insideFable,
+    3: inside0not1,
+    4: insideSamb,
+    // Проекты 5 (site) и 6 (welcom) пока не используются
+  };
+  
+  // Map project IDs to mobile detail project images
+  const mobileProjectImages = {
+    1: insideGuruMobile,
+    2: insideFableMobile,
+    3: inside0not1Mobile,
+    4: insideSambMobile,
+    // Проекты 5 (site) и 6 (welcom) пока не используются
+  };
+  
+  // Выбираем нужное изображение в зависимости от устройства
+  const getProjectImage = (projectId) => {
+    if (isMobile && mobileProjectImages[projectId]) {
+      return mobileProjectImages[projectId];
+    }
+    return projectImages[projectId];
+  };
   
   useEffect(() => {
     const updateBottomOffset = () => {
@@ -435,7 +481,9 @@ const ProjectDetail = () => {
   return (
     <ProjectDetailContainer ref={containerRef}>
       <ProjectHeader>
-        <ProjectTitle>{getLocalizedTitle()}</ProjectTitle>
+        <LanguageButton onClick={toggleLanguage}>
+          {language === 'en' ? 'RU' : 'EN'}
+        </LanguageButton>
         <CloseButton onClick={handleBack}>
           <CloseIcon />
         </CloseButton>
@@ -443,11 +491,26 @@ const ProjectDetail = () => {
       
       <ContentContainer>
         <ProjectImageContainer>
-          <ProjectImage>
-            <AsciiOverlay>
-              {generateProjectAscii(project.id - 1)}
-            </AsciiOverlay>
-          </ProjectImage>
+          {getProjectImage(project.id) ? (
+            <ProjectImage 
+              src={getProjectImage(project.id)} 
+              alt={getLocalizedTitle()} 
+            />
+          ) : (
+            <ProjectImage 
+              as="div" 
+              style={{ 
+                backgroundColor: '#252525',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                {language === 'en' ? 'Image coming soon' : 'Изображение скоро будет добавлено'}
+              </div>
+            </ProjectImage>
+          )}
         </ProjectImageContainer>
         
         <TagContainer>
@@ -455,22 +518,25 @@ const ProjectDetail = () => {
             <Tag key={cat}>{translateCategory(cat)}</Tag>
           ))}
         </TagContainer>
-        <ProjectDescription>{getLocalizedLongDescription()}</ProjectDescription>
         
-        <ProjectDetails>
-          <DetailRow>
-            <DetailLabel>{t.client}</DetailLabel>
-            <DetailValue>{getLocalizedClient()}</DetailValue>
-          </DetailRow>
-          <DetailRow>
-            <DetailLabel>{t.year}</DetailLabel>
-            <DetailValue>{getLocalizedYear()}</DetailValue>
-          </DetailRow>
-          <DetailRow>
-            <DetailLabel>{t.role}</DetailLabel>
-            <DetailValue>{getLocalizedRole()}</DetailValue>
-          </DetailRow>
-        </ProjectDetails>
+        <ProjectContent>
+          <ProjectDescription>{getLocalizedLongDescription()}</ProjectDescription>
+          
+          <ProjectDetails>
+            <DetailRow>
+              <DetailLabel>{t.client}</DetailLabel>
+              <DetailValue>{getLocalizedClient()}</DetailValue>
+            </DetailRow>
+            <DetailRow>
+              <DetailLabel>{t.year}</DetailLabel>
+              <DetailValue>{getLocalizedYear()}</DetailValue>
+            </DetailRow>
+            <DetailRow>
+              <DetailLabel>{t.role}</DetailLabel>
+              <DetailValue>{getLocalizedRole()}</DetailValue>
+            </DetailRow>
+          </ProjectDetails>
+        </ProjectContent>
       </ContentContainer>
       
       {indicatorVisible && (

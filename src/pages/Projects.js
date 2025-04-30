@@ -97,6 +97,18 @@ const ProjectsGrid = styled.div`
 
 const ProjectCardWrapper = styled.div`
   position: relative;
+  
+  @media (max-width: 768px) {
+    &[data-project-id="6"] {
+      order: -1;
+    }
+    &[data-project-id="1"] {
+      order: 2;
+    }
+    &[data-project-id="2"] {
+      order: 1;
+    }
+  }
 `;
 
 const ProjectCard = styled(motion.div)`
@@ -104,7 +116,7 @@ const ProjectCard = styled(motion.div)`
   overflow: hidden;
   height: 300px;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
   transition: all 0.3s ease;
   
@@ -141,16 +153,10 @@ const ProjectImage = styled.div`
   background-size: cover;
   background-position: center;
   position: relative;
-  transition: filter 0.4s ease;
+  transition: opacity 0.3s ease;
 
   ${ProjectCard}:hover & {
-    filter: blur(2px) brightness(0.9);
-  }
-  
-  @media (max-width: 768px) {
-    ${ProjectCard}:hover & {
-      transform: none;
-    }
+    opacity: 0.8;
   }
 `;
 
@@ -158,28 +164,13 @@ const ProjectInfo = styled.div`
   position: absolute;
   inset: 0;
   padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   z-index: 2;
   opacity: 0;
   transition: opacity 0.3s ease;
-  will-change: opacity;
-  
-  /* Создаем затемнение отдельным элементом */
-  &:before {
-    content: '';
-    position: absolute;
-    inset: -10px; /* Выходим за границы на 10px со всех сторон */
-    background: linear-gradient(
-      to top,
-      rgba(0, 0, 0, 0.85) 0%,
-      rgba(0, 0, 0, 0.6) 40%,
-      rgba(0, 0, 0, 0.2) 70%,
-      rgba(0, 0, 0, 0) 100%
-    );
-    z-index: -1;
-  }
   
   ${ProjectCard}:hover & {
     opacity: 1;
@@ -192,7 +183,6 @@ const ProjectInfo = styled.div`
 `;
 
 const ProjectTitle = styled.h3`
-  position: relative; /* Для позиционирования поверх затемнения */
   font-size: 1.3rem;
   margin-bottom: 10px;
   color: #fff;
@@ -201,26 +191,30 @@ const ProjectTitle = styled.h3`
 `;
 
 const ProjectCategory = styled.div`
-  position: relative; /* Для позиционирования поверх затемнения */
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 10px;
   
   span {
-    display: inline-block;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
-    padding: 4px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--overlay);
+    color: var(--text-primary);
+    padding: 0 8px;
     border-radius: 4px;
     margin-right: 5px;
     margin-bottom: 5px;
     font-size: 0.75rem;
     font-weight: 500;
+    line-height: 1;
+    height: 22px;
+    box-sizing: border-box;
+    border: 1px solid var(--accent);
   }
 `;
 
 const ProjectDescription = styled.p`
-  position: relative; /* Для позиционирования поверх затемнения */
   font-size: 0.85rem;
   line-height: 1.4;
   margin-bottom: 0;
@@ -229,11 +223,11 @@ const ProjectDescription = styled.p`
 
 const ProjectCaption = styled.div`
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: var(--accent);
-  color: #fff;
-  padding: 4px 8px;
+  top: 20px;
+  right: 20px;
+  background: var(--overlay);
+  color: var(--text-primary);
+  padding: 0 8px;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -242,7 +236,13 @@ const ProjectCaption = styled.div`
   z-index: 3;
   opacity: 0;
   transition: opacity 0.3s ease;
-  will-change: opacity;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  line-height: 1;
+  box-sizing: border-box;
+  border: 1px solid var(--accent);
   
   ${ProjectCard}:hover & {
     opacity: 1;
@@ -387,17 +387,13 @@ const Projects = () => {
   const categories = ['all', ...new Set(projects.flatMap(project => project.category))];
   
   const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.95 },
+    hidden: { opacity: 0, y: 20 },
     visible: (i) => ({
       opacity: 1,
       y: 0,
-      scale: 1,
       transition: {
         delay: i * 0.1,
-        duration: 0.6,
-        type: "spring",
-        stiffness: 100,
-        damping: 15
+        duration: 0.4
       }
     })
   };
@@ -439,7 +435,7 @@ const Projects = () => {
       
         <ProjectsGrid ref={ref}>
           {filteredProjects.map((project, index) => (
-            <ProjectCardWrapper key={project.id}>
+            <ProjectCardWrapper key={project.id} data-project-id={project.id}>
               <ProjectCard
                 variants={cardVariants}
                 initial="hidden"
