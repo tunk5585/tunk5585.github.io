@@ -206,10 +206,12 @@ const ModalBackdrop = styled(motion.div)`
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 24px;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow: hidden;
   
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: 10px;
   }
 `;
 
@@ -227,6 +229,7 @@ const ModalContent = styled(motion.div)`
   
   @media (max-width: 600px) {
     max-width: 100%;
+    max-height: 70vh;
   }
 `;
 
@@ -236,7 +239,7 @@ const ModalHeader = styled.div`
   height: 60px;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
   
@@ -246,40 +249,19 @@ const ModalHeader = styled.div`
   }
 `;
 
-const ModalBody = styled.div`
-  padding: 28px;
+const ModalCloseWrapper = styled.div`
+  position: absolute;
+  top: 15px;
+  right: 25px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   
   @media (max-width: 768px) {
-    padding: 20px;
-  }
-`;
-
-const ModalQuote = styled.blockquote`
-  font-size: 1.2rem;
-  line-height: 1.7;
-  margin: 0 0 24px;
-  font-style: italic;
-  color: var(--text-primary);
-  
-  @media (max-width: 768px) {
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin: 0 0 20px;
-  }
-`;
-
-const ModalAuthor = styled.cite`
-  display: block;
-  font-size: 1rem;
-  color: var(--text-secondary);
-  font-style: normal;
-  text-align: right;
-  
-  .company {
-    display: block;
-    margin-top: 4px;
-    font-size: 0.85rem;
-    opacity: 0.7;
+    top: 10px;
+    right: 15px;
   }
 `;
 
@@ -289,12 +271,14 @@ const CloseButton = styled.button`
   width: 28px;
   height: 28px;
   border-radius: 4px;
-  background-color: transparent;
+  background-color: var(--main-bg);
   border: 0.5px solid var(--text-primary);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 1100;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
   transition: all 0.2s ease;
   
   &:hover {
@@ -328,6 +312,46 @@ const CloseIcon = styled.div`
   }
 `;
 
+const ModalBody = styled.div`
+  padding: 28px;
+  
+  @media (max-width: 768px) {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(70vh - 50px); /* 50px - высота хедера */
+    -webkit-overflow-scrolling: touch;
+  }
+`;
+
+const ModalQuote = styled.blockquote`
+  font-size: 1.2rem;
+  line-height: 1.7;
+  margin: 0 0 24px;
+  font-style: italic;
+  color: var(--text-primary);
+  
+  @media (max-width: 768px) {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    margin: 0 0 20px;
+  }
+`;
+
+const ModalAuthor = styled.cite`
+  display: block;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-style: normal;
+  text-align: right;
+  
+  .company {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+`;
+
 // Рамки для отзывов
 const frameChars = [
   { horizontal: '-', vertical: '|', topLeft: '+', topRight: '+', bottomLeft: '+', bottomRight: '+' },
@@ -338,6 +362,7 @@ const frameChars = [
 
 const Feedback = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
+  const [isLongFeedback, setIsLongFeedback] = useState(false);
   
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -355,6 +380,8 @@ const Feedback = () => {
   
   const openModal = (feedback) => {
     setSelectedFeedback(feedback);
+    // Проверяем длину текста отзыва, чтобы определить, считать ли его длинным
+    setIsLongFeedback(feedback.quote.length > 250);
     document.body.style.overflow = 'hidden'; // Блокировка прокрутки фона
   };
   
@@ -391,22 +418,17 @@ const Feedback = () => {
   
   // Блокировка скролла при открытии модального окна и сброс при размонтировании
   useEffect(() => {
-    const preventScroll = (e) => e.preventDefault();
-    
     if (selectedFeedback) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflow = 'hidden';
-      document.addEventListener('touchmove', preventScroll, { passive: false });
     } else {
       document.body.style.overflow = 'auto';
       document.documentElement.style.overflow = '';
-      document.removeEventListener('touchmove', preventScroll);
     }
     
     return () => {
       document.body.style.overflow = 'auto';
       document.documentElement.style.overflow = '';
-      document.removeEventListener('touchmove', preventScroll);
     };
   }, [selectedFeedback]);
   
@@ -494,6 +516,10 @@ const Feedback = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeModal}
+            style={{
+              alignItems: isLongFeedback && window.innerWidth <= 768 ? 'flex-start' : 'center',
+              paddingTop: isLongFeedback && window.innerWidth <= 768 ? '10%' : '0'
+            }}
           >
             <ModalContent
               onClick={(e) => e.stopPropagation()}
@@ -503,11 +529,17 @@ const Feedback = () => {
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
             >
               <ModalHeader>
-                <CloseButton onClick={closeModal}>
-                  <CloseIcon />
-                </CloseButton>
+                <div></div>
+                <ModalCloseWrapper>
+                  <CloseButton 
+                    onClick={closeModal}
+                    aria-label="Закрыть"
+                  >
+                    <CloseIcon />
+                  </CloseButton>
+                </ModalCloseWrapper>
               </ModalHeader>
-              <ModalBody>
+              <ModalBody className="modal-body">
                 <ModalQuote>"{selectedFeedback.quote}"</ModalQuote>
                 <ModalAuthor>
                   {selectedFeedback.author}
