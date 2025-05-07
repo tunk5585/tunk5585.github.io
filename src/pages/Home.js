@@ -99,6 +99,14 @@ const FourthLine = styled(TitleLine)`
   }
 `;
 
+// Стилизованные компоненты для текста
+const WordSpan = styled.span`
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  display: inline-block;
+  text-transform: capitalize;
+`;
+
 // Эффект печатной машинки с фиксированным разделением строк
 const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
   const [line1, setLine1] = useState('');
@@ -112,13 +120,36 @@ const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
   const t = translations[language];
   const { initialLoadComplete } = useLoading();
   
+  // Функция для преобразования текста в формат Title Case (только первые буквы слов заглавные)
+  const toTitleCase = (text) => {
+    return text.replace(/\w\S*/g, function(word) {
+      return word.charAt(0).toUpperCase() + word.substr(1).toLowerCase();
+    });
+  };
+  
   // Используем useMemo для создания массива lines
   const lines = React.useMemo(() => [
-    t.hero_title_line1.trim(),
-    t.hero_title_line2.trim(),
-    t.hero_title_line3.trim(),
-    t.hero_title_line4.trim()
+    toTitleCase(t.hero_title_line1.trim()),
+    toTitleCase(t.hero_title_line2.trim()),
+    toTitleCase(t.hero_title_line3.trim()),
+    toTitleCase(t.hero_title_line4.trim())
   ], [t.hero_title_line1, t.hero_title_line2, t.hero_title_line3, t.hero_title_line4]);
+
+  // Загружаем Google шрифт Space Grotesk
+  useEffect(() => {
+    // Создаем элемент link для Space Grotesk
+    const linkSpaceGrotesk = document.createElement('link');
+    linkSpaceGrotesk.rel = 'stylesheet';
+    linkSpaceGrotesk.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap';
+    
+    // Добавляем ссылку в head
+    document.head.appendChild(linkSpaceGrotesk);
+    
+    // Очистка при размонтировании компонента
+    return () => {
+      document.head.removeChild(linkSpaceGrotesk);
+    };
+  }, []);
   
   // Запускаем анимацию только один раз после загрузки
   useEffect(() => {
@@ -170,10 +201,18 @@ const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
   
   return (
     <>
-      <FirstLine>{line1}</FirstLine>
-      <SecondLine>{line2}</SecondLine>
-      <ThirdLine>{line3}</ThirdLine>
-      <FourthLine>{line4}</FourthLine>
+      <FirstLine>
+        <WordSpan>{line1}</WordSpan>
+      </FirstLine>
+      <SecondLine>
+        <WordSpan>{line2}</WordSpan>
+      </SecondLine>
+      <ThirdLine>
+        <WordSpan>{line3}</WordSpan>
+      </ThirdLine>
+      <FourthLine>
+        <WordSpan>{line4}</WordSpan>
+      </FourthLine>
     </>
   );
 };
