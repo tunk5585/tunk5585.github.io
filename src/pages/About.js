@@ -275,17 +275,6 @@ const LoadingContainer = styled.div`
   position: relative;
 `;
 
-const LoadingText = styled.div`
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-family: 'Space Grotesk', sans-serif;
-`;
-
-const LoadingProgress = styled.div`
-  font-size: 1.5rem;
-  font-weight: bold;
-`;
-
 const BioSection = styled.div`
   flex: 1;
   display: flex;
