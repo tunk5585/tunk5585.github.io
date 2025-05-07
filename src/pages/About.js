@@ -251,6 +251,41 @@ const HiddenCanvas = styled.div`
   }
 `;
 
+// Контейнер для экрана загрузки
+const LoadingScreenContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 15;
+  background-color: var(--main-bg);
+  pointer-events: none;
+`;
+
+const LoadingContainer = styled.div`
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  position: relative;
+`;
+
+const LoadingText = styled.div`
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-family: 'Space Grotesk', sans-serif;
+`;
+
+const LoadingProgress = styled.div`
+  font-size: 1.5rem;
+  font-weight: bold;
+`;
+
 const BioSection = styled.div`
   flex: 1;
   display: flex;
@@ -987,6 +1022,30 @@ const InfoTag = () => {
   );
 };
 
+// Компонент экрана загрузки
+const LoadingScreen = ({ progress }) => {
+  const { language } = useLanguage();
+  const t = translations.about[language];
+  const [dots, setDots] = useState(0);
+  
+  // Анимация точек загрузки
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(prev => (prev >= 3 ? 0 : prev + 1));
+    }, 400);
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  return (
+    <LoadingScreenContainer>
+      <LoadingContainer>
+        {(t.loading || "loading")}{'.'.repeat(dots)} {Math.floor(progress)}%
+      </LoadingContainer>
+    </LoadingScreenContainer>
+  );
+};
+
 const About = () => {
   const { initialLoadComplete } = useLoading();
   const { language } = useLanguage();
@@ -1032,6 +1091,10 @@ const About = () => {
   // Добавляем реф для текстового блока и состояние для его высоты
   const bioTextGroupRef = useRef(null);
   const [bioTextHeight, setBioTextHeight] = useState(0);
+  
+  // Добавляем состояние для загрузки 3D модели
+  const [modelLoading, setModelLoading] = useState(true);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   
   // Эффект для измерения высоты текстового блока при рендере и изменении размера
   useEffect(() => {
@@ -1105,6 +1168,32 @@ const About = () => {
       document.removeEventListener('mousemove', handleMouseMove);
     };
   }, [isMobile]);
+  
+  // Эффект для имитации загрузки модели
+  useEffect(() => {
+    if (!initialLoadComplete) return;
+    
+    let loadingInterval;
+    let currentProgress = 0;
+    
+    const simulateLoading = () => {
+      loadingInterval = setInterval(() => {
+        currentProgress += Math.random() * 3;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(loadingInterval);
+          setTimeout(() => setModelLoading(false), 500); // Небольшая задержка перед показом модели
+        }
+        setLoadingProgress(currentProgress);
+      }, 100);
+    };
+    
+    simulateLoading();
+    
+    return () => {
+      clearInterval(loadingInterval);
+    };
+  }, [initialLoadComplete]);
   
   // Константа для рамки
   const frameChar = { 
@@ -1207,8 +1296,11 @@ const About = () => {
               </div>
             </ModelFrame>
             
+            {/* Показываем экран загрузки, если модель ещё загружается */}
+            {modelLoading && <LoadingScreen progress={loadingProgress} />}
+            
             {/* Затем ASCII контейнер (z-index: 10) */}
-            <AsciiArtContainer ref={asciiRef} />
+            <AsciiArtContainer ref={asciiRef} style={{ opacity: modelLoading ? 0 : 1 }} />
             
             {/* Затем скрытый Canvas для рендеринга 3D модели */}
             <HiddenCanvas>
