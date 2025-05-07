@@ -14,7 +14,7 @@ const translations = {
     hero_title_line2: "Design",
     hero_title_line3: "Innovation",
     hero_title_line4: "Solutions",
-    hero_subtitle: "Connecting technology and aesthetics, creating unique digital experiences that are memorable and inspiring.",
+    hero_subtitle: "Working at the intersection of art, design, and technology. My projects live on screens, in print, and in visual culture.",
     view_projects: "View Projects",
     get_in_touch: "Get in Touch",
     
@@ -59,7 +59,7 @@ const translations = {
     hero_title_line2: "Дизайн",
     hero_title_line3: "Инновации",
     hero_title_line4: "Решения",
-    hero_subtitle: "Соединяю технологии и эстетику, создавая уникальные цифровые впечатления, которые запоминаются и вдохновляют.",
+    hero_subtitle: "Работаю на стыке искусства, дизайна и технологии. Мои проекты живут на экранах, печати и визуальной культуре.",
     view_projects: "Посмотреть проекты",
     get_in_touch: "Связаться",
     
@@ -280,9 +280,9 @@ const translations = {
         },
         {
           id: 6,
-          quote: "Rarely do you find specialists who immerse themselves so deeply in a project and offer truly innovative solutions. Our rebranding received many positive reviews.",
-          author: "Anton Lebedev",
-          company: "CEO, Momentum"
+          quote: "Overall, I really enjoyed working with you. First, you never missed deadlines—which is quite rare. Second, you always asked great and relevant questions that helped better understand the task. You did everything promptly and clearly. If I were to offer a small critique, sometimes I wished for more references—even just images. Not necessarily videos, of course, as we can't copy everything. Sometimes I just wanted a bit more visual support, but this is more of a wish than a complaint. Otherwise, you're simply great. Everything you did was fresh, interesting, and sometimes even unconventional. It's fantastic that you offered a whole pool of ideas—it felt like you were really using your own creativity rather than just pasting something from ChatGPT. This is a huge plus because, well, you know how it is: you look at an idea and it's immediately obvious that it's just generated junk. You never had that—and that's super valuable.",
+          author: "Ivan Vershinin",
+          company: "CEO, EVER.CGI"
         }
       ]
     },
@@ -321,9 +321,9 @@ const translations = {
         },
         {
           id: 6,
-          quote: "Редко встречаются специалисты, которые так глубоко погружаются в проект и предлагают действительно инновационные решения. Наш ребрендинг получил множество положительных отзывов.",
-          author: "Антон Лебедев",
-          company: "CEO, Momentum"
+          quote: "В целом, мне очень понравилось с тобой работать. Во-первых, ты ни разу не нарушал сроки — это большая редкость. Во-вторых, ты всегда задавал классные и правильные вопросы, которые помогали лучше понять задачу. Все делал очень оперативно и понятно. Если говорить о небольшой критике, то иногда не хватало референсов — хотя бы в виде картинки. Не обязательно видео, понятно, что мы не можем все под копирку делать. Просто иногда хотелось чуть больше визуальной поддержки, но это скорее пожелание, а не претензия. В остальном ты — просто молодец. Все, что ты делал, было свежее, интересное, иногда даже нестандартное. Очень круто, что ты предлагал целый пул идей — чувствовалось, что ты работаешь своей головой, а не просто кидаешь копипасту из ChatGPT. Это огромный плюс, потому что, ну, ты знаешь, как это бывает: смотришь на идею и сразу видно, что это просто сгенерённый мусор. У тебя такого не было — и это суперценно.",
+          author: "Иван Вершинин",
+          company: "CEO, EVER.CGI"
         }
       ]
     }
