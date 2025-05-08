@@ -16,7 +16,6 @@ import insideGuruMobile from '../assets/images/inside_project_mob_guru.webp';
 import insideFableMobile from '../assets/images/inside_project_mob_fable.webp';
 import inside0not1Mobile from '../assets/images/inside_project_mob_0not1.webp';
 import insideSambMobile from '../assets/images/inside_project_mob_samb.webp';
-import SEO from '../components/SEO';
 
 const ProjectDetailContainer = styled.div`
   min-height: 100vh;
@@ -481,11 +480,6 @@ const ProjectDetail = () => {
   
   return (
     <ProjectDetailContainer ref={containerRef}>
-      <SEO 
-        title={`TUNK5585 | ${project.title}`}
-        description={`${project.shortDescription || 'Look, enjoy, cooperate.'}`}
-        image={project.images && project.images.length > 0 ? project.images[0] : undefined}
-      />
       <ProjectHeader>
         <LanguageButton onClick={toggleLanguage}>
           {language === 'en' ? 'RU' : 'EN'}

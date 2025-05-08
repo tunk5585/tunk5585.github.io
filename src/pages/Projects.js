@@ -14,7 +14,6 @@ import previewWelcom from '../assets/images/preview_welcom.webp';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
-import SEO from '../components/SEO';
 
 const ProjectsContainer = styled.div`
   min-height: 100vh;
@@ -415,10 +414,6 @@ const Projects = () => {
   
   return (
     <ProjectsContainer>
-      <SEO 
-        title="TUNK5585 | Projects" 
-        description="Look, enjoy, cooperate."
-      />
       <TitleContainer>
         <SectionTitle>
           {t.title}

@@ -6,7 +6,6 @@ import InteractiveBackground from '../components/InteractiveBackground';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
-import SEO from '../components/SEO';
 
 const HomeContainer = styled.div`
   touch-action: none;
@@ -305,10 +304,6 @@ const Home = () => {
 
   return (
     <HomeContainer>
-      <SEO 
-        title="TUNK5585" 
-        description="Look, enjoy, cooperate."
-      />
       <HeroSection>
         <InteractiveBackground />
         
