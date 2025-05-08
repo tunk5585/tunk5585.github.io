@@ -3,3 +3,12 @@ build/
 .env
 .DS_Store
 npm-debug.log
+
+# Бинарные файлы и архивы
+*.exe
+*.zip
+
+# Настройки редакторов
+.vscode/
+.cursor/
+.idea/
