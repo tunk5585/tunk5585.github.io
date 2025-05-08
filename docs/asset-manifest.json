@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.ef73c7bb.css",
-    "main.js": "/static/js/main.f21c7392.js",
+    "main.js": "/static/js/main.df1bcc3a.js",
     "static/media/inside_project_fable.webp": "/static/media/inside_project_fable.7bdc9b69255531dff488.webp",
     "static/media/inside_project_samb.webp": "/static/media/inside_project_samb.0a167338fca87b7adf71.webp",
     "static/media/preview_site.webp": "/static/media/preview_site.e916837b6f766c44c5a4.webp",
@@ -16,13 +16,13 @@
     "static/media/preview_fable.webp": "/static/media/preview_fable.368a23ce0bbb038cbc29.webp",
     "static/media/inside_project_guru.webp": "/static/media/inside_project_guru.31bfb0ebb58ef2130023.webp",
     "static/media/inside_project_mob_guru.webp": "/static/media/inside_project_mob_guru.a34bd548ff9852d6f51b.webp",
-    "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.a5fc6dd0d438d6224fb028303039ac53.svg",
+    "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.b77ff8137c3430d6c9f1a2ff3bc099bc.svg",
     "index.html": "/index.html",
     "main.ef73c7bb.css.map": "/static/css/main.ef73c7bb.css.map",
-    "main.f21c7392.js.map": "/static/js/main.f21c7392.js.map"
+    "main.df1bcc3a.js.map": "/static/js/main.df1bcc3a.js.map"
   },
   "entrypoints": [
     "static/css/main.ef73c7bb.css",
-    "static/js/main.f21c7392.js"
+    "static/js/main.df1bcc3a.js"
   ]
 }
