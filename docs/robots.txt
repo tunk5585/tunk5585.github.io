@@ -1,0 +1,6 @@
+# https://tunk5585.xyz/
+
+User-agent: *
+Allow: /
+
+Sitemap: https://tunk5585.xyz/sitemap.xml 
