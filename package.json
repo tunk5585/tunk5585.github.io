@@ -2,7 +2,7 @@
   "name": "creative-portfolio",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://tunk5585.github.io",
+  "homepage": "https://tunk5585.xyz",
   "dependencies": {
     "@react-three/drei": "^9.101.0",
     "@react-three/fiber": "^8.15.19",

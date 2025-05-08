@@ -164,29 +164,4 @@ Both short-term creative tasks and long-term projects where one can influence vi
   }
 ];
 
-// ASCII арт для проектов
-export const generateProjectAscii = (index) => {
-  const ascii = [
-    `
-█▀▀█ █▀▀█ █▀▀█ ░░▀ █▀▀ █▀▀ ▀▀█▀▀
-█░░█ █▄▄▀ █░░█ ░░█ █▀▀ █░░ ░░█░░
-▀▀▀▀ ▀░▀▀ ▀▀▀▀ █▄█ ▀▀▀ ▀▀▀ ░░▀░░`,
-    `
-▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓ ▓▓▓▓
-▓▓▒▒ ▓▓▒▒ ▓▓▒▒ ▓▓▒▒ ▓▓▒▒ ▓▓▒▒ ▓▓▒▒
-▒▒░░ ▒▒░░ ▒▒░░ ▒▒░░ ▒▒░░ ▒▒░░ ▒▒░░
-░░   ░░   ░░   ░░   ░░   ░░   ░░  `,
-    `
-╔══╗╔══╗╔══╗╔══╗╔══╗╔══╗
-║  ║║  ║║  ║║  ║║  ║║  ║
-╚══╝╚══╝╚══╝╚══╝╚══╝╚══╝`,
-    `
-┌─┐┌─┐┌─┐┌─┐┌─┐┌─┐
-│ ││ ││ ││ ││ ││ │
-└─┘└─┘└─┘└─┘└─┘└─┘`
-  ];
-  
-  return ascii[index % ascii.length];
-};
-
 export default projects; 

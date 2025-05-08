@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 const FeedbackContainer = styled.div`
   min-height: 100vh;
@@ -372,6 +373,14 @@ const Feedback = () => {
   const { language } = useLanguage();
   const t = translations.feedback[language];
   
+  // Создаем объект с SEO данными для страницы отзывов, так как они отсутствуют в переводах
+  const seoData = {
+    title: language === 'ru' ? 'Отзывы клиентов' : 'Client Feedback',
+    description: language === 'ru' 
+      ? 'Прочитайте отзывы клиентов о моей работе в качестве дизайнера. Узнайте, что говорят клиенты о моих услугах и проектах.'
+      : 'Read client testimonials about my work as a designer. See what clients say about my services and projects.'
+  };
+  
   // Получаем отзывы из переводов
   const feedbacks = t.testimonials.map((feedback, index) => ({
     ...feedback,
@@ -433,124 +442,131 @@ const Feedback = () => {
   }, [selectedFeedback]);
   
   return (
-    <FeedbackContainer>
-      <TitleContainer>
-        <SectionTitle>
-          {t.title}
-        </SectionTitle>
-      </TitleContainer>
-      
-      <FeedbackGrid ref={ref}>
-        {feedbacks.map((feedback, index) => {
-          const frame = frameChars[feedback.frameIndex];
-          
-          // Позиции для вертикальных символов (в процентах)
-          const verticalPositions = [10, 30, 50, 70, 90];
-          
-          // Ограничиваем длину цитаты для превью
-          const previewQuote = feedback.quote.length > 120 
-            ? feedback.quote.substring(0, 120) + '...' 
-            : feedback.quote;
-          
-          return (
-            <FeedbackCard
-              key={feedback.id}
-              variants={cardVariants}
-              initial="hidden"
-              animate={inView && initialLoadComplete ? "visible" : "hidden"}
-              custom={index}
-              onClick={() => openModal(feedback)}
-              whileHover={{ scale: 1.01 }}
-              whileTap={{ scale: 0.99 }}
+    <>
+      <SEO 
+        title={seoData.title} 
+        description={seoData.description}
+        image="/images/feedback-og-image.jpg"
+      />
+      <FeedbackContainer>
+        <TitleContainer>
+          <SectionTitle>
+            {t.title}
+          </SectionTitle>
+        </TitleContainer>
+        
+        <FeedbackGrid ref={ref}>
+          {feedbacks.map((feedback, index) => {
+            const frame = frameChars[feedback.frameIndex];
+            
+            // Позиции для вертикальных символов (в процентах)
+            const verticalPositions = [10, 30, 50, 70, 90];
+            
+            // Ограничиваем длину цитаты для превью
+            const previewQuote = feedback.quote.length > 120 
+              ? feedback.quote.substring(0, 120) + '...' 
+              : feedback.quote;
+            
+            return (
+              <FeedbackCard
+                key={feedback.id}
+                variants={cardVariants}
+                initial="hidden"
+                animate={inView && initialLoadComplete ? "visible" : "hidden"}
+                custom={index}
+                onClick={() => openModal(feedback)}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+              >
+                <FeedbackAsciiFrame className="ascii-frame">
+                  <div className="top">
+                    {frame.topLeft + frame.horizontal.repeat(48) + frame.topRight}
+                  </div>
+                  
+                  <div className="left">
+                    {verticalPositions.map((pos, i) => (
+                      <span 
+                        key={i} 
+                        className="v-symbol" 
+                        style={{ top: `${pos}%` }}
+                      >
+                        {frame.vertical}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="right">
+                    {verticalPositions.map((pos, i) => (
+                      <span 
+                        key={i} 
+                        className="v-symbol" 
+                        style={{ top: `${pos}%` }}
+                      >
+                        {frame.vertical}
+                      </span>
+                    ))}
+                  </div>
+                  
+                  <div className="bottom">
+                    {frame.bottomLeft + frame.horizontal.repeat(48) + frame.bottomRight}
+                  </div>
+                </FeedbackAsciiFrame>
+                
+                <FeedbackContent>
+                  <Quote>"{previewQuote}"</Quote>
+                  <Author>
+                    {feedback.author}
+                    <span className="company">{feedback.company}</span>
+                  </Author>
+                </FeedbackContent>
+              </FeedbackCard>
+            );
+          })}
+        </FeedbackGrid>
+        
+        <AnimatePresence>
+          {selectedFeedback && (
+            <ModalBackdrop
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeModal}
+              style={{
+                alignItems: isLongFeedback && window.innerWidth <= 768 ? 'flex-start' : 'center',
+                paddingTop: isLongFeedback && window.innerWidth <= 768 ? '10%' : '0'
+              }}
             >
-              <FeedbackAsciiFrame className="ascii-frame">
-                <div className="top">
-                  {frame.topLeft + frame.horizontal.repeat(48) + frame.topRight}
-                </div>
-                
-                <div className="left">
-                  {verticalPositions.map((pos, i) => (
-                    <span 
-                      key={i} 
-                      className="v-symbol" 
-                      style={{ top: `${pos}%` }}
+              <ModalContent
+                onClick={(e) => e.stopPropagation()}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              >
+                <ModalHeader>
+                  <div></div>
+                  <ModalCloseWrapper>
+                    <CloseButton 
+                      onClick={closeModal}
+                      aria-label="Закрыть"
                     >
-                      {frame.vertical}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="right">
-                  {verticalPositions.map((pos, i) => (
-                    <span 
-                      key={i} 
-                      className="v-symbol" 
-                      style={{ top: `${pos}%` }}
-                    >
-                      {frame.vertical}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="bottom">
-                  {frame.bottomLeft + frame.horizontal.repeat(48) + frame.bottomRight}
-                </div>
-              </FeedbackAsciiFrame>
-              
-              <FeedbackContent>
-                <Quote>"{previewQuote}"</Quote>
-                <Author>
-                  {feedback.author}
-                  <span className="company">{feedback.company}</span>
-                </Author>
-              </FeedbackContent>
-            </FeedbackCard>
-          );
-        })}
-      </FeedbackGrid>
-      
-      <AnimatePresence>
-        {selectedFeedback && (
-          <ModalBackdrop
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={closeModal}
-            style={{
-              alignItems: isLongFeedback && window.innerWidth <= 768 ? 'flex-start' : 'center',
-              paddingTop: isLongFeedback && window.innerWidth <= 768 ? '10%' : '0'
-            }}
-          >
-            <ModalContent
-              onClick={(e) => e.stopPropagation()}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            >
-              <ModalHeader>
-                <div></div>
-                <ModalCloseWrapper>
-                  <CloseButton 
-                    onClick={closeModal}
-                    aria-label="Закрыть"
-                  >
-                    <CloseIcon />
-                  </CloseButton>
-                </ModalCloseWrapper>
-              </ModalHeader>
-              <ModalBody className="modal-body">
-                <ModalQuote>"{selectedFeedback.quote}"</ModalQuote>
-                <ModalAuthor>
-                  {selectedFeedback.author}
-                  <span className="company">{selectedFeedback.company}</span>
-                </ModalAuthor>
-              </ModalBody>
-            </ModalContent>
-          </ModalBackdrop>
-        )}
-      </AnimatePresence>
-    </FeedbackContainer>
+                      <CloseIcon />
+                    </CloseButton>
+                  </ModalCloseWrapper>
+                </ModalHeader>
+                <ModalBody className="modal-body">
+                  <ModalQuote>"{selectedFeedback.quote}"</ModalQuote>
+                  <ModalAuthor>
+                    {selectedFeedback.author}
+                    <span className="company">{selectedFeedback.company}</span>
+                  </ModalAuthor>
+                </ModalBody>
+              </ModalContent>
+            </ModalBackdrop>
+          )}
+        </AnimatePresence>
+      </FeedbackContainer>
+    </>
   );
 };
 

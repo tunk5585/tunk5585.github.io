@@ -14,6 +14,7 @@ import previewWelcom from '../assets/images/preview_welcom.webp';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 const ProjectsContainer = styled.div`
   min-height: 100vh;
@@ -302,6 +303,7 @@ const Projects = () => {
   const { initialLoadComplete } = useLoading();
   const { language } = useLanguage();
   const t = translations.projects[language];
+  const seoT = translations[language]; // Для SEO используем основной объект переводов
   
   // Получаем локализованный заголовок проекта
   const getLocalizedTitle = (project) => {
@@ -413,75 +415,82 @@ const Projects = () => {
   };
   
   return (
-    <ProjectsContainer>
-      <TitleContainer>
-        <SectionTitle>
-          {t.title}
-        </SectionTitle>
-      </TitleContainer>
-      
-      <ContentContainer>
-        <FilterContainer>
-          {categories.map(category => (
-            <FilterButton
-              key={category}
-              $active={activeFilter === category}
-              onClick={() => handleFilterClick(category)}
-            >
-              {translateCategory(category)}
-            </FilterButton>
-          ))}
-        </FilterContainer>
-      
-        <ProjectsGrid ref={ref}>
-          {filteredProjects.map((project, index) => (
-            <ProjectCardWrapper key={project.id} data-project-id={project.id}>
-              <ProjectCard
-                variants={cardVariants}
-                initial="hidden"
-                animate={(inView && initialLoadComplete) ? "visible" : "hidden"}
-                custom={index}
-                $selected={selectedProjectId === project.id}
+    <>
+      <SEO 
+        title={seoT.projects_page_title} 
+        description={seoT.projects_meta_description}
+        image="/images/projects-og-image.jpg"
+      />
+      <ProjectsContainer>
+        <TitleContainer>
+          <SectionTitle>
+            {t.title}
+          </SectionTitle>
+        </TitleContainer>
+        
+        <ContentContainer>
+          <FilterContainer>
+            {categories.map(category => (
+              <FilterButton
+                key={category}
+                $active={activeFilter === category}
+                onClick={() => handleFilterClick(category)}
               >
-                <ProjectLink
-                  to={`/projects/${project.id}`}
-                  onClick={e => handleProjectClick(e, project.id)}
+                {translateCategory(category)}
+              </FilterButton>
+            ))}
+          </FilterContainer>
+        
+          <ProjectsGrid ref={ref}>
+            {filteredProjects.map((project, index) => (
+              <ProjectCardWrapper key={project.id} data-project-id={project.id}>
+                <ProjectCard
+                  variants={cardVariants}
+                  initial="hidden"
+                  animate={(inView && initialLoadComplete) ? "visible" : "hidden"}
+                  custom={index}
+                  $selected={selectedProjectId === project.id}
                 >
-                  <ProjectImage className="project-image" $src={previewImages[project.id]} />
-                  <ProjectCaption $active={selectedProjectId === project.id}>{getLocalizedYear(project)}</ProjectCaption>
-                  <ProjectInfo
-                    $active={selectedProjectId === project.id}
+                  <ProjectLink
+                    to={`/projects/${project.id}`}
+                    onClick={e => handleProjectClick(e, project.id)}
                   >
-                    <ProjectTitle>
-                      {getLocalizedTitle(project)}
-                    </ProjectTitle>
-                    <ProjectCategory>
-                      {formatCategories(project.category, translateCategory)}
-                    </ProjectCategory>
-                    <ProjectDescription>
-                      {getLocalizedDescription(project)}
-                    </ProjectDescription>
-                  </ProjectInfo>
-                  
-                  <AnimatePresence>
-                    {showNotification && selectedProjectId === project.id && (
-                      <MobileNotification
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз для просмотра'}
-                      </MobileNotification>
-                    )}
-                  </AnimatePresence>
-                </ProjectLink>
-              </ProjectCard>
-            </ProjectCardWrapper>
-          ))}
-        </ProjectsGrid>
-      </ContentContainer>
-    </ProjectsContainer>
+                    <ProjectImage className="project-image" $src={previewImages[project.id]} />
+                    <ProjectCaption $active={selectedProjectId === project.id}>{getLocalizedYear(project)}</ProjectCaption>
+                    <ProjectInfo
+                      $active={selectedProjectId === project.id}
+                    >
+                      <ProjectTitle>
+                        {getLocalizedTitle(project)}
+                      </ProjectTitle>
+                      <ProjectCategory>
+                        {formatCategories(project.category, translateCategory)}
+                      </ProjectCategory>
+                      <ProjectDescription>
+                        {getLocalizedDescription(project)}
+                      </ProjectDescription>
+                    </ProjectInfo>
+                    
+                    <AnimatePresence>
+                      {showNotification && selectedProjectId === project.id && (
+                        <MobileNotification
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {language === 'en' ? 'Tap again to view project details' : 'Нажмите еще раз для просмотра'}
+                        </MobileNotification>
+                      )}
+                    </AnimatePresence>
+                  </ProjectLink>
+                </ProjectCard>
+              </ProjectCardWrapper>
+            ))}
+          </ProjectsGrid>
+        </ContentContainer>
+      </ProjectsContainer>
+    </>
   );
 };
 

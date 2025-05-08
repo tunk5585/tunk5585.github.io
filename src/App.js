@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
+import { HelmetProvider } from 'react-helmet-async';
 import { useLoading } from './context/LoadingContext';
 import { LanguageProvider } from './context/LanguageContext';
 // Импорт компонентов
@@ -9,6 +10,7 @@ import Footer from './components/Footer';
 import ScrollIndicator from './components/ScrollIndicator';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
+import SEO from './components/SEO';
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -422,30 +424,33 @@ const App = () => {
   ];
 
   return (
-    <LanguageProvider>
-      <AppWrapper>
-        <ScrollToTop />
-        {/* Spinner overlay during initial load or navigation */}
-        {showLoadingScreen && (
-          <LoadingContainer>
-            <LoadingAscii>
-              {spinnerFrames[frame]}
-              <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
-            </LoadingAscii>
-          </LoadingContainer>
-        )}
-        {/* Основной контент загружается только после полного скрытия экрана загрузки */}
-        <DelayedContent isReady={contentReady || !showLoadingScreen}>
-          {!location.pathname.startsWith('/projects/') && <Header />}
-          <MainContent>
-            <Outlet />
-          </MainContent>
-          {location.pathname !== '/' && <Footer />}
-          {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-          {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-        </DelayedContent>
-      </AppWrapper>
-    </LanguageProvider>
+    <HelmetProvider>
+      <LanguageProvider>
+        <AppWrapper>
+          <SEO />
+          <ScrollToTop />
+          {/* Spinner overlay during initial load or navigation */}
+          {showLoadingScreen && (
+            <LoadingContainer>
+              <LoadingAscii>
+                {spinnerFrames[frame]}
+                <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
+              </LoadingAscii>
+            </LoadingContainer>
+          )}
+          {/* Основной контент загружается только после полного скрытия экрана загрузки */}
+          <DelayedContent isReady={contentReady || !showLoadingScreen}>
+            {!location.pathname.startsWith('/projects/') && <Header />}
+            <MainContent>
+              <Outlet />
+            </MainContent>
+            {location.pathname !== '/' && <Footer />}
+            {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
+            {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
+          </DelayedContent>
+        </AppWrapper>
+      </LanguageProvider>
+    </HelmetProvider>
   );
 };
 

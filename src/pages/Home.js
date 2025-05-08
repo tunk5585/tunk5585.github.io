@@ -6,6 +6,7 @@ import InteractiveBackground from '../components/InteractiveBackground';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 const HomeContainer = styled.div`
   touch-action: none;
@@ -303,39 +304,46 @@ const Home = () => {
   }, []);
 
   return (
-    <HomeContainer>
-      <HeroSection>
-        <InteractiveBackground />
-        
-        <HeroContent>
-          <Title
-            initial={{ opacity: 0, y: 30 }}
-            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8 }}
-          >
-            <TypewriterTitle speed={30} />
-          </Title>
+    <>
+      <SEO 
+        title={t.home_page_title} 
+        description={t.home_meta_description}
+        image="/images/home-og-image.jpg"
+      />
+      <HomeContainer>
+        <HeroSection>
+          <InteractiveBackground />
           
-          <Subtitle
-            language={language}
-            initial={{ opacity: 0, y: 30 }}
-            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          >
-            {t.hero_subtitle}
-          </Subtitle>
-          
-          <ButtonRow
-            initial={{ opacity: 0, y: 30 }}
-            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <Button to="/projects" className="primary">{t.view_projects}</Button>
-            <Button to="/contact">{t.get_in_touch}</Button>
-          </ButtonRow>
-        </HeroContent>
-      </HeroSection>
-    </HomeContainer>
+          <HeroContent>
+            <Title
+              initial={{ opacity: 0, y: 30 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.8 }}
+            >
+              <TypewriterTitle speed={30} />
+            </Title>
+            
+            <Subtitle
+              language={language}
+              initial={{ opacity: 0, y: 30 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              {t.hero_subtitle}
+            </Subtitle>
+            
+            <ButtonRow
+              initial={{ opacity: 0, y: 30 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              <Button to="/projects" className="primary">{t.view_projects}</Button>
+              <Button to="/contact">{t.get_in_touch}</Button>
+            </ButtonRow>
+          </HeroContent>
+        </HeroSection>
+      </HomeContainer>
+    </>
   );
 };
 

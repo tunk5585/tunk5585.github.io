@@ -5,6 +5,7 @@ import { FaTelegram, FaInstagram, FaBehance } from 'react-icons/fa';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 const ContactContainer = styled.div`
   min-height: 100vh;
@@ -431,184 +432,191 @@ const Contact = () => {
   };
   
   return (
-    <ContactContainer>
-      <TitleContainer>
-        <SectionTitle>
-          {t.contact_me.title}
-        </SectionTitle>
-      </TitleContainer>
-      
-      <ContentContainer>
-        <ContactInfoSection>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ duration: 0.7 }}
-          >
-            <ContactText>
-              {t.contact_text1}
-            </ContactText>
-            
-            <ContactText>
-              {t.contact_text2}
-            </ContactText>
-          </motion.div>
-          
-          <InfoContainer>
-            <InfoItem
-              variants={infoVariants}
-              initial="hidden"
-              animate={initialLoadComplete ? "visible" : "hidden"}
-              transition={{ delay: 0.2 }}
-            >
-              <InfoLabel>Email:</InfoLabel>
-              <InfoValue>t.project5585@gmail.com</InfoValue>
-            </InfoItem>
-            
-            <InfoItem
-              variants={infoVariants}
-              initial="hidden"
-              animate={initialLoadComplete ? "visible" : "hidden"}
-              transition={{ delay: 0.3 }}
-            >
-              <InfoLabel>{t.phone}:</InfoLabel>
-              <InfoValue>+7 (977) 571-20-22</InfoValue>
-            </InfoItem>
-            
-            <InfoItem
-              variants={infoVariants}
-              initial="hidden"
-              animate={initialLoadComplete ? "visible" : "hidden"}
-              transition={{ delay: 0.4 }}
-            >
-              <InfoLabel>{t.address}:</InfoLabel>
-              <InfoValue>{t.address_value}</InfoValue>
-            </InfoItem>
-          </InfoContainer>
-          
-          <SocialIcons>
-            <SocialIconBlock
-              initial={{ opacity: 0, y: 20 }}
-              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.5 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <SocialIconLink href="https://t.me/tunk5585" target="_blank" rel="noopener noreferrer">
-                <FaTelegram />
-              </SocialIconLink>
-            </SocialIconBlock>
-            
-            <SocialIconBlock
-              initial={{ opacity: 0, y: 20 }}
-              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.6 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <SocialIconLink href="https://instagram.com/tunk5585" target="_blank" rel="noopener noreferrer">
-                <FaInstagram />
-              </SocialIconLink>
-            </SocialIconBlock>
-            
-            <SocialIconBlock
-              initial={{ opacity: 0, y: 20 }}
-              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ delay: 0.7 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <SocialIconLink href="https://behance.net/username" target="_blank" rel="noopener noreferrer">
-                <FaBehance />
-              </SocialIconLink>
-            </SocialIconBlock>
-          </SocialIcons>
-        </ContactInfoSection>
+    <>
+      <SEO 
+        title={t.contact_page_title} 
+        description={t.contact_meta_description}
+        image="/images/contact-og-image.jpg"
+      />
+      <ContactContainer>
+        <TitleContainer>
+          <SectionTitle>
+            {t.contact_me.title}
+          </SectionTitle>
+        </TitleContainer>
         
-        <FormSection>
-          <ContactForm
-            variants={formVariants}
-            initial="hidden"
-            animate={initialLoadComplete ? "visible" : "hidden"}
-            onSubmit={handleSubmit}
-          >
-            <FormGroup>
-              <Label htmlFor="name">{t.name}</Label>
-              <Input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-            
-            <FormGroup>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-            
-            <FormGroup>
-              <Label htmlFor="subject">{t.subject}</Label>
-              <Input
-                type="text"
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-            
-            <FormGroup>
-              <Label htmlFor="message">{t.message}</Label>
-              <Textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-              />
-            </FormGroup>
-            
-            <SubmitButton
-              type="submit"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <ContentContainer>
+          <ContactInfoSection>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+              transition={{ duration: 0.7 }}
             >
-              {t.send}
-            </SubmitButton>
+              <ContactText>
+                {t.contact_text1}
+              </ContactText>
+              
+              <ContactText>
+                {t.contact_text2}
+              </ContactText>
+            </motion.div>
             
-            {showSuccess && (
-              <SuccessMessage
-                variants={successVariants}
+            <InfoContainer>
+              <InfoItem
+                variants={infoVariants}
                 initial="hidden"
-                animate="visible"
-                exit="exit"
+                animate={initialLoadComplete ? "visible" : "hidden"}
+                transition={{ delay: 0.2 }}
               >
-                <SuccessText>{t.success_message}</SuccessText>
-                <CloseButton
-                  onClick={closeSuccess}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <InfoLabel>Email:</InfoLabel>
+                <InfoValue>t.project5585@gmail.com</InfoValue>
+              </InfoItem>
+              
+              <InfoItem
+                variants={infoVariants}
+                initial="hidden"
+                animate={initialLoadComplete ? "visible" : "hidden"}
+                transition={{ delay: 0.3 }}
+              >
+                <InfoLabel>{t.phone}:</InfoLabel>
+                <InfoValue>+7 (977) 571-20-22</InfoValue>
+              </InfoItem>
+              
+              <InfoItem
+                variants={infoVariants}
+                initial="hidden"
+                animate={initialLoadComplete ? "visible" : "hidden"}
+                transition={{ delay: 0.4 }}
+              >
+                <InfoLabel>{t.address}:</InfoLabel>
+                <InfoValue>{t.address_value}</InfoValue>
+              </InfoItem>
+            </InfoContainer>
+            
+            <SocialIcons>
+              <SocialIconBlock
+                initial={{ opacity: 0, y: 20 }}
+                animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.5 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <SocialIconLink href="https://t.me/tunk5585" target="_blank" rel="noopener noreferrer">
+                  <FaTelegram />
+                </SocialIconLink>
+              </SocialIconBlock>
+              
+              <SocialIconBlock
+                initial={{ opacity: 0, y: 20 }}
+                animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.6 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <SocialIconLink href="https://instagram.com/tunk5585" target="_blank" rel="noopener noreferrer">
+                  <FaInstagram />
+                </SocialIconLink>
+              </SocialIconBlock>
+              
+              <SocialIconBlock
+                initial={{ opacity: 0, y: 20 }}
+                animate={initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ delay: 0.7 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <SocialIconLink href="https://behance.net/username" target="_blank" rel="noopener noreferrer">
+                  <FaBehance />
+                </SocialIconLink>
+              </SocialIconBlock>
+            </SocialIcons>
+          </ContactInfoSection>
+          
+          <FormSection>
+            <ContactForm
+              variants={formVariants}
+              initial="hidden"
+              animate={initialLoadComplete ? "visible" : "hidden"}
+              onSubmit={handleSubmit}
+            >
+              <FormGroup>
+                <Label htmlFor="name">{t.name}</Label>
+                <Input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="subject">{t.subject}</Label>
+                <Input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label htmlFor="message">{t.message}</Label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                />
+              </FormGroup>
+              
+              <SubmitButton
+                type="submit"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {t.send}
+              </SubmitButton>
+              
+              {showSuccess && (
+                <SuccessMessage
+                  variants={successVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
                 >
-                  {t.close}
-                </CloseButton>
-              </SuccessMessage>
-            )}
-          </ContactForm>
-          <FormBackground />
-        </FormSection>
-      </ContentContainer>
-    </ContactContainer>
+                  <SuccessText>{t.success_message}</SuccessText>
+                  <CloseButton
+                    onClick={closeSuccess}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {t.close}
+                  </CloseButton>
+                </SuccessMessage>
+              )}
+            </ContactForm>
+            <FormBackground />
+          </FormSection>
+        </ContentContainer>
+      </ContactContainer>
+    </>
   );
 };
 

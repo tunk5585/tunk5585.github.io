@@ -9,6 +9,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, Environment } from '@react-three/drei';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -1039,6 +1040,7 @@ const About = () => {
   const { initialLoadComplete } = useLoading();
   const { language } = useLanguage();
   const t = translations.about[language];
+  const seoT = translations[language];
   
   const [bioRef, bioInView] = useInView({
     triggerOnce: true,
@@ -1239,191 +1241,198 @@ const About = () => {
   };
 
   return (
-    <AboutContainer>
-      <TitleContainer>
-        <SectionTitle>
-          {t.title}
-        </SectionTitle>
-      </TitleContainer>
-      
-      <ContentContainer>
-        <ProfileSection 
-          ref={profileRef}
-          initial={{ opacity: 0, y: 50 }}
-          animate={profileInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-          transition={{ duration: 0.8 }}
-        >
-          <ProfileImageContainer $bioHeight={bioTextHeight} $isMobile={isMobile}>
-            {/* Добавляем информацию о пользователе по правому краю */}
-            <ProfileInfoGender>
-              <ProfileInfoContent type="gender" />
-            </ProfileInfoGender>
-            <ProfileInfoAge>
-              <ProfileInfoContent type="age" />
-            </ProfileInfoAge>
-            {/* Сначала рамка (z-index: 20) */}
-            <ModelFrame>
-              <div className="top">
-                {frameChar.topLeft + frameChar.horizontal.repeat(48) + frameChar.topRight}
-              </div>
-              <div className="left">
-                {verticalPositions.map((pos, i) => (
-                  <span key={i} className="v-symbol" style={{ top: `${pos}%` }}>
-                    {frameChar.vertical}
-                  </span>
-                ))}
-              </div>
-              <div className="right">
-                {verticalPositions.map((pos, i) => (
-                  <span key={i} className="v-symbol" style={{ top: `${pos}%` }}>
-                    {frameChar.vertical}
-                  </span>
-                ))}
-              </div>
-              <div className="bottom">
-                {frameChar.bottomLeft + frameChar.horizontal.repeat(48) + frameChar.bottomRight}
-              </div>
-            </ModelFrame>
-            
-            {/* Показываем экран загрузки, если модель ещё загружается */}
-            {modelLoading && <LoadingScreen progress={loadingProgress} />}
-            
-            {/* Затем ASCII контейнер (z-index: 10) */}
-            <AsciiArtContainer ref={asciiRef} style={{ opacity: modelLoading ? 0 : 1 }} />
-            
-            {/* Затем скрытый Canvas для рендеринга 3D модели */}
-            <HiddenCanvas>
-              <Canvas 
-                style={{ width: '100%', height: '100%' }} 
-                camera={{ 
-                  position: isMobile ? [0, 0, 2.5] : [0, 0, 7],
-                  fov: isMobile ? 45 : 35
-                }}
-                gl={{ preserveDrawingBuffer: true, alpha: true }}
-              >
-                <color attach="background" args={['#000']} transparent opacity={0} />
-                <ambientLight intensity={0.9} />
-                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2.0} />
-                <pointLight position={[-10, -10, -10]} intensity={1.0} />
-                <Suspense fallback={null}>
-                  {isMobile ? (
-                    <MobileModel scrollY={scrollY} />
-                  ) : (
-                    <DesktopModel mouseX={mousePosition.x} mouseY={mousePosition.y} />
-                  )}
-                  <Environment preset="city" />
-                  <AsciiEffect 
-                    domRef={asciiRef} 
-                    characters=' .:-+*=%@#$' 
-                    invert={true} 
-                    resolution={isMobile ? 0.30 : 0.40}
-                    alphaThreshold={isMobile ? 0.1 : 0.15}
-                  />
-                </Suspense>
-              </Canvas>
-            </HiddenCanvas>
-          </ProfileImageContainer>
-        </ProfileSection>
+    <>
+      <SEO 
+        title={seoT.about_page_title} 
+        description={seoT.about_meta_description}
+        image="/images/about-og-image.jpg"
+      />
+      <AboutContainer>
+        <TitleContainer>
+          <SectionTitle>
+            {t.title}
+          </SectionTitle>
+        </TitleContainer>
         
-        <BioSection className="bio-section">
-          <BioTextGroup ref={bioTextGroupRef}>
-            <BioText
-              ref={bioRef}
-              initial={{ opacity: 0, y: 30 }}
-              animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.7 }}
-              dangerouslySetInnerHTML={{ __html: t.bio1.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
-            />
-            <BioText
-              initial={{ opacity: 0, y: 30 }}
-              animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.7, delay: 0.2 }}
-              dangerouslySetInnerHTML={{ __html: t.bio2.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
-            />
-            <BioText
-              initial={{ opacity: 0, y: 30 }}
-              animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              dangerouslySetInnerHTML={{ __html: t.bio3.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
-            />
-          </BioTextGroup>
-          
-          <QualitiesSection
-            ref={qualitiesRef}
-            className="qualities-section"
-            variants={containerVariants}
-            initial="hidden"
-            animate={qualitiesInView && initialLoadComplete ? "visible" : "hidden"}
+        <ContentContainer>
+          <ProfileSection 
+            ref={profileRef}
+            initial={{ opacity: 0, y: 50 }}
+            animate={profileInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+            transition={{ duration: 0.8 }}
           >
-            <SkillsTitle>{t.qualities_title}</SkillsTitle>
-            <ChartContainer
-              initial={{ scale: 0.7, opacity: 0, rotate: -10 }}
-              animate={qualitiesInView && initialLoadComplete ? { scale: 1, opacity: 1, rotate: 0 } : { scale: 0.7, opacity: 0, rotate: -10 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+            <ProfileImageContainer $bioHeight={bioTextHeight} $isMobile={isMobile}>
+              {/* Добавляем информацию о пользователе по правому краю */}
+              <ProfileInfoGender>
+                <ProfileInfoContent type="gender" />
+              </ProfileInfoGender>
+              <ProfileInfoAge>
+                <ProfileInfoContent type="age" />
+              </ProfileInfoAge>
+              {/* Сначала рамка (z-index: 20) */}
+              <ModelFrame>
+                <div className="top">
+                  {frameChar.topLeft + frameChar.horizontal.repeat(48) + frameChar.topRight}
+                </div>
+                <div className="left">
+                  {verticalPositions.map((pos, i) => (
+                    <span key={i} className="v-symbol" style={{ top: `${pos}%` }}>
+                      {frameChar.vertical}
+                    </span>
+                  ))}
+                </div>
+                <div className="right">
+                  {verticalPositions.map((pos, i) => (
+                    <span key={i} className="v-symbol" style={{ top: `${pos}%` }}>
+                      {frameChar.vertical}
+                    </span>
+                  ))}
+                </div>
+                <div className="bottom">
+                  {frameChar.bottomLeft + frameChar.horizontal.repeat(48) + frameChar.bottomRight}
+                </div>
+              </ModelFrame>
+              
+              {/* Показываем экран загрузки, если модель ещё загружается */}
+              {modelLoading && <LoadingScreen progress={loadingProgress} />}
+              
+              {/* Затем ASCII контейнер (z-index: 10) */}
+              <AsciiArtContainer ref={asciiRef} style={{ opacity: modelLoading ? 0 : 1 }} />
+              
+              {/* Затем скрытый Canvas для рендеринга 3D модели */}
+              <HiddenCanvas>
+                <Canvas 
+                  style={{ width: '100%', height: '100%' }} 
+                  camera={{ 
+                    position: isMobile ? [0, 0, 2.5] : [0, 0, 7],
+                    fov: isMobile ? 45 : 35
+                  }}
+                  gl={{ preserveDrawingBuffer: true, alpha: true }}
+                >
+                  <color attach="background" args={['#000']} transparent opacity={0} />
+                  <ambientLight intensity={0.9} />
+                  <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={2.0} />
+                  <pointLight position={[-10, -10, -10]} intensity={1.0} />
+                  <Suspense fallback={null}>
+                    {isMobile ? (
+                      <MobileModel scrollY={scrollY} />
+                    ) : (
+                      <DesktopModel mouseX={mousePosition.x} mouseY={mousePosition.y} />
+                    )}
+                    <Environment preset="city" />
+                    <AsciiEffect 
+                      domRef={asciiRef} 
+                      characters=' .:-+*=%@#$' 
+                      invert={true} 
+                      resolution={isMobile ? 0.30 : 0.40}
+                      alphaThreshold={isMobile ? 0.1 : 0.15}
+                    />
+                  </Suspense>
+                </Canvas>
+              </HiddenCanvas>
+            </ProfileImageContainer>
+          </ProfileSection>
+          
+          <BioSection className="bio-section">
+            <BioTextGroup ref={bioTextGroupRef}>
+              <BioText
+                ref={bioRef}
+                initial={{ opacity: 0, y: 30 }}
+                animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ duration: 0.7 }}
+                dangerouslySetInnerHTML={{ __html: t.bio1.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
+              />
+              <BioText
+                initial={{ opacity: 0, y: 30 }}
+                animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                dangerouslySetInnerHTML={{ __html: t.bio2.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
+              />
+              <BioText
+                initial={{ opacity: 0, y: 30 }}
+                animate={bioInView && initialLoadComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+                transition={{ duration: 0.7, delay: 0.4 }}
+                dangerouslySetInnerHTML={{ __html: t.bio3.replace(/<highlight>(.*?)<\/highlight>/g, '<span style="color: var(--text-primary); font-weight: 500;">$1</span>') }}
+              />
+            </BioTextGroup>
+            
+            <QualitiesSection
+              ref={qualitiesRef}
+              className="qualities-section"
+              variants={containerVariants}
+              initial="hidden"
+              animate={qualitiesInView && initialLoadComplete ? "visible" : "hidden"}
             >
-              <Radar data={{
-                labels: t.qualities.map(q => q.name),
-                datasets: [{
-                  label: t.qualities_title,
-                  data: t.qualities.map(q => q.level),
-                  backgroundColor: 'rgba(160, 160, 160, 0.2)',
-                  borderColor: 'rgb(133, 133, 133)',
-                  borderWidth: 1,
-                  borderDash: [5, 5],
-                  tension: 0.4,
-                  pointBackgroundColor: 'rgb(188, 188, 188)',
-                }]
-              }} options={qualitiesChartOptions} />
-            </ChartContainer>
-          </QualitiesSection>
-          
-          <ExperienceSection
-            ref={experienceRef}
-            className="experience-section"
-            variants={containerVariants}
-            initial="hidden"
-            animate={experienceInView && initialLoadComplete ? "visible" : "hidden"}
-          >
-            <ExperienceTitle>{t.experience_title}</ExperienceTitle>
-            <TimelineContainer>
-              {t.experience.map((job, index) => (
-                <TimelineItem key={index} variants={itemVariants}>
-                  <TimelinePeriod>{job.period}</TimelinePeriod>
-                  <TimelinePosition>{job.position}</TimelinePosition>
-                  <TimelineCompany>{job.company}</TimelineCompany>
-                  <TimelineDescription>{job.description}</TimelineDescription>
-                </TimelineItem>
-              ))}
-            </TimelineContainer>
-          </ExperienceSection>
-          
-          <SkillsSection
-            ref={skillsRef}
-            className="skills-section"
-            variants={containerVariants}
-            initial="hidden"
-            animate={skillsInView && initialLoadComplete ? "visible" : "hidden"}
-          >
-            <SkillsTitle>{t.skills_title}</SkillsTitle>
-            <SkillsGrid>
-              {t.skills.map((skill, index) => (
-                <SkillItem key={index} variants={itemVariants}>
-                  <SkillProgress 
-                    $level={skill.level}
-                    initial={{ width: 0 }}
-                    animate={skillsInView && initialLoadComplete ? { width: `${skill.level}%` } : { width: 0 }}
-                    transition={{ duration: 1, delay: 0.2 + index * 0.1 }}
-                  />
-                  <SkillName>{skill.name}</SkillName>
-                </SkillItem>
-              ))}
-            </SkillsGrid>
-          </SkillsSection>
-        </BioSection>
-      </ContentContainer>
-      
-      <InfoTag />
-    </AboutContainer>
+              <SkillsTitle>{t.qualities_title}</SkillsTitle>
+              <ChartContainer
+                initial={{ scale: 0.7, opacity: 0, rotate: -10 }}
+                animate={qualitiesInView && initialLoadComplete ? { scale: 1, opacity: 1, rotate: 0 } : { scale: 0.7, opacity: 0, rotate: -10 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                <Radar data={{
+                  labels: t.qualities.map(q => q.name),
+                  datasets: [{
+                    label: t.qualities_title,
+                    data: t.qualities.map(q => q.level),
+                    backgroundColor: 'rgba(160, 160, 160, 0.2)',
+                    borderColor: 'rgb(133, 133, 133)',
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgb(188, 188, 188)',
+                  }]
+                }} options={qualitiesChartOptions} />
+              </ChartContainer>
+            </QualitiesSection>
+            
+            <ExperienceSection
+              ref={experienceRef}
+              className="experience-section"
+              variants={containerVariants}
+              initial="hidden"
+              animate={experienceInView && initialLoadComplete ? "visible" : "hidden"}
+            >
+              <ExperienceTitle>{t.experience_title}</ExperienceTitle>
+              <TimelineContainer>
+                {t.experience.map((job, index) => (
+                  <TimelineItem key={index} variants={itemVariants}>
+                    <TimelinePeriod>{job.period}</TimelinePeriod>
+                    <TimelinePosition>{job.position}</TimelinePosition>
+                    <TimelineCompany>{job.company}</TimelineCompany>
+                    <TimelineDescription>{job.description}</TimelineDescription>
+                  </TimelineItem>
+                ))}
+              </TimelineContainer>
+            </ExperienceSection>
+            
+            <SkillsSection
+              ref={skillsRef}
+              className="skills-section"
+              variants={containerVariants}
+              initial="hidden"
+              animate={skillsInView && initialLoadComplete ? "visible" : "hidden"}
+            >
+              <SkillsTitle>{t.skills_title}</SkillsTitle>
+              <SkillsGrid>
+                {t.skills.map((skill, index) => (
+                  <SkillItem key={index} variants={itemVariants}>
+                    <SkillProgress 
+                      $level={skill.level}
+                      initial={{ width: 0 }}
+                      animate={skillsInView && initialLoadComplete ? { width: `${skill.level}%` } : { width: 0 }}
+                      transition={{ duration: 1, delay: 0.2 + index * 0.1 }}
+                    />
+                    <SkillName>{skill.name}</SkillName>
+                  </SkillItem>
+                ))}
+              </SkillsGrid>
+            </SkillsSection>
+          </BioSection>
+        </ContentContainer>
+        
+        <InfoTag />
+      </AboutContainer>
+    </>
   );
 };
 

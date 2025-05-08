@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import projects from '../data/projects';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 // Импортируем изображения проектов для десктопной версии
 import insideGuru from '../assets/images/inside_project_guru.webp';
 import insideFable from '../assets/images/inside_project_fable.webp';
@@ -362,8 +363,8 @@ const ProjectDetail = () => {
     };
   }, []);
   
-  // Найти проект по ID
-  const project = projects.find(p => p.id === parseInt(id));
+  // Находим проект по ID
+  const project = projects.find(p => p.id.toString() === id);
   
   // Если проект не найден, редирект на страницу проектов
   useEffect(() => {
@@ -476,93 +477,122 @@ const ProjectDetail = () => {
     window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
   };
   
+  // Генерируем SEO данные для текущего проекта
+  const generateSeoData = () => {
+    if (!project) return {
+      title: language === 'ru' ? 'Проект не найден' : 'Project Not Found',
+      description: ''
+    };
+    
+    const projectTitle = getLocalizedTitle();
+    const projectDescription = project[language]?.description || project.en?.description || '';
+    
+    return {
+      title: projectTitle,
+      description: projectDescription.length > 160 
+        ? projectDescription.substring(0, 157) + '...' 
+        : projectDescription,
+      image: getProjectImage(project.id)
+    };
+  };
+  
+  const seoData = generateSeoData();
+  
   if (!project) return null;
   
   return (
-    <ProjectDetailContainer ref={containerRef}>
-      <ProjectHeader>
-        <LanguageButton onClick={toggleLanguage}>
-          {language === 'en' ? 'RU' : 'EN'}
-        </LanguageButton>
-        <CloseButton onClick={handleBack}>
-          <CloseIcon />
-        </CloseButton>
-      </ProjectHeader>
-      
-      <ContentContainer>
-        <ProjectImageContainer>
-          {getProjectImage(project.id) ? (
-            <ProjectImage 
-              src={getProjectImage(project.id)} 
-              alt={getLocalizedTitle()} 
-            />
-          ) : (
-            <ProjectImage 
-              as="div" 
-              style={{ 
-                backgroundColor: '#252525',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-                {language === 'en' ? 'Image coming soon' : 'Изображение скоро будет добавлено'}
-              </div>
-            </ProjectImage>
-          )}
-        </ProjectImageContainer>
+    <>
+      <SEO 
+        title={seoData.title} 
+        description={seoData.description}
+        image={seoData.image}
+        article={true}
+      />
+      <ProjectDetailContainer ref={containerRef}>
+        <ProjectHeader>
+          <LanguageButton onClick={toggleLanguage}>
+            {language === 'en' ? 'RU' : 'EN'}
+          </LanguageButton>
+          <CloseButton onClick={handleBack}>
+            <CloseIcon />
+          </CloseButton>
+        </ProjectHeader>
         
-        <TagContainer>
-          {project.category.map(cat => (
-            <Tag key={cat}>{translateCategory(cat)}</Tag>
-          ))}
-        </TagContainer>
-        
-        <ProjectContent>
-          <ProjectDescription>{getLocalizedLongDescription()}</ProjectDescription>
+        <ContentContainer>
+          <ProjectImageContainer>
+            {getProjectImage(project.id) ? (
+              <ProjectImage 
+                src={getProjectImage(project.id)} 
+                alt={getLocalizedTitle()} 
+              />
+            ) : (
+              <ProjectImage 
+                as="div" 
+                style={{ 
+                  backgroundColor: '#252525',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <div style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
+                  {language === 'en' ? 'Image coming soon' : 'Изображение скоро будет добавлено'}
+                </div>
+              </ProjectImage>
+            )}
+          </ProjectImageContainer>
           
-          <ProjectDetails>
-            <DetailRow>
-              <DetailLabel>{t.client}</DetailLabel>
-              <DetailValue>{getLocalizedClient()}</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>{t.year}</DetailLabel>
-              <DetailValue>{getLocalizedYear()}</DetailValue>
-            </DetailRow>
-            <DetailRow>
-              <DetailLabel>{t.role}</DetailLabel>
-              <DetailValue>{getLocalizedRole()}</DetailValue>
-            </DetailRow>
-          </ProjectDetails>
-        </ProjectContent>
-      </ContentContainer>
-      
-      {indicatorVisible && (
-        <ScrollIndicator
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
-          onClick={scrollDown}
-        >
-          <ScrollText>{t.scroll_down}</ScrollText>
-          <ArrowContainer><Arrow /></ArrowContainer>
-        </ScrollIndicator>
-      )}
-      
-      {scrollTopVisible && (
-        <ScrollTopButton
-          style={{ bottom: bottomOffset }}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          onClick={scrollToTop}
-        >
-          <ScrollTopArrow />
-        </ScrollTopButton>
-      )}
-    </ProjectDetailContainer>
+          <TagContainer>
+            {project.category.map(cat => (
+              <Tag key={cat}>{translateCategory(cat)}</Tag>
+            ))}
+          </TagContainer>
+          
+          <ProjectContent>
+            <ProjectDescription>{getLocalizedLongDescription()}</ProjectDescription>
+            
+            <ProjectDetails>
+              <DetailRow>
+                <DetailLabel>{t.client}</DetailLabel>
+                <DetailValue>{getLocalizedClient()}</DetailValue>
+              </DetailRow>
+              <DetailRow>
+                <DetailLabel>{t.year}</DetailLabel>
+                <DetailValue>{getLocalizedYear()}</DetailValue>
+              </DetailRow>
+              <DetailRow>
+                <DetailLabel>{t.role}</DetailLabel>
+                <DetailValue>{getLocalizedRole()}</DetailValue>
+              </DetailRow>
+            </ProjectDetails>
+          </ProjectContent>
+        </ContentContainer>
+        
+        {indicatorVisible && (
+          <ScrollIndicator
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={scrollDown}
+          >
+            <ScrollText>{t.scroll_down}</ScrollText>
+            <ArrowContainer><Arrow /></ArrowContainer>
+          </ScrollIndicator>
+        )}
+        
+        {scrollTopVisible && (
+          <ScrollTopButton
+            style={{ bottom: bottomOffset }}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            onClick={scrollToTop}
+          >
+            <ScrollTopArrow />
+          </ScrollTopButton>
+        )}
+      </ProjectDetailContainer>
+    </>
   );
 };
 

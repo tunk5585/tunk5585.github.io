@@ -8,6 +8,16 @@ const translations = {
     feedback: "Feedback",
     contact: "Contact",
     
+    // SEO
+    home_page_title: "Hello!",
+    home_meta_description: "Look, enjoy, cooperate.",
+    about_page_title: "About Me",
+    about_meta_description: "Look, enjoy, cooperate.",
+    projects_page_title: "Projects Portfolio",
+    projects_meta_description: "Look, enjoy, cooperate.",
+    contact_page_title: "Contact Me",
+    contact_meta_description: "Get in touch for project inquiries, collaborations or questions.",
+    
     // Home page
     hero_title: "Creative Design Innovation Solutions",
     hero_title_line1: "Creative",
@@ -52,6 +62,16 @@ const translations = {
     projects: "Проекты",
     feedback: "Отзывы",
     contact: "Контакты",
+    
+    // SEO
+    home_page_title: "Привет!",
+    home_meta_description: "Смотрите, наслаждайтесь, сотрудничайте.",
+    about_page_title: "Обо мне",
+    about_meta_description: "Смотрите, наслаждайтесь, сотрудничайте.",
+    projects_page_title: "Проекты",
+    projects_meta_description: "Смотрите, наслаждайтесь, сотрудничайте.",
+    contact_page_title: "Связаться со мной",
+    contact_meta_description: "Смотрите, наслаждайтесь, сотрудничайте.",
     
     // Home page
     hero_title: "Креатив Дизайн Инновации Решения",
