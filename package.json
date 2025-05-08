@@ -26,6 +26,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "echo '/* /index.html 200' > build/_redirects && echo '# FORCE CACHE REVALIDATION' >> build/_headers",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
