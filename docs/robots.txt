@@ -2,5 +2,6 @@
 
 User-agent: *
 Allow: /
+Crawl-delay: 1
 
 Sitemap: https://tunk5585.xyz/sitemap.xml 
