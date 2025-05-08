@@ -3,6 +3,8 @@ import { Outlet, useLocation, useNavigation } from 'react-router-dom';
 import styled from 'styled-components';
 import { useLoading } from './context/LoadingContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { HelmetProvider } from 'react-helmet-async';
+import SEO from './components/SEO';
 // Импорт компонентов
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -422,30 +424,37 @@ const App = () => {
   ];
 
   return (
-    <LanguageProvider>
-      <AppWrapper>
-        <ScrollToTop />
-        {/* Spinner overlay during initial load or navigation */}
-        {showLoadingScreen && (
-          <LoadingContainer>
-            <LoadingAscii>
-              {spinnerFrames[frame]}
-              <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
-            </LoadingAscii>
-          </LoadingContainer>
-        )}
-        {/* Основной контент загружается только после полного скрытия экрана загрузки */}
-        <DelayedContent isReady={contentReady || !showLoadingScreen}>
+    <HelmetProvider>
+      <LanguageProvider>
+        <AppWrapper>
+          {/* Базовый SEO для всего сайта */}
+          <SEO />
+          
+          <ScrollToTop />
+          
           {!location.pathname.startsWith('/projects/') && <Header />}
+          <ScrollIndicator />
+          
+          {showLoadingScreen && (
+            <LoadingContainer>
+              <LoadingAscii>
+                {spinnerFrames[frame]}
+                <LoadingText>{loadingPercent.toFixed(0)}%{'.'.repeat(dots)}</LoadingText>
+              </LoadingAscii>
+            </LoadingContainer>
+          )}
+          
           <MainContent>
-            <Outlet />
+            <DelayedContent isReady={contentReady}>
+              <Outlet />
+            </DelayedContent>
           </MainContent>
-          {location.pathname !== '/' && <Footer />}
-          {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-          {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-        </DelayedContent>
-      </AppWrapper>
-    </LanguageProvider>
+          
+          <ScrollToTopButton />
+          <Footer />
+        </AppWrapper>
+      </LanguageProvider>
+    </HelmetProvider>
   );
 };
 

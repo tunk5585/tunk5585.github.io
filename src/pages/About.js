@@ -9,6 +9,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, Environment } from '@react-three/drei';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend);
@@ -1240,6 +1241,10 @@ const About = () => {
 
   return (
     <AboutContainer>
+      <SEO 
+        title="TUNK5585 | About" 
+        description="Look, enjoy, cooperate."
+      />
       <TitleContainer>
         <SectionTitle>
           {t.title}

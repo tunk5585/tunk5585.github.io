@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
+import SEO from '../components/SEO';
 
 const FeedbackContainer = styled.div`
   min-height: 100vh;
@@ -434,6 +435,10 @@ const Feedback = () => {
   
   return (
     <FeedbackContainer>
+      <SEO 
+        title="TUNK5585 | Feedback" 
+        description="Look, enjoy, cooperate."
+      />
       <TitleContainer>
         <SectionTitle>
           {t.title}
