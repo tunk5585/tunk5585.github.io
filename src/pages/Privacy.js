@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
-import translations from '../data/translations';
 import SEO from '../components/SEO';
 
 const PrivacyContainer = styled.div`
@@ -92,7 +91,6 @@ const ListItem = styled.li`
 const Privacy = () => {
   const { initialLoadComplete } = useLoading();
   const { language } = useLanguage();
-  const t = translations[language];
   
   const sectionVariants = {
     hidden: { opacity: 0, y: 30 },

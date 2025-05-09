@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -335,26 +335,27 @@ const MobileMenu = () => {
     setIsOpen(false);
   }, [location]);
   
+  // Создаем handleClickOutside с помощью useCallback
+  const handleClickOutside = useCallback((event) => {
+    // Проверяем, что клик не по кнопке меню
+    const menuButtonEl = document.querySelector('[aria-label="Меню"]');
+    if (menuButtonEl && (menuButtonEl === event.target || menuButtonEl.contains(event.target))) {
+      return; // Не обрабатываем клик по кнопке меню здесь
+    }
+    
+    // Обрабатываем клик вне меню
+    if (menuRef.current && !menuRef.current.contains(event.target) && isOpen) {
+      setIsOpen(false);
+    }
+  }, [isOpen]);
+  
   // Обработчик для закрытия меню при клике вне его области
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Проверяем, что клик не по кнопке меню
-      const menuButtonEl = document.querySelector('[aria-label="Меню"]');
-      if (menuButtonEl && (menuButtonEl === event.target || menuButtonEl.contains(event.target))) {
-        return; // Не обрабатываем клик по кнопке меню здесь
-      }
-      
-      // Обрабатываем клик вне меню
-      if (menuRef.current && !menuRef.current.contains(event.target) && isOpen) {
-        setIsOpen(false);
-      }
-    };
-    
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isOpen]);
+  }, [handleClickOutside]);
   
   // Дополнительный хак для удаления эффектов касания на мобильных
   useEffect(() => {
@@ -464,12 +465,12 @@ const MobileMenu = () => {
   };
   
   // Обработчик для самой кнопки меню
-  const handleMenuButtonClick = () => {
+  const handleMenuButtonClick = useCallback(() => {
     setIsOpen(!isOpen);
-  };
+  }, [isOpen]);
   
   // Обработчик клика по логотипу с анимацией
-  const handleLogoClick = (e) => {
+  const handleLogoClick = useCallback((e) => {
     e.preventDefault(); // Предотвращаем стандартный переход по ссылке
     
     // Запускаем анимацию потряхивания в любом случае
@@ -489,7 +490,7 @@ const MobileMenu = () => {
       navigate('/');
       setIsShaking(false);
     }, 500); // 500мс - длительность анимации
-  };
+  }, [location.pathname, navigate]);
   
   return (
     <>
