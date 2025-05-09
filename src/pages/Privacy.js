@@ -133,9 +133,15 @@ const Privacy = () => {
                   обеспечению безопасности персональных данных.
                 </Paragraph>
                 <Paragraph>
+                  Оператором является владелец сайта, контактный e-mail: t.project5585@gmail.com
+                </Paragraph>
+                <Paragraph>
                   Оператор ставит своей важнейшей целью и условием осуществления своей деятельности соблюдение прав и свобод 
                   человека и гражданина при обработке его персональных данных, в том числе защиты прав на неприкосновенность 
                   частной жизни, личную и семейную тайну.
+                </Paragraph>
+                <Paragraph>
+                  Настоящая политика действует с 9 мая 2025 года.
                 </Paragraph>
               </Section>
               
@@ -209,8 +215,8 @@ const Privacy = () => {
                   <ListItem>Не допускается обработка персональных данных, несовместимая с целями сбора персональных данных</ListItem>
                 </List>
                 <Paragraph>
-                  Правовым основанием обработки персональных данных является согласие субъекта персональных данных на обработку 
-                  его персональных данных.
+                  Правовым основанием обработки персональных данных является добровольное согласие субъекта персональных данных на обработку 
+                  его персональных данных, выраженное путём заполнения и отправки формы обратной связи на сайте.
                 </Paragraph>
               </Section>
               
@@ -225,6 +231,9 @@ const Privacy = () => {
                   При использовании формы обратной связи на сайте, персональные данные передаются для обработки на серверы 
                   сервиса Formspree, который расположен за пределами территории Российской Федерации. Отправляя форму, 
                   пользователь соглашается на такую трансграничную передачу данных.
+                </Paragraph>
+                <Paragraph>
+                  Сервис Formspree обеспечивает надлежащий уровень защиты персональных данных в соответствии с международными стандартами, включая требования GDPR.
                 </Paragraph>
                 <Paragraph>
                   Оператор принимает все необходимые меры для защиты персональных данных при их трансграничной передаче, 
@@ -279,9 +288,15 @@ const Privacy = () => {
                   the security of personal data.
                 </Paragraph>
                 <Paragraph>
+                  The operator is the owner of the site, contact e-mail: t.project5585@gmail.com
+                </Paragraph>
+                <Paragraph>
                   The operator considers its most important goal and condition for carrying out its activities to be the observance of 
                   human and civil rights and freedoms when processing their personal data, including protection of the rights to privacy, 
                   personal and family secrets.
+                </Paragraph>
+                <Paragraph>
+                  This policy is effective from May 9, 2025.
                 </Paragraph>
               </Section>
               
@@ -354,7 +369,7 @@ const Privacy = () => {
                   <ListItem>Processing of personal data that is incompatible with the purposes of collecting personal data is not allowed</ListItem>
                 </List>
                 <Paragraph>
-                  The legal basis for the processing of personal data is the consent of the personal data subject to the processing of his personal data.
+                  The legal basis for the processing of personal data is the voluntary consent of the personal data subject to the processing of his personal data, expressed by filling out and submitting the feedback form on the site.
                 </Paragraph>
               </Section>
               
@@ -369,6 +384,9 @@ const Privacy = () => {
                   When using the feedback form on the site, personal data is transferred for processing to the servers 
                   of the Formspree service, which is located outside the territory of the Russian Federation. By submitting the form, 
                   the user agrees to such cross-border data transfer.
+                </Paragraph>
+                <Paragraph>
+                  The Formspree service ensures an adequate level of protection of personal data in accordance with international standards, including GDPR requirements.
                 </Paragraph>
                 <Paragraph>
                   The operator takes all necessary measures to protect personal data during their cross-border transfer, 

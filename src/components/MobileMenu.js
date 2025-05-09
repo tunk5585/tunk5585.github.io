@@ -637,6 +637,38 @@ const MobileMenu = () => {
               
               <CopyrightContainer>
                 <Copyright>{t.copyright}</Copyright>
+                <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                  <Link 
+                    to="/privacy" 
+                    style={{ 
+                      fontSize: '0.6rem', 
+                      color: 'var(--text-tertiary)', 
+                      opacity: '0.8',
+                      textDecoration: 'underline'
+                    }}
+                    onClick={() => {
+                      setIsOpen(false);
+                      setTimeout(() => navigate('/privacy'), 10);
+                    }}
+                  >
+                    Privacy Policy
+                  </Link>
+                  <Link 
+                    to="/terms" 
+                    style={{ 
+                      fontSize: '0.6rem', 
+                      color: 'var(--text-tertiary)', 
+                      opacity: '0.8',
+                      textDecoration: 'underline'
+                    }}
+                    onClick={() => {
+                      setIsOpen(false);
+                      setTimeout(() => navigate('/terms'), 10);
+                    }}
+                  >
+                    Terms of Use
+                  </Link>
+                </div>
               </CopyrightContainer>
             </MenuDropdown>
           )}

@@ -5,13 +5,20 @@ import { Link } from 'react-router-dom';
 
 const FooterContainer = styled.footer`
   width: 100%;
-  padding: 6px 24px;
+  padding: 8px 24px;
   background-color: var(--main-bg);
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 24px;
+  }
 `;
 
 const LeftSection = styled.div`
@@ -19,6 +26,10 @@ const LeftSection = styled.div`
   flex-direction: column;
   align-items: flex-start;
   gap: 4px;
+  
+  @media (max-width: 768px) {
+    align-items: center;
+  }
 `;
 
 const Copyright = styled.p`
@@ -31,6 +42,11 @@ const Copyright = styled.p`
 const RightSection = styled.div`
   display: flex;
   justify-content: flex-end;
+  gap: 15px;
+  
+  @media (max-width: 768px) {
+    display: none; /* Скрываем ссылки на мобильных устройствах */
+  }
 `;
 
 const FooterLink = styled(Link)`
@@ -62,6 +78,9 @@ const Footer = () => {
       <RightSection>
         <FooterLink to="/privacy">
           {lang === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}
+        </FooterLink>
+        <FooterLink to="/terms">
+          {lang === 'ru' ? 'Пользовательское соглашение' : 'Terms of Use'}
         </FooterLink>
       </RightSection>
     </FooterContainer>
