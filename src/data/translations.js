@@ -46,6 +46,7 @@ const translations = {
     subject: "Subject",
     message: "Message",
     send: "Send Message",
+    sending: "Sending...",
     success_message: "Thank you for your message! I will get back to you as soon as possible.",
     close: "Close",
     phone: "Phone",
@@ -101,6 +102,7 @@ const translations = {
     subject: "Тема",
     message: "Сообщение",
     send: "Отправить сообщение",
+    sending: "Отправка...",
     success_message: "Спасибо за ваше сообщение! Я свяжусь с вами как можно скорее.",
     close: "Закрыть",
     phone: "Телефон",
@@ -108,7 +110,7 @@ const translations = {
     address_value: "Москва, Россия",
     
     // Copyright
-    copyright: "©2025 РАЗРАБОТКА И ДИЗАЙН TUNK5585",
+    copyright: "©2025 DEVELOPMENT AND DESIGN BY TUNK5585",
   },
   about: {
     en: {

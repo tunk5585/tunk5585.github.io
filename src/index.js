@@ -12,6 +12,7 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Feedback from './pages/Feedback';
 import Contact from './pages/Contact';
+import Privacy from './pages/Privacy';
 
 // Delay helper для loader, чтобы spinner показывался при переходах
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -28,7 +29,8 @@ const router = createBrowserRouter(
         { path: "projects", element: <Projects />, loader: async () => { await delay(300); return null; } },
         { path: "projects/:id", element: <ProjectDetail />, loader: async () => { await delay(300); return null; } },
         { path: "feedback", element: <Feedback />, loader: async () => { await delay(300); return null; } },
-        { path: "contact", element: <Contact />, loader: async () => { await delay(300); return null; } }
+        { path: "contact", element: <Contact />, loader: async () => { await delay(300); return null; } },
+        { path: "privacy", element: <Privacy />, loader: async () => { await delay(300); return null; } }
       ]
     }
   ],

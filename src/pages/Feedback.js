@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
@@ -139,6 +139,7 @@ const FeedbackCard = styled(motion.div)`
   background-color: rgba(30, 30, 30, 0.2);
   border-radius: 4px;
   transition: all 0.3s ease;
+  overflow: hidden;
   
   &:hover {
     background-color: rgba(40, 40, 40, 0.3);
@@ -146,6 +147,15 @@ const FeedbackCard = styled(motion.div)`
     
     .ascii-frame {
       opacity: 0.5;
+    }
+  }
+  
+  &.expanded {
+    min-height: auto;
+    cursor: default;
+    
+    &:hover {
+      transform: none;
     }
   }
   
@@ -180,6 +190,10 @@ const Quote = styled.blockquote`
   }
 `;
 
+const ExpandableQuote = styled(motion.div)`
+  width: 100%;
+`;
+
 const Author = styled.cite`
   display: block;
   font-size: 0.9rem;
@@ -196,6 +210,42 @@ const Author = styled.cite`
   }
 `;
 
+const ExpandButton = styled(motion.button)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  padding: 8px;
+  cursor: pointer;
+  align-self: center;
+  position: relative;
+  z-index: 5;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    transition: transform 0.3s ease;
+    transform: ${props => props.expanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+  }
+  
+  &:hover {
+    color: var(--text-primary);
+  }
+`;
+
+// Рамки для отзывов
+const frameChars = [
+  { horizontal: '-', vertical: '|', topLeft: '+', topRight: '+', bottomLeft: '+', bottomRight: '+' },
+  { horizontal: '═', vertical: '║', topLeft: '╔', topRight: '╗', bottomLeft: '╚', bottomRight: '╝' },
+  { horizontal: '─', vertical: '│', topLeft: '┌', topRight: '┐', bottomLeft: '└', bottomRight: '┘' },
+  { horizontal: '▀', vertical: '▐', topLeft: '▛', topRight: '▜', bottomLeft: '▙', bottomRight: '▟' }
+];
+
+// Восстанавливаем стили для модального окна
 const ModalBackdrop = styled(motion.div)`
   position: fixed;
   top: 0;
@@ -210,10 +260,6 @@ const ModalBackdrop = styled(motion.div)`
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
-  
-  @media (max-width: 768px) {
-    padding: 10px;
-  }
 `;
 
 const ModalContent = styled(motion.div)`
@@ -227,11 +273,6 @@ const ModalContent = styled(motion.div)`
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  
-  @media (max-width: 600px) {
-    max-width: 100%;
-    max-height: 70vh;
-  }
 `;
 
 const ModalHeader = styled.div`
@@ -243,11 +284,6 @@ const ModalHeader = styled.div`
   justify-content: space-between;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
-  
-  @media (max-width: 768px) {
-    height: 50px;
-    padding: 0 20px;
-  }
 `;
 
 const ModalCloseWrapper = styled.div`
@@ -259,11 +295,6 @@ const ModalCloseWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
-  @media (max-width: 768px) {
-    top: 10px;
-    right: 15px;
-  }
 `;
 
 const CloseButton = styled.button`
@@ -278,8 +309,6 @@ const CloseButton = styled.button`
   justify-content: center;
   align-items: center;
   z-index: 1100;
-  transform: translateZ(0);
-  -webkit-font-smoothing: antialiased;
   transition: all 0.2s ease;
   
   &:hover {
@@ -315,13 +344,6 @@ const CloseIcon = styled.div`
 
 const ModalBody = styled.div`
   padding: 28px;
-  
-  @media (max-width: 768px) {
-    padding: 20px;
-    overflow-y: auto;
-    max-height: calc(70vh - 50px); /* 50px - высота хедера */
-    -webkit-overflow-scrolling: touch;
-  }
 `;
 
 const ModalQuote = styled.blockquote`
@@ -330,12 +352,6 @@ const ModalQuote = styled.blockquote`
   margin: 0 0 24px;
   font-style: italic;
   color: var(--text-primary);
-  
-  @media (max-width: 768px) {
-    font-size: 1.05rem;
-    line-height: 1.6;
-    margin: 0 0 20px;
-  }
 `;
 
 const ModalAuthor = styled.cite`
@@ -353,17 +369,17 @@ const ModalAuthor = styled.cite`
   }
 `;
 
-// Рамки для отзывов
-const frameChars = [
-  { horizontal: '-', vertical: '|', topLeft: '+', topRight: '+', bottomLeft: '+', bottomRight: '+' },
-  { horizontal: '═', vertical: '║', topLeft: '╔', topRight: '╗', bottomLeft: '╚', bottomRight: '╝' },
-  { horizontal: '─', vertical: '│', topLeft: '┌', topRight: '┐', bottomLeft: '└', bottomRight: '┘' },
-  { horizontal: '▀', vertical: '▐', topLeft: '▛', topRight: '▜', bottomLeft: '▙', bottomRight: '▟' }
-];
-
 const Feedback = () => {
+  const [expandedId, setExpandedId] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
-  const [isLongFeedback, setIsLongFeedback] = useState(false);
+  
+  // Отслеживаем ширину экрана для определения режима отображения
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== 'undefined' ? window.innerWidth : 1200
+  );
+  
+  // Определяем, какой режим отображения использовать (модальное окно или аккордион)
+  const isMobile = useMemo(() => windowWidth <= 768, [windowWidth]);
   
   const [ref, inView] = useInView({
     triggerOnce: true,
@@ -387,16 +403,50 @@ const Feedback = () => {
     frameIndex: index % frameChars.length
   }));
   
+  // Слушаем изменение размера окна
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  // Обработчик модального окна
   const openModal = (feedback) => {
+    if (isMobile) return; // На мобильных не открываем модальное окно
     setSelectedFeedback(feedback);
-    // Проверяем длину текста отзыва, чтобы определить, считать ли его длинным
-    setIsLongFeedback(feedback.quote.length > 250);
-    document.body.style.overflow = 'hidden'; // Блокировка прокрутки фона
+    document.body.style.overflow = 'hidden';
   };
   
   const closeModal = () => {
     setSelectedFeedback(null);
-    document.body.style.overflow = 'auto'; // Возобновление прокрутки
+    document.body.style.overflow = 'auto';
+  };
+  
+  // Обработчик аккордиона
+  const toggleExpand = (id, e) => {
+    if (!isMobile) return; // На десктопе не используем аккордион
+    
+    // Если передан event, предотвращаем всплытие
+    if (e) {
+      e.stopPropagation();
+    }
+    setExpandedId(expandedId === id ? null : id);
+  };
+  
+  // Обработчик для клика по карточке - выбирает нужный режим в зависимости от устройства
+  const handleCardClick = (feedback) => {
+    if (isMobile) {
+      // На мобильных используем аккордион
+      toggleExpand(feedback.id);
+    } else {
+      // На десктопе открываем модальное окно
+      openModal(feedback);
+    }
   };
   
   const cardVariants = {
@@ -412,34 +462,24 @@ const Feedback = () => {
     })
   };
   
-  useEffect(() => {
-    // Пустой слушатель для обработки изменения размера окна
-    const handleResize = () => {
-      // Ничего не делаем, так как переменная verticalCharsCount больше не используется
-    };
-    
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-  
-  // Блокировка скролла при открытии модального окна и сброс при размонтировании
-  useEffect(() => {
-    if (selectedFeedback) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = '';
+  const expandVariants = {
+    collapsed: { 
+      height: 'auto', 
+      opacity: 0,
+      transition: {
+        duration: 0.2,
+        ease: "easeIn"
+      }
+    },
+    expanded: { 
+      height: 'auto', 
+      opacity: 1,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut"
+      }
     }
-    
-    return () => {
-      document.body.style.overflow = 'auto';
-      document.documentElement.style.overflow = '';
-    };
-  }, [selectedFeedback]);
+  };
   
   return (
     <>
@@ -458,6 +498,7 @@ const Feedback = () => {
         <FeedbackGrid ref={ref}>
           {feedbacks.map((feedback, index) => {
             const frame = frameChars[feedback.frameIndex];
+            const isExpanded = expandedId === feedback.id && isMobile;
             
             // Позиции для вертикальных символов (в процентах)
             const verticalPositions = [10, 30, 50, 70, 90];
@@ -474,9 +515,10 @@ const Feedback = () => {
                 initial="hidden"
                 animate={inView && initialLoadComplete ? "visible" : "hidden"}
                 custom={index}
-                onClick={() => openModal(feedback)}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                className={isExpanded ? 'expanded' : ''}
+                onClick={() => handleCardClick(feedback)}
+                whileHover={!isExpanded ? { scale: 1.01 } : {}}
+                whileTap={!isExpanded ? { scale: 0.99 } : {}}
               >
                 <FeedbackAsciiFrame className="ascii-frame">
                   <div className="top">
@@ -513,28 +555,64 @@ const Feedback = () => {
                 </FeedbackAsciiFrame>
                 
                 <FeedbackContent>
-                  <Quote>"{previewQuote}"</Quote>
+                  {isMobile ? (
+                    <AnimatePresence initial={false} mode="wait">
+                      {!isExpanded ? (
+                        <ExpandableQuote key="preview" initial={{opacity: 1}} animate={{opacity: 1}} exit={{opacity: 0}}>
+                          <Quote>"{previewQuote}"</Quote>
+                        </ExpandableQuote>
+                      ) : (
+                        <ExpandableQuote
+                          key="full"
+                          initial="collapsed"
+                          animate="expanded"
+                          exit="collapsed"
+                          variants={expandVariants}
+                        >
+                          <Quote>"{feedback.quote}"</Quote>
+                        </ExpandableQuote>
+                      )}
+                    </AnimatePresence>
+                  ) : (
+                    <Quote>"{previewQuote}"</Quote>
+                  )}
+                  
                   <Author>
                     {feedback.author}
                     <span className="company">{feedback.company}</span>
                   </Author>
+                  
+                  {isMobile && feedback.quote.length > 120 && (
+                    <ExpandButton 
+                      expanded={isExpanded}
+                      onClick={(e) => toggleExpand(feedback.id, e)}
+                      aria-label={isExpanded ? "Свернуть отзыв" : "Развернуть отзыв"} 
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path 
+                          d={isExpanded ? "M19 15L12 8L5 15" : "M5 9L12 16L19 9"} 
+                          stroke="currentColor" 
+                          strokeWidth="2" 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </ExpandButton>
+                  )}
                 </FeedbackContent>
               </FeedbackCard>
             );
           })}
         </FeedbackGrid>
         
+        {/* Модальное окно только для десктопа */}
         <AnimatePresence>
-          {selectedFeedback && (
+          {selectedFeedback && !isMobile && (
             <ModalBackdrop
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeModal}
-              style={{
-                alignItems: isLongFeedback && window.innerWidth <= 768 ? 'flex-start' : 'center',
-                paddingTop: isLongFeedback && window.innerWidth <= 768 ? '10%' : '0'
-              }}
             >
               <ModalContent
                 onClick={(e) => e.stopPropagation()}
@@ -554,7 +632,7 @@ const Feedback = () => {
                     </CloseButton>
                   </ModalCloseWrapper>
                 </ModalHeader>
-                <ModalBody className="modal-body">
+                <ModalBody>
                   <ModalQuote>"{selectedFeedback.quote}"</ModalQuote>
                   <ModalAuthor>
                     {selectedFeedback.author}
