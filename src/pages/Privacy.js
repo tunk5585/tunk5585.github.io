@@ -180,6 +180,20 @@ const Privacy = () => {
                   <ListItem>Тема сообщения</ListItem>
                   <ListItem>Текст сообщения</ListItem>
                 </List>
+                <Paragraph>
+                  Кроме того, при отправке формы обратной связи, мы автоматически собираем следующую техническую информацию:
+                </Paragraph>
+                <List>
+                  <ListItem>IP-адрес</ListItem>
+                  <ListItem>Геолокация (страна, город, регион)</ListItem>
+                  <ListItem>Информация о провайдере</ListItem>
+                  <ListItem>Язык браузера</ListItem>
+                  <ListItem>Тип устройства и сведения о браузере</ListItem>
+                  <ListItem>Часовой пояс</ListItem>
+                  <ListItem>Размер экрана</ListItem>
+                  <ListItem>Время, проведенное на странице до отправки формы</ListItem>
+                  <ListItem>Дата и время заполнения формы</ListItem>
+                </List>
               </Section>
               
               <Section
@@ -196,6 +210,16 @@ const Privacy = () => {
                   <ListItem>Обработка входящих запросов от пользователей с целью консультирования и связи с пользователем</ListItem>
                   <ListItem>Отправка ответов на запросы пользователя</ListItem>
                   <ListItem>Предоставление пользователям информации об услугах, проектах и т.д.</ListItem>
+                </List>
+                <Paragraph>
+                  Техническая информация обрабатывается в следующих целях:
+                </Paragraph>
+                <List>
+                  <ListItem>Обеспечение безопасности и предотвращение мошенничества</ListItem>
+                  <ListItem>Анализ региональных предпочтений пользователей</ListItem>
+                  <ListItem>Улучшение удобства использования сайта</ListItem>
+                  <ListItem>Адаптация контента под параметры устройства пользователя</ListItem>
+                  <ListItem>Защита от автоматизированных спам-ботов</ListItem>
                 </List>
               </Section>
               
@@ -217,6 +241,11 @@ const Privacy = () => {
                 <Paragraph>
                   Правовым основанием обработки персональных данных является добровольное согласие субъекта персональных данных на обработку 
                   его персональных данных, выраженное путём заполнения и отправки формы обратной связи на сайте.
+                </Paragraph>
+                <Paragraph>
+                  Сбор технической информации осуществляется на основании легитимного интереса оператора по обеспечению безопасности, 
+                  предотвращению мошенничества и улучшению работы сайта, при условии минимизации объема собираемых данных и их использования 
+                  исключительно в заявленных целях.
                 </Paragraph>
               </Section>
               
@@ -334,6 +363,20 @@ const Privacy = () => {
                   <ListItem>Subject of the message</ListItem>
                   <ListItem>Message text</ListItem>
                 </List>
+                <Paragraph>
+                  Additionally, when submitting the feedback form, we automatically collect the following technical information:
+                </Paragraph>
+                <List>
+                  <ListItem>IP address</ListItem>
+                  <ListItem>Geolocation (country, city, region)</ListItem>
+                  <ListItem>Internet service provider information</ListItem>
+                  <ListItem>Browser language</ListItem>
+                  <ListItem>Device type and browser information</ListItem>
+                  <ListItem>Time zone</ListItem>
+                  <ListItem>Screen size</ListItem>
+                  <ListItem>Time spent on the page before submitting the form</ListItem>
+                  <ListItem>Date and time of form submission</ListItem>
+                </List>
               </Section>
               
               <Section
@@ -350,6 +393,16 @@ const Privacy = () => {
                   <ListItem>Processing incoming requests from users in order to consult and communicate with the user</ListItem>
                   <ListItem>Sending responses to user requests</ListItem>
                   <ListItem>Providing users with information about services, projects, etc.</ListItem>
+                </List>
+                <Paragraph>
+                  Technical information is processed for the following purposes:
+                </Paragraph>
+                <List>
+                  <ListItem>Ensuring security and preventing fraud</ListItem>
+                  <ListItem>Analysis of regional user preferences</ListItem>
+                  <ListItem>Improving website usability</ListItem>
+                  <ListItem>Adapting content to user device parameters</ListItem>
+                  <ListItem>Protection against automated spam bots</ListItem>
                 </List>
               </Section>
               
@@ -370,6 +423,11 @@ const Privacy = () => {
                 </List>
                 <Paragraph>
                   The legal basis for the processing of personal data is the voluntary consent of the personal data subject to the processing of his personal data, expressed by filling out and submitting the feedback form on the site.
+                </Paragraph>
+                <Paragraph>
+                  Collection of technical information is carried out on the basis of the legitimate interest of the operator to ensure security, 
+                  prevent fraud and improve the website operation, subject to minimizing the amount of data collected and using it 
+                  exclusively for the stated purposes.
                 </Paragraph>
               </Section>
               

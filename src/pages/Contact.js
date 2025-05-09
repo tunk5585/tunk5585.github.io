@@ -364,22 +364,6 @@ const SuccessText = styled.p`
   }
 `;
 
-const CloseButton = styled(motion.button)`
-  padding: 8px 16px;
-  background-color: transparent;
-  border: 0.5px solid var(--text-primary);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-family: 'Space Grotesk', 'Jost', sans-serif;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background-color: var(--accent);
-  }
-`;
-
 const StyledLink = styled(Link)`
   color: var(--text-primary);
   text-decoration: underline;
@@ -397,10 +381,10 @@ const CheckboxContainer = styled.div`
   align-items: flex-start;
   margin-bottom: 24px; /* 1 шаг */
   position: relative;
-  background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.08)' : 'transparent'};
+  background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.08)' : 'transparent'};
   border-radius: 4px;
-  padding: ${props => props.hasError ? '10px' : '0'};
-  border-left: ${props => props.hasError ? '3px solid #ff6b6b' : 'none'};
+  padding: ${props => props.$hasError ? '10px' : '0'};
+  border-left: ${props => props.$hasError ? '3px solid #ff6b6b' : 'none'};
   transition: all 0.3s ease;
   
   @media (max-width: 768px) {
@@ -413,8 +397,8 @@ const CustomCheckbox = styled.div`
   width: 18px;
   height: 18px;
   min-width: 18px;
-  border: ${props => props.hasError ? '2px solid #ff6b6b' : '1px solid var(--border)'};
-  background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.1)' : 'rgba(20, 20, 20, 0.5)'};
+  border: ${props => props.$hasError ? '2px solid #ff6b6b' : '1px solid var(--border)'};
+  background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.1)' : 'rgba(20, 20, 20, 0.5)'};
   margin-right: 10px;
   margin-top: 2px;
   display: flex;
@@ -433,7 +417,7 @@ const CustomCheckbox = styled.div`
   }
   
   &:hover {
-    border-color: ${props => props.hasError ? '#ff6b6b' : 'var(--text-secondary)'};
+    border-color: ${props => props.$hasError ? '#ff6b6b' : 'var(--text-secondary)'};
   }
 `;
 
@@ -454,27 +438,41 @@ const CheckboxLabel = styled.label`
 
 // Улучшенные поля ввода с валидацией
 const InputWithValidation = styled(Input)`
-  border-color: ${props => props.hasError ? '#ff6b6b' : 'var(--border)'};
-  border-width: ${props => props.hasError ? '2px' : '1px'};
-  background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.05)' : 'rgba(20, 20, 20, 0.5)'};
+  border-color: ${props => props.$hasError ? '#ff6b6b' : 'var(--border)'};
+  border-width: ${props => props.$hasError ? '2px' : '1px'};
+  background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.05)' : 'rgba(20, 20, 20, 0.5)'};
   transition: all 0.3s ease;
   
   &:focus {
-    border-color: ${props => props.hasError ? '#ff6b6b' : 'var(--text-secondary)'};
-    background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.03)' : 'rgba(20, 20, 20, 0.5)'};
+    border-color: ${props => props.$hasError ? '#ff6b6b' : 'var(--text-secondary)'};
+    background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.03)' : 'rgba(20, 20, 20, 0.5)'};
   }
 `;
 
 const TextareaWithValidation = styled(Textarea)`
-  border-color: ${props => props.hasError ? '#ff6b6b' : 'var(--border)'};
-  border-width: ${props => props.hasError ? '2px' : '1px'};
-  background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.05)' : 'rgba(20, 20, 20, 0.5)'};
+  border-color: ${props => props.$hasError ? '#ff6b6b' : 'var(--border)'};
+  border-width: ${props => props.$hasError ? '2px' : '1px'};
+  background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.05)' : 'rgba(20, 20, 20, 0.5)'};
   transition: all 0.3s ease;
   
   &:focus {
-    border-color: ${props => props.hasError ? '#ff6b6b' : 'var(--text-secondary)'};
-    background-color: ${props => props.hasError ? 'rgba(255, 107, 107, 0.03)' : 'rgba(20, 20, 20, 0.5)'};
+    border-color: ${props => props.$hasError ? '#ff6b6b' : 'var(--text-secondary)'};
+    background-color: ${props => props.$hasError ? 'rgba(255, 107, 107, 0.03)' : 'rgba(20, 20, 20, 0.5)'};
   }
+`;
+
+// Добавляем оверлей для закрытия модального окна по клику на затемненный фон
+const ModalOverlay = styled(motion.div)`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 const Contact = () => {
@@ -484,7 +482,11 @@ const Contact = () => {
   
   // Для хранения индекса формы, чтобы сбрасывать состояние Formspree
   const [formKey, setFormKey] = useState(0);
-  const [formState, handleSubmit] = useForm("xzzrglnv");
+  const [formState, handleSubmit] = useForm("xzzrglnv", {
+    data: {
+      source: "website-contact-form"
+    }
+  });
   
   const [formData, setFormData] = useState({
     name: '',
@@ -494,6 +496,11 @@ const Contact = () => {
   });
   
   const [consent, setConsent] = useState(false);
+  
+  // Добавляем состояние для технической информации
+  const [technicalInfo, setTechnicalInfo] = useState({});
+  // Время начала посещения страницы
+  const [pageStartTime, setPageStartTime] = useState(Date.now());
   
   // Состояние для отслеживания ошибок валидации
   const [formErrors, setFormErrors] = useState({
@@ -510,7 +517,102 @@ const Contact = () => {
 
   // Для управления видимостью модального окна
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-
+  
+  // Функция для сбора технической информации пользователя
+  const collectTechnicalInfo = async () => {
+    // Сначала собираем базовую информацию, которая всегда доступна
+    const baseInfo = {
+      browser_language: navigator.language || 'unknown',
+      user_agent: navigator.userAgent || 'unknown',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown',
+      screen_size: `${window.innerWidth}x${window.innerHeight}`,
+      screen_resolution: `${window.screen.width}x${window.screen.height}`,
+      form_date: new Date().toISOString()
+    };
+    
+    // Устанавливаем базовую информацию сразу
+    setTechnicalInfo(baseInfo);
+    
+    // Пытаемся получить IP и геолокацию асинхронно
+    try {
+      // Используем более надежный метод через сторонний сервис без аутентификации
+      const ipResponse = await fetch('https://api.ipify.org?format=json')
+        .then(res => res.ok ? res.json() : Promise.reject('Failed to fetch IP'))
+        .catch(() => ({ ip: 'unavailable' }));
+      
+      // Если IP не удалось получить, не пытаемся получить геолокацию
+      if (ipResponse.ip === 'unavailable') {
+        return;
+      }
+      
+      // Пытаемся получить геолокацию с использованием запасных сервисов
+      try {
+        // Пробуем первый сервис
+        const geoResponse = await fetch(`https://ipapi.co/${ipResponse.ip}/json/`)
+          .then(res => res.ok ? res.json() : Promise.reject('Failed to fetch geolocation'));
+        
+        // Обновляем техническую информацию с данными геолокации
+        setTechnicalInfo(prev => ({
+          ...prev,
+          ip: ipResponse.ip,
+          country: geoResponse.country_name || 'unknown',
+          city: geoResponse.city || 'unknown',
+          region: geoResponse.region || 'unknown',
+          isp: geoResponse.org || 'unknown'
+        }));
+      } catch (geoError) {
+        // Если первый сервис не сработал, пробуем запасной
+        try {
+          const backupGeoResponse = await fetch(`https://ipwho.is/${ipResponse.ip}`)
+            .then(res => res.ok ? res.json() : Promise.reject('Failed to fetch geolocation from backup'));
+          
+          // Обновляем техническую информацию с данными геолокации из запасного сервиса
+          setTechnicalInfo(prev => ({
+            ...prev,
+            ip: ipResponse.ip,
+            country: backupGeoResponse.country || 'unknown',
+            city: backupGeoResponse.city || 'unknown',
+            region: backupGeoResponse.region || 'unknown',
+            isp: backupGeoResponse.connection?.isp || 'unknown'
+          }));
+        } catch (backupError) {
+          // Если и запасной сервис не сработал, устанавливаем только IP
+          setTechnicalInfo(prev => ({
+            ...prev,
+            ip: ipResponse.ip
+          }));
+          console.warn('Could not fetch geolocation data', backupError);
+        }
+      }
+    } catch (ipError) {
+      console.warn('Could not fetch IP address', ipError);
+      // Продолжаем работу без IP и геолокации
+    }
+  };
+  
+  // Запускаем сбор информации при загрузке компонента
+  useEffect(() => {
+    // Устанавливаем время начала посещения страницы
+    setPageStartTime(Date.now());
+    
+    // Запускаем сбор технической информации
+    collectTechnicalInfo().catch(error => {
+      console.warn('Error collecting technical info:', error);
+      // В случае ошибки продолжаем работу без технических данных
+    });
+    
+    // Обновляем размер экрана при изменении окна
+    const handleResize = () => {
+      setTechnicalInfo(prev => ({
+        ...prev,
+        screen_size: `${window.innerWidth}x${window.innerHeight}`
+      }));
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
   // Функция для валидации email
   const validateEmail = (email) => {
     const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -579,9 +681,20 @@ const Contact = () => {
     }
   };
   
-  // Функция обработки закрытия сообщения об успехе
-  const closeSuccess = () => {
-    // Скрываем модальное окно
+  // Дополнительная функция для закрытия по клику на оверлей
+  const closeOnOverlay = (e) => {
+    // Проверяем, что клик был на оверлее (не на самом модальном окне)
+    if (e.target === e.currentTarget) {
+      setShowSuccessModal(false);
+    }
+  };
+  
+  // Создаем отдельную функцию для явного управления состоянием модального окна
+  const openSuccessModal = () => {
+    setShowSuccessModal(true);
+  };
+  
+  const closeSuccessModal = () => {
     setShowSuccessModal(false);
   };
   
@@ -608,14 +721,27 @@ const Contact = () => {
     const hasErrors = Object.values(errors).some(error => error);
     
     if (!hasErrors) {
+      // Обновляем время на странице перед отправкой
+      const timeOnPage = Math.round((Date.now() - pageStartTime) / 1000);
+      
+      // Обновляем техническую информацию с временем на странице
+      setTechnicalInfo(prev => ({
+        ...prev,
+        time_on_page: `${timeOnPage}s`,
+        form_submit_date: new Date().toISOString()
+      }));
+      
       // Если ошибок нет, отправляем форму
       setIsSubmitting(true);
+
+      // Возвращаем реальную отправку на Formspree
       handleSubmit(e)
-        .then(() => {
+        .then((response) => {
           setIsSubmitting(false);
         })
-        .catch(() => {
+        .catch((error) => {
           setIsSubmitting(false);
+          alert("Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.");
         });
     } else {
       // Прокручиваем к первому полю с ошибкой
@@ -651,11 +777,12 @@ const Contact = () => {
     exit: { opacity: 0, y: -20, transition: { duration: 0.3 } }
   };
   
-  // Проверяем, успешно ли отправлена форма
+  // Обработка успешной отправки формы
   useEffect(() => {
-    if (formState.succeeded) {
+    // Проверяем только на успешную отправку, чтобы предотвратить бесконечный цикл
+    if (formState.succeeded && !showSuccessModal) {
       // Показываем модальное окно
-      setShowSuccessModal(true);
+      openSuccessModal();
       
       // Сбрасываем форму
       setFormData({
@@ -681,7 +808,7 @@ const Contact = () => {
       // Увеличиваем ключ формы для сброса Formspree
       setFormKey(prevKey => prevKey + 1);
     }
-  }, [formState.succeeded]);
+  }, [formState.succeeded, showSuccessModal]);
   
   return (
     <>
@@ -694,21 +821,42 @@ const Contact = () => {
       {/* Модальное окно успешной отправки вне контейнера формы */}
       <AnimatePresence>
         {showSuccessModal && (
-          <SuccessMessage
-            variants={successVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
+          <ModalOverlay 
+            key={`modal-overlay-${formKey}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeOnOverlay}
           >
-            <SuccessText>{t.success_message}</SuccessText>
-            <CloseButton
-              onClick={closeSuccess}
-              whileHover={{ backgroundColor: 'var(--accent)' }}
-              whileTap={{ scale: 0.95 }}
+            <SuccessMessage
+              key={`success-message-${formKey}`}
+              variants={successVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()} // Предотвращаем закрытие при клике на само сообщение
             >
-              {t.close}
-            </CloseButton>
-          </SuccessMessage>
+              <SuccessText>{t.success_message}</SuccessText>
+              
+              {/* Изменение кнопки закрытия для более прямого вызова */}
+              <button
+                onClick={closeSuccessModal}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: 'transparent',
+                  border: '0.5px solid var(--text-primary)',
+                  borderRadius: '4px',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'Space Grotesk, Jost, sans-serif',
+                  fontSize: '0.9rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {t.close}
+              </button>
+            </SuccessMessage>
+          </ModalOverlay>
         )}
       </AnimatePresence>
       
@@ -823,7 +971,7 @@ const Contact = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  hasError={formErrors.name}
+                  $hasError={formErrors.name}
                 />
               </FormGroup>
               
@@ -835,7 +983,7 @@ const Contact = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  hasError={formErrors.email}
+                  $hasError={formErrors.email}
                 />
               </FormGroup>
               
@@ -847,7 +995,7 @@ const Contact = () => {
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  hasError={formErrors.subject}
+                  $hasError={formErrors.subject}
                 />
               </FormGroup>
               
@@ -858,11 +1006,11 @@ const Contact = () => {
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
-                  hasError={formErrors.message}
+                  $hasError={formErrors.message}
                 />
               </FormGroup>
               
-              <CheckboxContainer hasError={formErrors.consent}>
+              <CheckboxContainer $hasError={formErrors.consent}>
                 <HiddenCheckbox
                   type="checkbox"
                   id="consent"
@@ -873,7 +1021,7 @@ const Contact = () => {
                 <CustomCheckbox 
                   checked={consent} 
                   onClick={toggleConsent}
-                  hasError={formErrors.consent}
+                  $hasError={formErrors.consent}
                 />
                 <CheckboxLabel 
                   htmlFor="consent" 
@@ -885,6 +1033,16 @@ const Contact = () => {
                   }
                 </CheckboxLabel>
               </CheckboxContainer>
+              
+              {/* Скрытые поля для технической информации */}
+              {Object.entries(technicalInfo).map(([key, value]) => (
+                <input
+                  key={key}
+                  type="hidden"
+                  name={`tech_${key}`}
+                  value={value || ''}
+                />
+              ))}
               
               {/* Скрытое поле для передачи информации о согласии на Formspree */}
               <input 

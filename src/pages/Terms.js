@@ -206,9 +206,37 @@ const Terms = () => {
                 variants={sectionVariants}
                 initial="hidden"
                 animate={initialLoadComplete ? "visible" : "hidden"}
+                transition={{ delay: 0.45 }}
+              >
+                <SectionHeading>5. Сбор технических данных</SectionHeading>
+                <Paragraph>
+                  При использовании Сайта и отправке формы обратной связи автоматически собираются технические данные о Пользователе, включая:
+                </Paragraph>
+                <List>
+                  <ListItem>IP-адрес устройства Пользователя</ListItem>
+                  <ListItem>Геолокация (страна, город, регион)</ListItem>
+                  <ListItem>Информация о провайдере</ListItem>
+                  <ListItem>Язык браузера</ListItem>
+                  <ListItem>Тип устройства и сведения о браузере</ListItem>
+                  <ListItem>Часовой пояс</ListItem>
+                  <ListItem>Размер экрана</ListItem>
+                  <ListItem>Время, проведенное на странице</ListItem>
+                </List>
+                <Paragraph>
+                  Эти данные собираются в целях обеспечения безопасности, предотвращения мошенничества, анализа использования Сайта 
+                  и улучшения качества обслуживания. Предоставляя согласие на обработку персональных данных при отправке формы обратной 
+                  связи, Пользователь также дает согласие на сбор и обработку вышеуказанных технических данных в соответствии с 
+                  Политикой конфиденциальности.
+                </Paragraph>
+              </Section>
+              
+              <Section
+                variants={sectionVariants}
+                initial="hidden"
+                animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.5 }}
               >
-                <SectionHeading>5. Интеллектуальная собственность</SectionHeading>
+                <SectionHeading>6. Интеллектуальная собственность</SectionHeading>
                 <Paragraph>
                   Весь контент, размещенный на Сайте, включая, но не ограничиваясь текстами, графическими изображениями, 
                   фотографиями, видео, программным обеспечением, музыкой, звуками и другими объектами, 
@@ -228,7 +256,7 @@ const Terms = () => {
                 animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.6 }}
               >
-                <SectionHeading>6. Заключительные положения</SectionHeading>
+                <SectionHeading>7. Заключительные положения</SectionHeading>
                 <Paragraph>
                   Настоящее Соглашение составляет соглашение между Пользователем и Владельцем Сайта относительно порядка 
                   использования Сайта и заменяет собой все предыдущие соглашения между Пользователем и Владельцем.
@@ -257,7 +285,7 @@ const Terms = () => {
                 animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.7 }}
               >
-                <SectionHeading>7. Контактная информация</SectionHeading>
+                <SectionHeading>8. Контактная информация</SectionHeading>
                 <Paragraph>
                   По всем вопросам, связанным с использованием Сайта, можно обращаться по электронной почте: 
                   t.project5585@gmail.com
@@ -353,9 +381,36 @@ const Terms = () => {
                 variants={sectionVariants}
                 initial="hidden"
                 animate={initialLoadComplete ? "visible" : "hidden"}
+                transition={{ delay: 0.45 }}
+              >
+                <SectionHeading>5. Collection of Technical Data</SectionHeading>
+                <Paragraph>
+                  When using the Site and submitting the feedback form, technical data about the User is automatically collected, including:
+                </Paragraph>
+                <List>
+                  <ListItem>IP address of the User's device</ListItem>
+                  <ListItem>Geolocation (country, city, region)</ListItem>
+                  <ListItem>Internet service provider information</ListItem>
+                  <ListItem>Browser language</ListItem>
+                  <ListItem>Device type and browser information</ListItem>
+                  <ListItem>Time zone</ListItem>
+                  <ListItem>Screen size</ListItem>
+                  <ListItem>Time spent on the page</ListItem>
+                </List>
+                <Paragraph>
+                  This data is collected for the purposes of ensuring security, preventing fraud, analyzing website usage, 
+                  and improving service quality. By providing consent to the processing of personal data when submitting the feedback form, 
+                  the User also consents to the collection and processing of the above technical data in accordance with the Privacy Policy.
+                </Paragraph>
+              </Section>
+              
+              <Section
+                variants={sectionVariants}
+                initial="hidden"
+                animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.5 }}
               >
-                <SectionHeading>5. Intellectual property</SectionHeading>
+                <SectionHeading>6. Intellectual Property</SectionHeading>
                 <Paragraph>
                   All content posted on the Website, including, but not limited to, texts, graphic images, 
                   photographs, videos, software, music, sounds and other objects, 
@@ -375,7 +430,7 @@ const Terms = () => {
                 animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.6 }}
               >
-                <SectionHeading>6. Final provisions</SectionHeading>
+                <SectionHeading>7. Final Provisions</SectionHeading>
                 <Paragraph>
                   This Agreement constitutes an agreement between the User and the Website Owner regarding the procedure 
                   for using the Website and replaces all previous agreements between the User and the Owner.
@@ -404,7 +459,7 @@ const Terms = () => {
                 animate={initialLoadComplete ? "visible" : "hidden"}
                 transition={{ delay: 0.7 }}
               >
-                <SectionHeading>7. Contact information</SectionHeading>
+                <SectionHeading>8. Contact information</SectionHeading>
                 <Paragraph>
                   For all questions related to the use of the Website, you can contact us by email: 
                   t.project5585@gmail.com
