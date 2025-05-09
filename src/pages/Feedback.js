@@ -172,17 +172,17 @@ const FeedbackContent = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  justify-content: space-between;
 `;
 
 const Quote = styled.blockquote`
   font-size: 1.1rem;
   line-height: 1.6;
-  margin: 0 0 auto;
+  margin: 0;
   padding: 0;
   font-style: italic;
   color: var(--text-primary);
   text-align: left;
-  flex-grow: 1;
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -207,33 +207,6 @@ const Author = styled.cite`
     margin-top: 4px;
     font-size: 0.8rem;
     opacity: 0.7;
-  }
-`;
-
-const ExpandButton = styled(motion.button)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  background: none;
-  color: var(--text-secondary);
-  margin-top: 16px;
-  padding: 8px;
-  cursor: pointer;
-  align-self: center;
-  position: relative;
-  z-index: 5;
-  
-  svg {
-    width: 16px;
-    height: 16px;
-    stroke: currentColor;
-    transition: transform 0.3s ease;
-    transform: ${props => props.expanded ? 'rotate(180deg)' : 'rotate(0deg)'};
-  }
-  
-  &:hover {
-    color: var(--text-primary);
   }
 `;
 
@@ -428,13 +401,9 @@ const Feedback = () => {
   };
   
   // Обработчик аккордиона
-  const toggleExpand = (id, e) => {
+  const toggleExpand = (id) => {
     if (!isMobile) return; // На десктопе не используем аккордион
     
-    // Если передан event, предотвращаем всплытие
-    if (e) {
-      e.stopPropagation();
-    }
     setExpandedId(expandedId === id ? null : id);
   };
   
@@ -519,6 +488,15 @@ const Feedback = () => {
                 onClick={() => handleCardClick(feedback)}
                 whileHover={!isExpanded ? { scale: 1.01 } : {}}
                 whileTap={!isExpanded ? { scale: 0.99 } : {}}
+                tabIndex={0}
+                role="button"
+                aria-expanded={isExpanded}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleCardClick(feedback);
+                  }
+                }}
               >
                 <FeedbackAsciiFrame className="ascii-frame">
                   <div className="top">
@@ -581,24 +559,6 @@ const Feedback = () => {
                     {feedback.author}
                     <span className="company">{feedback.company}</span>
                   </Author>
-                  
-                  {isMobile && feedback.quote.length > 120 && (
-                    <ExpandButton 
-                      expanded={isExpanded}
-                      onClick={(e) => toggleExpand(feedback.id, e)}
-                      aria-label={isExpanded ? "Свернуть отзыв" : "Развернуть отзыв"} 
-                    >
-                      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path 
-                          d={isExpanded ? "M19 15L12 8L5 15" : "M5 9L12 16L19 9"} 
-                          stroke="currentColor" 
-                          strokeWidth="2" 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </ExpandButton>
-                  )}
                 </FeedbackContent>
               </FeedbackCard>
             );

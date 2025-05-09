@@ -231,7 +231,7 @@ const Input = styled.input`
   
   @media (max-width: 768px) {
     padding: 10px;
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
   
   &:focus {
@@ -255,7 +255,7 @@ const Textarea = styled.textarea`
   @media (max-width: 768px) {
     min-height: 120px;
     padding: 10px;
-    font-size: 0.95rem;
+    font-size: 1rem;
   }
   
   &:focus {
