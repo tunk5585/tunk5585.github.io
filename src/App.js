@@ -11,6 +11,7 @@ import ScrollIndicator from './components/ScrollIndicator';
 import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import SEO from './components/SEO';
+import GlobalStyle from './styles/GlobalStyle';
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -427,6 +428,7 @@ const App = () => {
     <HelmetProvider>
       <LanguageProvider>
         <AppWrapper>
+          <GlobalStyle />
           <SEO />
           <ScrollToTop />
           {/* Spinner overlay during initial load or navigation */}

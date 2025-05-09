@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTelegram, FaInstagram, FaBehance } from 'react-icons/fa';
+import { FaTelegram, FaInstagram, FaBehance, FaCopy, FaCheck } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useLoading } from '../context/LoadingContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -475,6 +475,37 @@ const ModalOverlay = styled(motion.div)`
   justify-content: center;
 `;
 
+// Новый styled-component для кнопки копирования
+const CopyButton = styled.button`
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  margin-left: 12px; /* Отступ от текста */
+  font-size: 1rem; /* Размер иконки */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease, background-color 0.2s ease;
+
+  &:hover {
+    color: var(--accent);
+    background-color: rgba(var(--accent-rgb), 0.1);
+  }
+
+  svg {
+    display: block; /* Убирает лишнее пространство под иконкой */
+  }
+`;
+
+// Контейнер для значения и кнопки копирования, чтобы они были в одной строке и выровнены
+const InfoValueContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
 const Contact = () => {
   const { initialLoadComplete } = useLoading();
   const { language } = useLanguage();
@@ -517,6 +548,7 @@ const Contact = () => {
 
   // Для управления видимостью модального окна
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [copiedStatus, setCopiedStatus] = useState(''); // '' | 'email' | 'phone'
   
   // Функция для сбора технической информации пользователя
   const collectTechnicalInfo = async () => {
@@ -696,6 +728,24 @@ const Contact = () => {
   
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
+  };
+  
+  const handleCopyToClipboard = async (textToCopy, type) => {
+    if (!navigator.clipboard) {
+      // Обработка для старых браузеров или небезопасного контекста
+      alert(t.copy_fallback_message || 'Cannot copy in this browser. Please copy manually.');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(textToCopy);
+      setCopiedStatus(type);
+      setTimeout(() => {
+        setCopiedStatus('');
+      }, 2000); // Сбрасываем статус через 2 секунды
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+      alert(t.copy_error_message || 'Failed to copy. Please try again.');
+    }
   };
   
   // Функция валидации перед отправкой формы
@@ -891,7 +941,15 @@ const Contact = () => {
                 transition={{ delay: 0.2 }}
               >
                 <InfoLabel>Email:</InfoLabel>
-                <InfoValue>t.project5585@gmail.com</InfoValue>
+                <InfoValueContainer>
+                  <InfoValue>t.project5585@gmail.com</InfoValue>
+                  <CopyButton 
+                    onClick={() => handleCopyToClipboard('t.project5585@gmail.com', 'email')}
+                    aria-label={t.copy_email || 'Copy email'}
+                  >
+                    {copiedStatus === 'email' ? <FaCheck /> : <FaCopy />}
+                  </CopyButton>
+                </InfoValueContainer>
               </InfoItem>
               
               <InfoItem
@@ -901,7 +959,15 @@ const Contact = () => {
                 transition={{ delay: 0.3 }}
               >
                 <InfoLabel>{t.phone}:</InfoLabel>
-                <InfoValue>+7 (977) 571-20-22</InfoValue>
+                <InfoValueContainer>
+                  <InfoValue>+7 (977) 571-20-22</InfoValue>
+                  <CopyButton 
+                    onClick={() => handleCopyToClipboard('+7 (977) 571-20-22', 'phone')}
+                    aria-label={t.copy_phone || 'Copy phone'}
+                  >
+                    {copiedStatus === 'phone' ? <FaCheck /> : <FaCopy />}
+                  </CopyButton>
+                </InfoValueContainer>
               </InfoItem>
               
               <InfoItem
