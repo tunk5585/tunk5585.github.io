@@ -12,6 +12,11 @@ import ScrollToTop from './components/ScrollToTop';
 import ScrollToTopButton from './components/ScrollToTopButton';
 import SEO from './components/SEO';
 import GlobalStyle from './styles/GlobalStyle';
+import PasswordEntry from './components/PasswordEntry';
+
+// Убираем отладочные строки
+// localStorage.removeItem('passwordEntered');
+// console.log('DEBUG: localStorage cleared');
 
 const AppWrapper = styled.div`
   min-height: 100vh;
@@ -94,12 +99,36 @@ const App = () => {
   const [dots, setDots] = useState(0);
   const [frame, setFrame] = useState(0);
   const { setInitialLoadComplete } = useLoading();
-
-  // Вычисляем базовое состояние загрузки
-  const isLoading = initialLoad || showNavSpinner;
   
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+
   // Состояние готовности контента
   const [contentReady, setContentReady] = useState(false);
+
+  // Проверяем localStorage при монтировании
+  useEffect(() => {
+    const passwordEntered = localStorage.getItem('passwordEntered') === 'true';
+    setIsPasswordVerified(passwordEntered);
+    if (passwordEntered) {
+      // Если пароль уже был введен, мы все равно должны пройти через логику загрузки,
+      // но она должна быть быстрой, если все уже загружено.
+      // Ключевой момент: initialLoad остается true, чтобы основной загрузчик отработал.
+      setShowLoadingScreen(true); 
+    }
+  }, []);
+
+  // Обработчик успешного ввода пароля
+  const handlePasswordSuccess = () => {
+    setIsPasswordVerified(true); // Позволяем рендерить основное содержимое приложения
+
+    // Сбрасываем все состояния загрузки к начальным, чтобы инициировать полный цикл загрузки
+    setInitialLoad(true);         // Это заставит основной useEffect загрузки выполниться
+    setShowLoadingScreen(true);   // Показываем экран загрузки
+    setLoadingPercent(0);         // Сбрасываем проценты
+    loadingFinishing.current = false; // Сбрасываем флаг завершения
+    setContentReady(false);       // Контент еще не готов
+    setInitialLoadComplete(false); // Сбрасываем флаг контекста useLoading
+  };
 
   // Анимация точек загрузки
   useEffect(() => {
@@ -125,60 +154,60 @@ const App = () => {
 
   // Управление экраном загрузки и плавным завершением
   useEffect(() => {
-    if (isLoading) {
-      setShowLoadingScreen(true);
+    // Вычисляем isLoading на основе текущих initialLoad и showNavSpinner
+    const currentIsLoading = initialLoad || showNavSpinner; 
+
+    if (currentIsLoading) {
+      setShowLoadingScreen(true); // Убедимся, что экран показан, если мы в состоянии загрузки
       setContentReady(false);
       loadingFinishing.current = false;
     } else if (!loadingFinishing.current) {
-      // Если загрузка окончена, но мы еще не запустили процесс завершения
       loadingFinishing.current = true;
       
-      // Быстро увеличиваем проценты до 100%
       const finishInterval = setInterval(() => {
         setLoadingPercent(prev => {
           if (prev >= 100) {
             clearInterval(finishInterval);
-            // Добавляем задержку перед скрытием экрана загрузки
             setTimeout(() => {
               setShowLoadingScreen(false);
-              // Устанавливаем готовность контента ПОСЛЕ скрытия экрана загрузки
               setTimeout(() => {
                 setContentReady(true);
               }, 50);
             }, 300);
             return 100;
           }
-          return prev + 2; // Ускоренное заполнение до 100%
+          return prev + 2;
         });
       }, 20);
       
       return () => clearInterval(finishInterval);
     }
-  }, [isLoading]);
+  }, [initialLoad, showNavSpinner]);
 
   // Анимация процентов загрузки
   useEffect(() => {
     let interval;
-    if (showLoadingScreen && !loadingFinishing.current && loadingPercent < 98) {
+    if (showLoadingScreen && !loadingFinishing.current && loadingPercent < 98 && (initialLoad || showNavSpinner) ) {
       interval = setInterval(() => {
         setLoadingPercent(prev => {
-          // Ускоряем рост процентов по мере увеличения значения
           const increment = prev < 50 ? 1 : prev < 80 ? 0.8 : prev < 95 ? 0.3 : 0.1;
-          return Math.min(prev + increment, 98); // Максимум 98% для обычной загрузки
+          return Math.min(prev + increment, 98);
         });
       }, 100);
     }
     
     return () => clearInterval(interval);
-  }, [showLoadingScreen, loadingPercent]);
+  }, [showLoadingScreen, loadingPercent, initialLoad, showNavSpinner]);
 
   // Initial load: минимум 3с и ожидание события загрузки страницы
   useEffect(() => {
+    if (!initialLoad) return; // Выполняем только если initialLoad === true
+
     let timerId;
     let loadHandler;
 
     const timerPromise = new Promise(resolve => {
-      timerId = setTimeout(resolve, 3000);
+      timerId = setTimeout(resolve, 3000); 
     });
 
     const loadPromise = new Promise(resolve => {
@@ -191,15 +220,15 @@ const App = () => {
     });
 
     Promise.all([timerPromise, loadPromise]).then(() => {
-      setInitialLoad(false);
-      setInitialLoadComplete(true);
+      setInitialLoad(false); // Это переведет загрузку в фазу завершения (до 100%)
+      setInitialLoadComplete(true); // Обновляем контекст
     });
 
     return () => {
       clearTimeout(timerId);
       if (loadHandler) window.removeEventListener('load', loadHandler);
     };
-  }, [setInitialLoadComplete]);
+  }, [initialLoad, setInitialLoadComplete]);
 
   // Навигационный спиннер с минимальным временем отображения
   useEffect(() => {
@@ -207,8 +236,11 @@ const App = () => {
       setShowNavSpinner(true);
       navStartTime.current = Date.now();
       setLoadingPercent(0);
-    } else if (navigation.state === 'idle') {
-      const elapsed = Date.now() - navStartTime.current;
+      setShowLoadingScreen(true);
+      loadingFinishing.current = false;
+      setContentReady(false);
+    } else if (navigation.state === 'idle' && showNavSpinner) {
+      const elapsed = Date.now() - (navStartTime.current || Date.now());
       const remaining = 500 - elapsed;
       if (remaining > 0) {
         const timer = setTimeout(() => setShowNavSpinner(false), remaining);
@@ -217,7 +249,7 @@ const App = () => {
         setShowNavSpinner(false);
       }
     }
-  }, [navigation.state]);
+  }, [navigation.state, showNavSpinner]);
 
   // Блокируем прокрутку страницы на время загрузки, включая touch и колесо
   useEffect(() => {
@@ -430,26 +462,34 @@ const App = () => {
         <AppWrapper>
           <GlobalStyle />
           <SEO />
-          <ScrollToTop />
-          {/* Spinner overlay during initial load or navigation */}
-          {showLoadingScreen && (
-            <LoadingContainer>
-              <LoadingAscii>
-                {spinnerFrames[frame]}
-                <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
-              </LoadingAscii>
-            </LoadingContainer>
+          
+          {/* Форма ввода пароля или основное содержимое сайта */}
+          {!isPasswordVerified ? (
+            <PasswordEntry onPasswordSuccess={handlePasswordSuccess} />
+          ) : (
+            <>
+              <ScrollToTop />
+              {/* Spinner overlay during initial load or navigation */}
+              {showLoadingScreen && (
+                <LoadingContainer>
+                  <LoadingAscii>
+                    {spinnerFrames[frame]}
+                    <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
+                  </LoadingAscii>
+                </LoadingContainer>
+              )}
+              {/* Основной контент загружается только после полного скрытия экрана загрузки */}
+              <DelayedContent isReady={contentReady || !showLoadingScreen}>
+                {!location.pathname.startsWith('/projects/') && <Header />}
+                <MainContent>
+                  <Outlet />
+                </MainContent>
+                {location.pathname !== '/' && <Footer />}
+                {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
+                {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
+              </DelayedContent>
+            </>
           )}
-          {/* Основной контент загружается только после полного скрытия экрана загрузки */}
-          <DelayedContent isReady={contentReady || !showLoadingScreen}>
-            {!location.pathname.startsWith('/projects/') && <Header />}
-            <MainContent>
-              <Outlet />
-            </MainContent>
-            {location.pathname !== '/' && <Footer />}
-            {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-            {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-          </DelayedContent>
         </AppWrapper>
       </LanguageProvider>
     </HelmetProvider>

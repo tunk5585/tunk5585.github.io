@@ -335,10 +335,6 @@ const SuccessMessage = styled(motion.div)`
   border-radius: 8px;
   padding: 24px; /* 1.5 шага */
   text-align: center;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   width: 90%;
   max-width: 400px;
   display: flex;
@@ -716,9 +712,7 @@ const Contact = () => {
   // Дополнительная функция для закрытия по клику на оверлей
   const closeOnOverlay = (e) => {
     // Проверяем, что клик был на оверлее (не на самом модальном окне)
-    if (e.target === e.currentTarget) {
-      setShowSuccessModal(false);
-    }
+    setShowSuccessModal(false);
   };
   
   // Создаем отдельную функцию для явного управления состоянием модального окна
@@ -786,12 +780,13 @@ const Contact = () => {
 
       // Возвращаем реальную отправку на Formspree
       handleSubmit(e)
-        .then((response) => {
+        .then(() => {
           setIsSubmitting(false);
+          // Модальное окно и сброс формы будут обработаны в useEffect [formState.succeeded]
         })
-        .catch((error) => {
+        .catch(() => {
           setIsSubmitting(false);
-          alert("Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.");
+          alert(t.form_submit_error || "Произошла ошибка при отправке формы. Пожалуйста, попробуйте позже.");
         });
     } else {
       // Прокручиваем к первому полю с ошибкой
@@ -942,7 +937,7 @@ const Contact = () => {
               >
                 <InfoLabel>Email:</InfoLabel>
                 <InfoValueContainer>
-                  <InfoValue>t.project5585@gmail.com</InfoValue>
+                <InfoValue>t.project5585@gmail.com</InfoValue>
                   <CopyButton 
                     onClick={() => handleCopyToClipboard('t.project5585@gmail.com', 'email')}
                     aria-label={t.copy_email || 'Copy email'}
@@ -960,7 +955,7 @@ const Contact = () => {
               >
                 <InfoLabel>{t.phone}:</InfoLabel>
                 <InfoValueContainer>
-                  <InfoValue>+7 (977) 571-20-22</InfoValue>
+                <InfoValue>+7 (977) 571-20-22</InfoValue>
                   <CopyButton 
                     onClick={() => handleCopyToClipboard('+7 (977) 571-20-22', 'phone')}
                     aria-label={t.copy_phone || 'Copy phone'}

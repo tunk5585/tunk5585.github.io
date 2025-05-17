@@ -53,6 +53,16 @@ const translations = {
     address: "Address",
     address_value: "Moscow, Russia",
     
+    // Password entry screen
+    password_description: "Please enter your provided password to access the site.",
+    password_placeholder: "Enter password",
+    password_submit: "Enter",
+    password_error: "Incorrect password, please try again.",
+    show_password: "Show password",
+    hide_password: "Hide password",
+    where_to_get_password_button: "How to get a password?",
+    where_to_get_password_tooltip: "Provide the password personally after initial contact with you.",
+    
     // Copyright
     copyright: "©2025 DEVELOPMENT AND DESIGN BY TUNK5585",
   },
@@ -108,6 +118,16 @@ const translations = {
     phone: "Телефон",
     address: "Адрес",
     address_value: "Москва, Россия",
+    
+    // Password entry screen
+    password_description: "Пожалуйста, введите предоставленный вам пароль для доступа к сайту.",
+    password_placeholder: "Введите пароль",
+    password_submit: "Войти",
+    password_error: "Неверный пароль, попробуйте еще раз.",
+    show_password: "Показать пароль",
+    hide_password: "Скрыть пароль",
+    where_to_get_password_button: "Где взять пароль?",
+    where_to_get_password_tooltip: "Выдаю пароль лично, после первичного контакта с вами.",
     
     // Copyright
     copyright: "©2025 DEVELOPMENT AND DESIGN BY TUNK5585",
@@ -272,31 +292,31 @@ const translations = {
       testimonials: [
         {
           id: 1,
-          quote: "Working with this creative designer exceeded all our expectations. A unique perspective on the problem and innovative solutions definitely made our brand stand out.",
-          author: "Elena Volkova",
-          company: "CEO, Bright Future"
+          quote: "I was truly delighted to find such a talented professional and collaborate with you. Now, whenever a new task comes up, you’re the first person I think of. All designs were very relevant, fresh and perfectly conveyed the brand’s essence. What I especially appreciated was your enthusiastic approach, deep attention to the brand’s DNA, and ability to deliver multiple print drafts at once — it made the workflow incredibly efficient.",
+          author: "Olga Krapivkina",
+          company: "Brand Director, 0not1"
         },
         {
           id: 2,
-          quote: "Incredible attention to detail and ability to capture the very essence of the brand. The results are not only visually appealing but also amazingly functional.",
-          author: "Alexey Morozov",
-          company: "Marketing Director, Synergy"
+          quote: "A real workhorse, always helped out at the right moment. Prompt, flexible, and over more than three years of cooperation, successfully closed dozens of work tasks!",
+          author: "Denis Zharikov",
+          company: "CEO, Textile.Guru"
         },
         {
           id: 3,
-          quote: "I've collaborated with many designers, but this experience was special. The project was completed on time, with a deep understanding of our goals and full consideration of our wishes.",
+          quote: "[AI-generated template, temporary] I've collaborated with many designers, but this experience was special. The project was completed on time, with a deep understanding of our goals and full consideration of our wishes.",
           author: "Maria Sergeeva",
           company: "Project Manager, DigitalWave"
         },
         {
           id: 4,
-          quote: "A subtle sense of style and modern trends. The creative solutions proposed by the designer helped our product stand out in the market and attract a new audience.",
+          quote: "[AI-generated template, temporary] A subtle sense of style and modern trends. The creative solutions proposed by the designer helped our product stand out in the market and attract a new audience.",
           author: "Dmitry Kazakov",
           company: "Product Owner, TechSolutions"
         },
         {
           id: 5,
-          quote: "Professionalism and creativity at the highest level. The project was challenging, but the result exceeded all our expectations. We will definitely collaborate again.",
+          quote: "[AI-generated template, temporary] Professionalism and creativity at the highest level. The project was challenging, but the result exceeded all our expectations. We will definitely collaborate again.",
           author: "Olga Sokolova",
           company: "Art Director, Creative Studio"
         },
@@ -313,31 +333,31 @@ const translations = {
       testimonials: [
         {
           id: 1,
-          quote: "Работа с этим креативным дизайнером превзошла все наши ожидания. Уникальный взгляд на проблему и инновационные решения определенно выделили наш бренд.",
-          author: "Елена Волкова",
-          company: "CEO, Bright Future"
+          quote: "Я очень рада была найти такого талантливого профессионала и поработать вместе. Теперь всегда, когда появляется задача, в первую очередь думаю, что нужно обратиться к тебе! Все разработанные дизайны были актуальными, красивыми и передавали нужное настроение. Очень понравилось, что ты всегда с энтузиазмом берешься за задачу, внимательно изучаешь ДНК бренда и выдаешь сразу несколько драфтов, это очень продуктивно.",
+          author: "Ольга Крапивкина",
+          company: "Brand Director, 0not1"
         },
         {
           id: 2,
-          quote: "Невероятное внимание к деталям и способность улавливать самую суть бренда. Результаты работы не только визуально привлекательны, но и потрясающе функциональны.",
-          author: "Алексей Морозов",
-          company: "Marketing Director, Синергия"
+          quote: "Рабочий хряк, всегда выручал в нужный момент. Оперативный, гибкий, за более чем три года сотрудничества успешно закрыл не один десяток рабочих задач!",
+          author: "Денис Жариков",
+          company: "CEO, Textile.Guru"
         },
         {
           id: 3,
-          quote: "Я сотрудничал с многими дизайнерами, но этот опыт был особенным. Проект был выполнен в срок, с глубоким пониманием наших целей и полным учетом наших пожеланий.",
+          quote: "[ИИ шаблон, временно]Я сотрудничал с многими дизайнерами, но этот опыт был особенным. Проект был выполнен в срок, с глубоким пониманием наших целей и полным учетом наших пожеланий.",
           author: "Мария Сергеева",
           company: "Project Manager, DigitalWave"
         },
         {
           id: 4,
-          quote: "Тонкое чувство стиля и современных тенденций. Креативные решения, которые предложил дизайнер, помогли нашему продукту выделиться на рынке и привлечь новую аудиторию.",
+          quote: "[ИИ шаблон, временно]Тонкое чувство стиля и современных тенденций. Креативные решения, которые предложил дизайнер, помогли нашему продукту выделиться на рынке и привлечь новую аудиторию.",
           author: "Дмитрий Казаков",
           company: "Product Owner, TechSolutions"
         },
         {
           id: 5,
-          quote: "Профессионализм и креативность на высшем уровне. Проект был сложным, но результат превзошел все наши ожидания. Обязательно будем сотрудничать снова.",
+          quote: "[ИИ шаблон, временно] Профессионализм и креативность на высшем уровне. Проект был сложным, но результат превзошел все наши ожидания. Обязательно будем сотрудничать снова.",
           author: "Ольга Соколова",
           company: "Art Director, Creative Studio"
         },
