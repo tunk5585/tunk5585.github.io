@@ -375,10 +375,8 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
     const preventScroll = (e) => e.preventDefault();
     
     const blockScroll = () => {
-      const scrollY = window.scrollY;
-      
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
+      document.body.style.top = `-${originalScrollPos}px`;
       document.body.style.left = '0';
       document.body.style.right = '0';
       document.body.style.width = '100%';
@@ -392,7 +390,6 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
     };
     
     const unblockScroll = () => {
-      const scrollY = parseInt(document.body.style.top || '0', 10) * -1;
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
@@ -402,7 +399,7 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
       document.documentElement.style.overflow = '';
       document.body.style.overflow = '';
       
-      window.scrollTo(0, scrollY);
+      window.scrollTo(0, originalScrollPos);
       
       document.removeEventListener('wheel', preventScroll);
       document.removeEventListener('touchmove', preventScroll);
@@ -414,17 +411,25 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
         e.preventDefault();
       }
     };
+
+    const handleResize = () => {
+      if (isInputFocusedOnMobile) {
+        document.body.style.top = `-${originalScrollPos}px`;
+      }
+    };
     
     if (isInputFocusedOnMobile) {
       blockScroll();
+      window.addEventListener('resize', handleResize);
     } else {
       unblockScroll();
     }
     
     return () => {
       unblockScroll();
+      window.removeEventListener('resize', handleResize);
     };
-  }, [isInputFocusedOnMobile]);
+  }, [isInputFocusedOnMobile, originalScrollPos]);
 
   useEffect(() => {
     let startY = 0;
