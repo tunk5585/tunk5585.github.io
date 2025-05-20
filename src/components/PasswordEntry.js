@@ -18,6 +18,7 @@ const PasswordOverlay = styled(motion.div)`
   align-items: center;
   z-index: 9999;
   padding: 20px;
+  overflow: hidden;
 `;
 
 const LanguageSwitcherContainer = styled.div`
@@ -62,15 +63,18 @@ const FormBackground = styled.div`
   position: absolute;
   top: 15px;
   left: 15px;
-  width: 100%;
-  height: 100%;
+  right: 15px;
+  bottom: 15px;
   border: 1px solid var(--border);
+  border-radius: 8px;
   z-index: -1;
   pointer-events: none;
   
   @media (max-width: 480px) {
     top: 10px;
     left: 10px;
+    right: 10px;
+    bottom: 10px;
   }
 `;
 
@@ -147,25 +151,31 @@ const ButtonContainer = styled.div`
   }
 `;
 
-const SubmitButton = styled(motion.button)`
+const SubmitButton = styled.button`
   padding: 12px 24px;
   background-color: transparent;
-  border: 0.5px solid var(--text-primary);
+  border: 1px solid var(--text-primary);
   color: var(--text-primary);
   font-family: 'Space Grotesk', 'Jost', sans-serif;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
   display: inline-block;
   border-radius: 8px;
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
+  outline: none;
   
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: var(--accent);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   
   @media (max-width: 480px) {
@@ -203,11 +213,12 @@ const TelegramIcon = styled.a`
   justify-content: center;
   width: 45px;
   height: 45px;
-  border: 0.5px solid var(--text-primary);
+  border: 1px solid var(--text-primary);
   border-radius: 8px;
   color: var(--text-primary);
   font-size: 1.3rem;
   transition: all 0.3s ease;
+  outline: none;
   
   &:hover {
     color: var(--accent);
@@ -219,7 +230,8 @@ const TelegramIcon = styled.a`
 const PasswordInfoButton = styled.button`
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: ${props => props.$isActive ? 'var(--accent)' : 'var(--text-secondary)'};
+  text-decoration: ${props => props.$isActive ? 'underline' : 'none'};
   cursor: pointer;
   font-size: 0.8rem;
   padding: 4px;
@@ -227,28 +239,39 @@ const PasswordInfoButton = styled.button`
   text-align: left;
   line-height: 1.4;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 
-  &:hover {
-    color: var(--accent);
-    text-decoration: underline;
-    background: none;
+  @media (hover: hover) {
+    &:hover {
+      color: var(--accent);
+      text-decoration: underline;
+      background: none !important;
+    }
   }
 
   &:focus {
-    color: var(--accent);
-    text-decoration: underline;
-    background: none;
     outline: none;
+    background: none !important;
   }
   
   &:active {
-    background: none;
+    color: var(--accent);
+    text-decoration: underline;
+    background-color: transparent;
   }
 
   @media (max-width: 480px) {
     margin-top: 0;
     text-align: center;
     font-size: 0.85rem;
+
+    &:active {
+      background: none !important;
+    }
+    
+    &:hover, &:focus {
+      background: none !important;
+    }
   }
 `;
 
@@ -288,9 +311,12 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
   const [error, setError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordInfo, setShowPasswordInfo] = useState(false);
+  const [isInputFocusedOnMobile, setIsInputFocusedOnMobile] = useState(false);
+  const [originalScrollPos, setOriginalScrollPos] = useState(0);
 
   const passwordInfoButtonRef = useRef(null);
   const passwordInfoContentRef = useRef(null);
+  const passwordInputRef = useRef(null);
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
@@ -305,9 +331,7 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
     e.preventDefault();
     
     if (password === '55welcom85') {
-      // Запоминаем, что пароль был введен правильно
       localStorage.setItem('passwordEntered', 'true');
-      // Вызываем callback для родительского компонента
       if (onPasswordSuccess) onPasswordSuccess();
     } else {
       setError(true);
@@ -316,6 +340,17 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
   
   const handleTogglePasswordInfo = () => {
     setShowPasswordInfo(prev => !prev);
+  };
+
+  const handleInputFocus = () => {
+    if (window.innerWidth <= 480) {
+      setOriginalScrollPos(window.pageYOffset || document.documentElement.scrollTop);
+      setIsInputFocusedOnMobile(true);
+    }
+  };
+
+  const handleInputBlur = () => {
+    setIsInputFocusedOnMobile(false);
   };
 
   useEffect(() => {
@@ -335,6 +370,87 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showPasswordInfo]);
+
+  useEffect(() => {
+    const preventScroll = (e) => e.preventDefault();
+    
+    const blockScroll = () => {
+      const scrollY = window.scrollY;
+      
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      
+      document.addEventListener('wheel', preventScroll, { passive: false });
+      document.addEventListener('touchmove', preventScroll, { passive: false });
+      document.addEventListener('keydown', preventKeyScroll, { passive: false });
+    };
+    
+    const unblockScroll = () => {
+      const scrollY = parseInt(document.body.style.top || '0', 10) * -1;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+      
+      window.scrollTo(0, scrollY);
+      
+      document.removeEventListener('wheel', preventScroll);
+      document.removeEventListener('touchmove', preventScroll);
+      document.removeEventListener('keydown', preventKeyScroll);
+    };
+    
+    const preventKeyScroll = (e) => {
+      if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+      }
+    };
+    
+    if (isInputFocusedOnMobile) {
+      blockScroll();
+    } else {
+      unblockScroll();
+    }
+    
+    return () => {
+      unblockScroll();
+    };
+  }, [isInputFocusedOnMobile]);
+
+  useEffect(() => {
+    let startY = 0;
+    const onTouchStart = (e) => {
+      if (e.touches.length === 1) {
+        startY = e.touches[0].clientY;
+      }
+    };
+    const onTouchMove = (e) => {
+      const curY = e.touches[0].clientY;
+      const diffY = curY - startY;
+      if (diffY > 0 || diffY < 0) {
+        e.preventDefault();
+      }
+    };
+    
+    if (isInputFocusedOnMobile) {
+      document.addEventListener('touchstart', onTouchStart, { passive: false });
+      document.addEventListener('touchmove', onTouchMove, { passive: false });
+    }
+    
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
+    };
+  }, [isInputFocusedOnMobile]);
 
   return (
     <PasswordOverlay
@@ -364,12 +480,14 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
           <InputContainer>
             <PasswordInputWrapper>
               <PasswordInput 
+                ref={passwordInputRef}
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={handlePasswordChange}
+                onFocus={handleInputFocus}
+                onBlur={handleInputBlur}
                 placeholder={t.password_placeholder || 'Введите пароль'}
                 $error={error}
-                autoFocus
               />
               <TogglePasswordButton 
                 type="button"
@@ -396,8 +514,6 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
           <ButtonContainer>
             <SubmitButton
               type="submit"
-              whileHover={{ backgroundColor: 'var(--accent)' }}
-              whileTap={{ scale: 0.97 }}
             >
               {t.password_submit || 'Войти'}
             </SubmitButton>
@@ -408,6 +524,7 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
                   type="button"
                   onClick={handleTogglePasswordInfo}
                   aria-expanded={showPasswordInfo}
+                  $isActive={showPasswordInfo}
                 >
                   {t.where_to_get_password_button || "Где взять пароль?"}
                 </PasswordInfoButton>

@@ -136,22 +136,6 @@ const TypewriterTitle = ({ speed = 30, startDelay = 500 }) => {
     toTitleCase(t.hero_title_line4.trim())
   ], [t.hero_title_line1, t.hero_title_line2, t.hero_title_line3, t.hero_title_line4]);
 
-  // Загружаем Google шрифт Space Grotesk
-  useEffect(() => {
-    // Создаем элемент link для Space Grotesk
-    const linkSpaceGrotesk = document.createElement('link');
-    linkSpaceGrotesk.rel = 'stylesheet';
-    linkSpaceGrotesk.href = 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap';
-    
-    // Добавляем ссылку в head
-    document.head.appendChild(linkSpaceGrotesk);
-    
-    // Очистка при размонтировании компонента
-    return () => {
-      document.head.removeChild(linkSpaceGrotesk);
-    };
-  }, []);
-  
   // Запускаем анимацию только один раз после загрузки
   useEffect(() => {
     let timer;
