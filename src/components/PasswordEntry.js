@@ -303,6 +303,19 @@ const InfoPopup = styled(motion.div)`
   }
 `;
 
+// Функция для хеширования пароля
+const hashPassword = async (password) => {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashHex;
+};
+
+// Хеш для пароля "55soclose85"
+const EXPECTED_PASSWORD_HASH = "53be0e3ebd379d88181fedbd9b7a32713014f650e9876538684969c8d0187ac1";
+
 const PasswordEntry = ({ onPasswordSuccess }) => {
   const { language, toggleLanguage } = useLanguage();
   const t = translations[language];
@@ -327,13 +340,20 @@ const PasswordEntry = ({ onPasswordSuccess }) => {
     setShowPassword(!showPassword);
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (password === '55welcom85') {
-      localStorage.setItem('passwordEntered', 'true');
-      if (onPasswordSuccess) onPasswordSuccess();
-    } else {
+    try {
+      const passwordHash = await hashPassword(password);
+      
+      if (passwordHash === EXPECTED_PASSWORD_HASH) {
+        localStorage.setItem('passwordEntered_v2', 'true');
+        if (onPasswordSuccess) onPasswordSuccess();
+      } else {
+        setError(true);
+      }
+    } catch (error) {
+      console.error('Error hashing password:', error);
       setError(true);
     }
   };

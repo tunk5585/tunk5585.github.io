@@ -107,7 +107,7 @@ const App = () => {
 
   // Проверяем localStorage при монтировании
   useEffect(() => {
-    const passwordEntered = localStorage.getItem('passwordEntered') === 'true';
+    const passwordEntered = localStorage.getItem('passwordEntered_v2') === 'true';
     setIsPasswordVerified(passwordEntered);
     if (passwordEntered) {
       // Если пароль уже был введен, мы все равно должны пройти через логику загрузки,
