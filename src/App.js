@@ -4,12 +4,28 @@ import logo from './assets/images/header/Lolo_tunk_1.svg';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+const initialText = "Сайт на ремонте!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)";
+
+const getCaretPosition = (text, index) => {
+  const before = text.slice(0, index);
+  const lines = before.split('\n');
+  const line = lines.length;
+  const column = lines[lines.length - 1].length + 1;
+  return { line, column };
+};
+
 const App = () => {
   const resizableRef = useRef(null);
+  const textareaRef = useRef(null);
   const [size, setSize] = useState({ width: 920, height: 520 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [openMenu, setOpenMenu] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [restoreSize, setRestoreSize] = useState(null);
+  const [restorePosition, setRestorePosition] = useState(null);
+  const [text, setText] = useState(initialText);
+  const [caretIndex, setCaretIndex] = useState(0);
 
   useEffect(() => {
     const node = resizableRef.current;
@@ -35,6 +51,16 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!isMaximized) return;
+    const onResize = () => {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+      setPosition({ x: 0, y: 0 });
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, [isMaximized]);
+
+  useEffect(() => {
     const onDocClick = (event) => {
       if (!event.target.closest('.menu-group')) {
         setOpenMenu(null);
@@ -44,8 +70,14 @@ const App = () => {
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    setCaretIndex(el.selectionStart || 0);
+  }, []);
+
   const startResize = (direction) => (event) => {
-    if (isMobile) return;
+    if (isMobile || isMaximized) return;
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
@@ -98,7 +130,7 @@ const App = () => {
   };
 
   const startDrag = (event) => {
-    if (isMobile) return;
+    if (isMobile || isMaximized) return;
     if (event.target.closest('.window-controls')) {
       return;
     }
@@ -111,8 +143,8 @@ const App = () => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
 
-      const maxX = window.innerWidth - size.width - 16;
-      const maxY = window.innerHeight - size.height - 16;
+      const maxX = window.innerWidth - size.width;
+      const maxY = window.innerHeight - size.height;
 
       const nextX = clamp(startPos.x + dx, 0, Math.max(0, maxX));
       const nextY = clamp(startPos.y + dy, 0, Math.max(0, maxY));
@@ -128,6 +160,34 @@ const App = () => {
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
   };
+
+  const toggleMaximize = () => {
+    if (isMobile) return;
+    if (!isMaximized) {
+      setRestoreSize(size);
+      setRestorePosition(position);
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+      setPosition({ x: 0, y: 0 });
+      setIsMaximized(true);
+    } else {
+      if (restoreSize) setSize(restoreSize);
+      if (restorePosition) setPosition(restorePosition);
+      setIsMaximized(false);
+    }
+  };
+
+  const handleTextChange = (event) => {
+    const nextText = event.target.value;
+    setText(nextText);
+    setCaretIndex(event.target.selectionStart || 0);
+  };
+
+  const handleCaretUpdate = (event) => {
+    setCaretIndex(event.target.selectionStart || 0);
+  };
+
+  const { line, column } = getCaretPosition(text, caretIndex);
+  const totalLines = text.split('\n').length;
 
   return (
     <div className="page">
@@ -150,12 +210,17 @@ const App = () => {
           <header className="titlebar" onPointerDown={startDrag}>
             <div className="title-left">
               <img className="app-logo" src={logo} alt="TUNK5585 logo" />
-              <span className="app-title">tunk5585 - портфолио</span>
+              <span className="app-title">tunk5585</span>
             </div>
-            <div className="window-controls" aria-hidden="true">
-              <span className="control-dot" />
-              <span className="control-dot" />
-              <span className="control-dot" />
+            <div className="window-controls">
+              <button type="button" className="control-dot control-button" aria-label="Закрыть" />
+              <button
+                type="button"
+                className="control-dot control-button"
+                aria-label={isMaximized ? 'Восстановить' : 'Развернуть'}
+                onClick={toggleMaximize}
+              />
+              <button type="button" className="control-dot control-button" aria-label="Свернуть" />
             </div>
           </header>
 
@@ -197,8 +262,13 @@ const App = () => {
           <main className="editor" role="main">
             <div className="paper">
               <textarea
+                ref={textareaRef}
                 className="paper-input"
-                defaultValue={"Ремонт!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)"}
+                value={text}
+                onChange={handleTextChange}
+                onClick={handleCaretUpdate}
+                onKeyUp={handleCaretUpdate}
+                onSelect={handleCaretUpdate}
                 aria-label="Текст"
                 spellCheck={false}
               />
@@ -206,8 +276,8 @@ const App = () => {
           </main>
 
           <footer className="statusbar" aria-label="Статус">
-            <div className="status-left">Готово</div>
-            <div className="status-right">UTF-8 · Строка 1, Столбец 28</div>
+            <div className="status-left">Готово · {totalLines} строк</div>
+            <div className="status-right">UTF-8 · Строка {line}, Столбец {column}</div>
           </footer>
         </div>
 
