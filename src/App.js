@@ -27,6 +27,8 @@ const App = () => {
   const [restorePosition, setRestorePosition] = useState(null);
   const [initialSize, setInitialSize] = useState(null);
   const [initialPosition, setInitialPosition] = useState(null);
+  const [animateWindow, setAnimateWindow] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
   const [text, setText] = useState(initialText);
   const [caretIndex, setCaretIndex] = useState(0);
   const [greenTriggered, setGreenTriggered] = useState(false);
@@ -55,6 +57,7 @@ const App = () => {
     setPosition(startPosition);
     setInitialSize(startSize);
     setInitialPosition(startPosition);
+    setAnimateWindow(false);
   }, []);
 
   useEffect(() => {
@@ -68,10 +71,10 @@ const App = () => {
   useEffect(() => {
     if (!isMaximized) return;
     const onResize = () => {
-      const maxWidth = Math.max(320, window.innerWidth - 96);
-      const maxHeight = Math.max(360, window.innerHeight - 96);
+      const maxWidth = Math.max(320, window.innerWidth - 48);
+      const maxHeight = Math.max(360, window.innerHeight - 48);
       setSize({ width: maxWidth, height: maxHeight });
-      setPosition({ x: 48, y: 48 });
+      setPosition({ x: 24, y: 24 });
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -101,6 +104,8 @@ const App = () => {
 
   const startResize = (direction) => (event) => {
     if (isMobile || isMaximized) return;
+    setIsInteracting(true);
+    setAnimateWindow(false);
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
@@ -142,6 +147,7 @@ const App = () => {
     const onUp = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      setIsInteracting(false);
     };
 
     window.addEventListener('pointermove', onMove);
@@ -157,6 +163,8 @@ const App = () => {
     if (event.target.closest('.window-controls')) {
       return;
     }
+    setIsInteracting(true);
+    setAnimateWindow(false);
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
@@ -178,6 +186,7 @@ const App = () => {
     const onUp = () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      setIsInteracting(false);
     };
 
     window.addEventListener('pointermove', onMove);
@@ -186,11 +195,12 @@ const App = () => {
 
   const toggleMaximize = () => {
     if (isMobile) return;
+    setAnimateWindow(true);
     if (!isMaximized) {
       setRestoreSize(size);
       setRestorePosition(position);
-      setSize({ width: Math.max(320, window.innerWidth - 96), height: Math.max(360, window.innerHeight - 96) });
-      setPosition({ x: 48, y: 48 });
+      setSize({ width: Math.max(320, window.innerWidth - 48), height: Math.max(360, window.innerHeight - 48) });
+      setPosition({ x: 24, y: 24 });
       setIsMaximized(true);
     } else {
       if (restoreSize) setSize(restoreSize);
@@ -212,6 +222,7 @@ const App = () => {
 
   const resetToInitial = () => {
     if (!initialSize || !initialPosition) return;
+    setAnimateWindow(true);
     stopAnimation();
     greenClickCount.current = 0;
     setSize(initialSize);
@@ -281,7 +292,7 @@ const App = () => {
   return (
     <div className="page">
       <div
-        className="notepad-resizable"
+        className={`notepad-resizable${animateWindow && !isInteracting ? ' animate' : ''}`}
         ref={resizableRef}
         style={
           isMobile

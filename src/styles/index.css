@@ -49,6 +49,10 @@ body {
   will-change: top, left, width, height;
 }
 
+.notepad-resizable.animate {
+  transition: width 0.28s ease, height 0.28s ease, left 0.28s ease, top 0.28s ease;
+}
+
 .notepad-shell {
   width: 100%;
   height: 100%;
