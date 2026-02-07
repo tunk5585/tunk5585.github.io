@@ -28,7 +28,7 @@ body {
   background-color: #0b0c0e;
   color: var(--text-main);
   overscroll-behavior: none;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 body::before {
@@ -47,7 +47,7 @@ body::before {
   padding: 32px 20px 48px;
   position: relative;
   overflow: hidden;
-  touch-action: none;
+  touch-action: manipulation;
 }
 
 .notepad-resizable {

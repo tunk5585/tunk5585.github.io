@@ -39,7 +39,7 @@ const App = () => {
   const isAnimating = useRef(false);
   const animationToken = useRef(0);
   const pinchState = useRef(null);
-  const mobilePadding = 24;
+  const mobilePadding = 16;
   const mobileMinWidth = 280;
   const mobileMinHeight = 320;
 
@@ -74,12 +74,29 @@ const App = () => {
 
   useEffect(() => {
     if (!isMobile) return;
-    const maxWidth = Math.max(mobileMinWidth, window.innerWidth - mobilePadding);
-    const maxHeight = Math.max(mobileMinHeight, window.innerHeight - mobilePadding);
-    setSize((prev) => ({
-      width: clamp(prev.width, mobileMinWidth, maxWidth),
-      height: clamp(prev.height, mobileMinHeight, maxHeight)
-    }));
+    const viewport = window.visualViewport;
+    const update = () => {
+      const width = viewport ? viewport.width : window.innerWidth;
+      const height = viewport ? viewport.height : window.innerHeight;
+      const maxWidth = Math.max(mobileMinWidth, width - mobilePadding * 2);
+      const maxHeight = Math.max(mobileMinHeight, height - mobilePadding * 2);
+      setSize((prev) => ({
+        width: clamp(prev.width, mobileMinWidth, maxWidth),
+        height: clamp(prev.height, mobileMinHeight, maxHeight)
+      }));
+      setPosition({ x: 0, y: 0 });
+    };
+    update();
+    if (viewport) {
+      viewport.addEventListener('resize', update);
+      viewport.addEventListener('scroll', update);
+      return () => {
+        viewport.removeEventListener('resize', update);
+        viewport.removeEventListener('scroll', update);
+      };
+    }
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
   }, [isMobile]);
 
   useEffect(() => {
@@ -343,8 +360,11 @@ const App = () => {
     const distance = Math.hypot(dx, dy);
     const scale = distance / pinchState.current.startDistance;
 
-    const maxWidth = Math.max(mobileMinWidth, window.innerWidth - mobilePadding);
-    const maxHeight = Math.max(mobileMinHeight, window.innerHeight - mobilePadding);
+    const viewport = window.visualViewport;
+    const width = viewport ? viewport.width : window.innerWidth;
+    const height = viewport ? viewport.height : window.innerHeight;
+    const maxWidth = Math.max(mobileMinWidth, width - mobilePadding * 2);
+    const maxHeight = Math.max(mobileMinHeight, height - mobilePadding * 2);
     const nextWidth = clamp(pinchState.current.startSize.width * scale, mobileMinWidth, maxWidth);
     const nextHeight = clamp(pinchState.current.startSize.height * scale, mobileMinHeight, maxHeight);
 
