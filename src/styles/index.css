@@ -27,6 +27,8 @@ body {
   font-family: var(--font-ui);
   background-color: #0b0c0e;
   color: var(--text-main);
+  overscroll-behavior: none;
+  touch-action: none;
 }
 
 body::before {
@@ -45,6 +47,7 @@ body::before {
   padding: 32px 20px 48px;
   position: relative;
   overflow: hidden;
+  touch-action: none;
 }
 
 .notepad-resizable {
@@ -254,6 +257,8 @@ body::before {
   color: var(--text-main);
   font: inherit;
   line-height: inherit;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .statusbar {

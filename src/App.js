@@ -105,6 +105,25 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    if (!isMobile) return;
+    const preventGesture = (event) => event.preventDefault();
+    const preventScroll = (event) => {
+      if (event.target.closest('.paper-input')) return;
+      event.preventDefault();
+    };
+    document.addEventListener('gesturestart', preventGesture, { passive: false });
+    document.addEventListener('gesturechange', preventGesture, { passive: false });
+    document.addEventListener('gestureend', preventGesture, { passive: false });
+    document.addEventListener('touchmove', preventScroll, { passive: false });
+    return () => {
+      document.removeEventListener('gesturestart', preventGesture);
+      document.removeEventListener('gesturechange', preventGesture);
+      document.removeEventListener('gestureend', preventGesture);
+      document.removeEventListener('touchmove', preventScroll);
+    };
+  }, [isMobile]);
+
+  useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     setCaretIndex(el.selectionStart || 0);
