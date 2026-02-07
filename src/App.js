@@ -5,6 +5,7 @@ import logo from './assets/images/header/Lolo_tunk_1.svg';
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const initialText = "Сайт на ремонте!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)";
+const warningText = "Хватит тыкать!\nНеси проекты!";
 
 const getCaretPosition = (text, index) => {
   const before = text.slice(0, index);
@@ -24,22 +25,36 @@ const App = () => {
   const [isMaximized, setIsMaximized] = useState(false);
   const [restoreSize, setRestoreSize] = useState(null);
   const [restorePosition, setRestorePosition] = useState(null);
+  const [initialSize, setInitialSize] = useState(null);
+  const [initialPosition, setInitialPosition] = useState(null);
   const [text, setText] = useState(initialText);
   const [caretIndex, setCaretIndex] = useState(0);
+  const [greenTriggered, setGreenTriggered] = useState(false);
+  const greenClickCount = useRef(0);
+  const greenClickTimer = useRef(null);
+  const typingTimer = useRef(null);
+  const backspaceTimer = useRef(null);
+  const isAnimating = useRef(false);
+  const animationToken = useRef(0);
 
   useEffect(() => {
     const node = resizableRef.current;
     if (!node) return;
 
     const rect = node.getBoundingClientRect();
-    setSize({
+    const startSize = {
       width: Math.round(rect.width),
       height: Math.round(rect.height)
-    });
+    };
 
     const centerX = Math.round((window.innerWidth - rect.width) / 2);
     const centerY = Math.round((window.innerHeight - rect.height) / 2);
-    setPosition({ x: centerX, y: centerY });
+    const startPosition = { x: centerX, y: centerY };
+
+    setSize(startSize);
+    setPosition(startPosition);
+    setInitialSize(startSize);
+    setInitialPosition(startPosition);
   }, []);
 
   useEffect(() => {
@@ -53,8 +68,10 @@ const App = () => {
   useEffect(() => {
     if (!isMaximized) return;
     const onResize = () => {
-      setSize({ width: window.innerWidth, height: window.innerHeight });
-      setPosition({ x: 0, y: 0 });
+      const maxWidth = Math.max(320, window.innerWidth - 96);
+      const maxHeight = Math.max(360, window.innerHeight - 96);
+      setSize({ width: maxWidth, height: maxHeight });
+      setPosition({ x: 48, y: 48 });
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
@@ -74,6 +91,12 @@ const App = () => {
     const el = textareaRef.current;
     if (!el) return;
     setCaretIndex(el.selectionStart || 0);
+  }, []);
+
+  useEffect(() => () => {
+    if (typingTimer.current) clearInterval(typingTimer.current);
+    if (backspaceTimer.current) clearInterval(backspaceTimer.current);
+    if (greenClickTimer.current) clearTimeout(greenClickTimer.current);
   }, []);
 
   const startResize = (direction) => (event) => {
@@ -166,8 +189,8 @@ const App = () => {
     if (!isMaximized) {
       setRestoreSize(size);
       setRestorePosition(position);
-      setSize({ width: window.innerWidth, height: window.innerHeight });
-      setPosition({ x: 0, y: 0 });
+      setSize({ width: Math.max(320, window.innerWidth - 96), height: Math.max(360, window.innerHeight - 96) });
+      setPosition({ x: 48, y: 48 });
       setIsMaximized(true);
     } else {
       if (restoreSize) setSize(restoreSize);
@@ -176,7 +199,73 @@ const App = () => {
     }
   };
 
+  const stopAnimation = () => {
+    if (typingTimer.current) clearInterval(typingTimer.current);
+    if (backspaceTimer.current) clearInterval(backspaceTimer.current);
+    if (greenClickTimer.current) clearTimeout(greenClickTimer.current);
+    typingTimer.current = null;
+    backspaceTimer.current = null;
+    greenClickTimer.current = null;
+    isAnimating.current = false;
+    animationToken.current += 1;
+  };
+
+  const resetToInitial = () => {
+    if (!initialSize || !initialPosition) return;
+    stopAnimation();
+    greenClickCount.current = 0;
+    setSize(initialSize);
+    setPosition(initialPosition);
+    setIsMaximized(false);
+    setText(initialText);
+    setCaretIndex(0);
+    setGreenTriggered(false);
+  };
+
+  const animateTextReplace = (nextText) => {
+    stopAnimation();
+    isAnimating.current = true;
+    const token = animationToken.current;
+
+    backspaceTimer.current = setInterval(() => {
+      if (animationToken.current !== token) return;
+      setText((prev) => {
+        if (prev.length <= 0) {
+          clearInterval(backspaceTimer.current);
+          let index = 0;
+          typingTimer.current = setInterval(() => {
+            if (animationToken.current !== token) return;
+            index += 1;
+            setText(nextText.slice(0, index));
+            if (index >= nextText.length) {
+              clearInterval(typingTimer.current);
+              isAnimating.current = false;
+            }
+          }, 35);
+          return '';
+        }
+        return prev.slice(0, -1);
+      });
+    }, 18);
+  };
+
+  const handleGreenClick = () => {
+    if (greenTriggered || isAnimating.current) return;
+    greenClickCount.current += 1;
+    if (greenClickTimer.current) clearTimeout(greenClickTimer.current);
+    greenClickTimer.current = setTimeout(() => {
+      greenClickCount.current = 0;
+    }, 600);
+
+    if (greenClickCount.current >= 3) {
+      greenClickCount.current = 0;
+      setGreenTriggered(true);
+      animateTextReplace(warningText);
+    }
+  };
+
   const handleTextChange = (event) => {
+    if (isAnimating.current) return;
     const nextText = event.target.value;
     setText(nextText);
     setCaretIndex(event.target.selectionStart || 0);
@@ -213,14 +302,24 @@ const App = () => {
               <span className="app-title">tunk5585</span>
             </div>
             <div className="window-controls">
-              <button type="button" className="control-dot control-button" aria-label="Закрыть" />
+              <button
+                type="button"
+                className="control-dot control-button"
+                aria-label="Сбросить размер"
+                onClick={resetToInitial}
+              />
               <button
                 type="button"
                 className="control-dot control-button"
                 aria-label={isMaximized ? 'Восстановить' : 'Развернуть'}
                 onClick={toggleMaximize}
               />
-              <button type="button" className="control-dot control-button" aria-label="Свернуть" />
+              <button
+                type="button"
+                className="control-dot control-button"
+                aria-label="Пасхалка"
+                onClick={handleGreenClick}
+              />
             </div>
           </header>
 
