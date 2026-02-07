@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './styles/index.css';
 import logo from './assets/images/header/Lolo_tunk_1.svg';
 
