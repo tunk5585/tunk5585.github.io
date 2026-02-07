@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import './styles/index.css';
 import logo from './assets/images/header/Lolo_tunk_1.svg';
 
-const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
-
 const initialText = "Сайт на ремонте!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)";
 const warningText = "Хватит тыкать!\nНеси проекты!";
 
@@ -28,7 +26,6 @@ const App = () => {
   const [initialSize, setInitialSize] = useState(null);
   const [initialPosition, setInitialPosition] = useState(null);
   const [animateWindow, setAnimateWindow] = useState(false);
-  const [isInteracting, setIsInteracting] = useState(false);
   const [text, setText] = useState(initialText);
   const [caretIndex, setCaretIndex] = useState(0);
   const [greenTriggered, setGreenTriggered] = useState(false);
@@ -38,7 +35,6 @@ const App = () => {
   const backspaceTimer = useRef(null);
   const isAnimating = useRef(false);
   const animationToken = useRef(0);
-  const mobileInset = 12;
 
   useEffect(() => {
     const node = resizableRef.current;
@@ -206,14 +202,11 @@ const App = () => {
   return (
     <div className="page">
       <div
-        className={`notepad-resizable${animateWindow && !isInteracting ? ' animate' : ''}${isMobile ? ' mobile-fixed' : ''}`}
+        className={`notepad-resizable${animateWindow ? ' animate' : ''}${isMobile ? ' mobile-fixed' : ''}`}
         ref={resizableRef}
         style={
           isMobile
-            ? {
-                position: 'fixed',
-                inset: 0
-              }
+            ? undefined
             : {
                 width: `${size.width}px`,
                 height: `${size.height}px`,

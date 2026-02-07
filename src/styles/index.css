@@ -51,14 +51,37 @@ body::before {
 }
 
 .mobile-fixed {
-  inset: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
-    calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+  position: fixed;
+  inset: auto;
+  left: calc(12px + env(safe-area-inset-left));
+  right: calc(12px + env(safe-area-inset-right));
+  top: calc(12px + env(safe-area-inset-top));
+  bottom: calc(12px + env(safe-area-inset-bottom));
   width: auto;
   height: auto;
 }
 
 @supports (height: 100dvh) {
   .page {
+    min-height: 100dvh;
+  }
+
+  .mobile-fixed {
+    width: calc(100dvw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
+    height: calc(100dvh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  }
+}
+
+@supports not (height: 100dvh) {
+  .mobile-fixed {
+    width: calc(100vw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
+    height: calc(100vh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 0;
     min-height: 100dvh;
   }
 }
