@@ -1,21 +1,18 @@
-/* Шрифты подключаются в index.html через preload+stylesheet */
-/* @import url("https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600&subset=cyrillic&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&subset=cyrillic&display=swap"); */
-
-:root {
-  --main-bg: #0f0f0f;
-  --text-primary: #ffffff;
-  --text-secondary: #aaaaaa;
-  --text-tertiary: #aaaaaa6f;
-  --accent: #333333;
-  --hover: #555555;
-  --border: #222222;
-  --overlay: rgba(0, 0, 0, 0.8);
-  
-  /* Настройка fallback шрифтов для уменьшения CLS */
-  --font-primary: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-secondary: 'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-tertiary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+﻿:root {
+  --bg-ink: #0e1116;
+  --bg-ink-soft: #141924;
+  --window: #f7f7f5;
+  --window-border: rgba(20, 20, 20, 0.12);
+  --titlebar: #ffffff;
+  --menu-bg: #f2f2ef;
+  --menu-hover: #e2e2de;
+  --text-main: #16181d;
+  --text-muted: #62666f;
+  --accent: #2f6ee5;
+  --shadow: 0 24px 80px rgba(10, 12, 18, 0.28);
+  --radius: 14px;
+  --font-ui: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  --font-editor: Arial, 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 * {
@@ -25,79 +22,356 @@
 }
 
 body {
-  font-family: var(--font-primary);
-  background-color: var(--main-bg);
-  color: var(--text-primary);
-  line-height: 1.6;
-  overflow-x: hidden;
-  cursor: default;
-  font-display: swap;
+  min-height: 100vh;
+  font-family: var(--font-ui);
+  background: radial-gradient(1200px 800px at 20% 10%, #1a2333 0%, #0f131b 55%, #0a0d13 100%);
+  color: var(--text-main);
 }
 
-a {
-  color: var(--text-primary);
-  text-decoration: none;
-  transition: all 0.3s ease;
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 32px 20px 48px;
+  position: relative;
+  overflow: hidden;
 }
 
-a:hover {
-  color: var(--text-secondary);
+.notepad-resizable {
+  position: relative;
+  overflow: visible;
+  min-width: 320px;
+  min-height: 360px;
+  width: min(920px, 92vw);
+  height: auto;
+  touch-action: none;
+  will-change: top, left, width, height;
 }
 
-button {
-  background: none;
-  border: 1px solid var(--text-primary);
-  color: var(--text-primary);
-  font-family: var(--font-primary);
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.notepad-shell {
+  width: 100%;
+  height: 100%;
+  background: var(--window);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--window-border);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
-button:hover {
-  background-color: var(--hover);
-}
-
-button, input, textarea {
-  border-radius: 8px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-}
-
-.ascii-art {
-  font-family: monospace;
-  white-space: pre;
-  line-height: 1.2;
-  font-size: 12px;
+.titlebar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px 0 14px;
+  background: var(--titlebar);
+  border-bottom: 1px solid var(--window-border);
+  cursor: grab;
   user-select: none;
 }
 
-.section {
-  padding: 80px 0;
+.titlebar:active {
+  cursor: grabbing;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 2rem;
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-main);
 }
 
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(6, 1fr);
+.app-logo {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.app-title {
+  font-size: 14px;
+  text-transform: lowercase;
+}
+
+.window-controls {
+  display: inline-flex;
+  gap: 6px;
+  padding: 6px 4px;
+  border-radius: 999px;
+  cursor: default;
+}
+
+.control-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d0d0cc;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
+  filter: saturate(1);
+}
+
+.control-dot:nth-child(1) {
+  background: #ff5f57;
+}
+
+.control-dot:nth-child(2) {
+  background: #febc2e;
+}
+
+.control-dot:nth-child(3) {
+  background: #28c840;
+}
+
+.control-dot:hover {
+  filter: saturate(0.7) brightness(0.98);
+}
+
+.control-dot:active {
+  filter: saturate(0.55) brightness(0.92);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.menubar {
+  display: flex;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--menu-bg);
+  border-bottom: 1px solid var(--window-border);
+  flex-wrap: wrap;
+}
+
+.menu-item {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--text-main);
+  cursor: default;
+}
+
+.menu-item:hover {
+  background: var(--menu-hover);
+}
+
+.menu-group {
+  position: relative;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 160px;
+  background: #ffffff;
+  border: 1px solid rgba(17, 20, 28, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(16, 20, 30, 0.18);
+  padding: 6px;
+  z-index: 10;
+}
+
+.menu-action {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text-main);
+  cursor: default;
+}
+
+.menu-action:hover {
+  background: #f0f1ee;
+}
+
+.editor {
+  padding: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 250, 249, 0.92) 100%);
+  flex: 1;
+  display: flex;
+}
+
+.paper {
+  min-height: 100%;
+  flex: 1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 26px 28px;
+  border: 1px solid rgba(17, 20, 28, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font-family: var(--font-editor);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-main);
+  position: relative;
+  overflow: hidden;
+}
+
+.paper p {
+  color: var(--text-main);
+}
+
+.paper-input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  line-height: inherit;
+}
+
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-muted);
+  background: #f1f1ee;
+  border-top: 1px solid var(--window-border);
+}
+
+.resize-handle {
+  position: absolute;
+  z-index: 2;
+}
+
+.handle-n,
+.handle-s {
+  left: 10px;
+  right: 10px;
+  height: 8px;
+  cursor: ns-resize;
+}
+
+.handle-n {
+  top: -4px;
+}
+
+.handle-s {
+  bottom: -4px;
+}
+
+.handle-e,
+.handle-w {
+  top: 10px;
+  bottom: 10px;
+  width: 8px;
+  cursor: ew-resize;
+}
+
+.handle-e {
+  right: -4px;
+}
+
+.handle-w {
+  left: -4px;
+}
+
+.handle-ne,
+.handle-nw,
+.handle-se,
+.handle-sw {
+  width: 14px;
+  height: 14px;
+}
+
+.handle-ne {
+  top: -6px;
+  right: -6px;
+  cursor: nesw-resize;
+}
+
+.handle-nw {
+  top: -6px;
+  left: -6px;
+  cursor: nwse-resize;
+}
+
+.handle-se {
+  bottom: -6px;
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+.handle-sw {
+  bottom: -6px;
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.status-left,
+.status-right {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .titlebar {
+    height: 42px;
   }
-  
-  .section {
-    padding: 60px 0;
+
+  .menu-item {
+    padding: 5px 10px;
+  }
+
+  .editor {
+    padding: 20px;
+  }
+
+  .paper {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .statusbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .page {
+    padding: 16px;
+  }
+
+  .notepad-resizable {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    left: auto;
+    top: auto;
+  }
+
+  .notepad-shell {
+    border-radius: 12px;
+  }
+
+  .titlebar,
+  .menubar,
+  .editor,
+  .statusbar {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .resize-handle {
+    display: none;
   }
 }
-
-/* Отключаем pull-to-refresh и bounce-эффект в современных браузерах */
-html, body {
-  overscroll-behavior-y: none;
-  overscroll-behavior-x: none;
-} 

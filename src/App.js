@@ -1,499 +1,212 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Outlet, useLocation, useNavigation } from 'react-router-dom';
-import styled from 'styled-components';
-import { HelmetProvider } from 'react-helmet-async';
-import { useLoading } from './context/LoadingContext';
-import { LanguageProvider } from './context/LanguageContext';
-// Импорт компонентов
-import Header from './components/Header';
-import Footer from './components/Footer';
-import ScrollIndicator from './components/ScrollIndicator';
-import ScrollToTop from './components/ScrollToTop';
-import ScrollToTopButton from './components/ScrollToTopButton';
-import SEO from './components/SEO';
-import GlobalStyle from './styles/GlobalStyle';
-import PasswordEntry from './components/PasswordEntry';
+﻿import React, { useEffect, useRef, useState } from 'react';
+import './styles/index.css';
+import logo from './assets/images/header/Lolo_tunk_1.svg';
 
-// Убираем отладочные строки
-// localStorage.removeItem('passwordEntered');
-// console.log('DEBUG: localStorage cleared');
-
-const AppWrapper = styled.div`
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-`;
-
-const MainContent = styled.main`
-  flex: 1;
-`;
-
-const LoadingContainer = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  touch-action: none;
-  overscroll-behavior: none;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--main-bg);
-  z-index: 9999;
-  flex-direction: column;
-`;
-
-const LoadingAscii = styled.pre`
-  font-family: monospace;
-  white-space: pre;
-  line-height: 1.2;
-  font-size: 16px;
-  color: var(--text-primary);
-  text-align: center;
-  position: relative;
-`;
-
-const LoadingText = styled.div`
-  position: absolute;
-  bottom: -30px;
-  right: 20px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  font-family: 'Space Grotesk', sans-serif;
-`;
-
-// Компонент, скрывающий детей до явного указания о готовности
-const DelayedContent = ({ isReady, children }) => {
-  const [shouldRender, setShouldRender] = useState(false);
-  
-  useEffect(() => {
-    if (isReady) {
-      // Добавляем небольшую задержку перед показом контента
-      const timer = setTimeout(() => {
-        setShouldRender(true);
-      }, 100);
-      return () => clearTimeout(timer);
-    } else {
-      setShouldRender(false);
-    }
-  }, [isReady]);
-  
-  if (!shouldRender) {
-    return null;
-  }
-  
-  return <>{children}</>;
-};
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
 const App = () => {
-  const location = useLocation();
-  const navigation = useNavigation();
-  const navStartTime = useRef(null);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [showNavSpinner, setShowNavSpinner] = useState(false);
-  const [loadingPercent, setLoadingPercent] = useState(0);
-  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
-  const loadingFinishing = useRef(false);
-  const [dots, setDots] = useState(0);
-  const [frame, setFrame] = useState(0);
-  const { setInitialLoadComplete } = useLoading();
-  
-  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const resizableRef = useRef(null);
+  const [size, setSize] = useState({ width: 920, height: 520 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [openMenu, setOpenMenu] = useState(null);
 
-  // Состояние готовности контента
-  const [contentReady, setContentReady] = useState(false);
-
-  // Проверяем localStorage при монтировании
   useEffect(() => {
-    const passwordEntered = localStorage.getItem('passwordEntered_v2') === 'true';
-    setIsPasswordVerified(passwordEntered);
-    if (passwordEntered) {
-      // Если пароль уже был введен, мы все равно должны пройти через логику загрузки,
-      // но она должна быть быстрой, если все уже загружено.
-      // Ключевой момент: initialLoad остается true, чтобы основной загрузчик отработал.
-      setShowLoadingScreen(true); 
-    }
+    const node = resizableRef.current;
+    if (!node) return;
+
+    const rect = node.getBoundingClientRect();
+    setSize({
+      width: Math.round(rect.width),
+      height: Math.round(rect.height)
+    });
+
+    const centerX = Math.round((window.innerWidth - rect.width) / 2);
+    const centerY = Math.round((window.innerHeight - rect.height) / 2);
+    setPosition({ x: centerX, y: centerY });
   }, []);
 
-  // Обработчик успешного ввода пароля
-  const handlePasswordSuccess = () => {
-    setIsPasswordVerified(true); // Позволяем рендерить основное содержимое приложения
+  useEffect(() => {
+    const onDocClick = (event) => {
+      if (!event.target.closest('.menu-group')) {
+        setOpenMenu(null);
+      }
+    };
+    document.addEventListener('click', onDocClick);
+    return () => document.removeEventListener('click', onDocClick);
+  }, []);
 
-    // Сбрасываем все состояния загрузки к начальным, чтобы инициировать полный цикл загрузки
-    setInitialLoad(true);         // Это заставит основной useEffect загрузки выполниться
-    setShowLoadingScreen(true);   // Показываем экран загрузки
-    setLoadingPercent(0);         // Сбрасываем проценты
-    loadingFinishing.current = false; // Сбрасываем флаг завершения
-    setContentReady(false);       // Контент еще не готов
-    setInitialLoadComplete(false); // Сбрасываем флаг контекста useLoading
+  const startResize = (direction) => (event) => {
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startSize = { ...size };
+    const startPos = { ...position };
+
+    const onMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      const rawWidth = startSize.width + (direction.includes('e') ? dx : 0) - (direction.includes('w') ? dx : 0);
+      const rawHeight = startSize.height + (direction.includes('s') ? dy : 0) - (direction.includes('n') ? dy : 0);
+
+      const nextWidth = clamp(rawWidth, 320, 1200);
+      const nextHeight = clamp(rawHeight, 360, 900);
+
+      let nextX = startPos.x;
+      let nextY = startPos.y;
+
+      if (direction.includes('w')) {
+        const rightEdge = startPos.x + startSize.width;
+        nextX = rightEdge - nextWidth;
+      }
+
+      if (direction.includes('n')) {
+        const bottomEdge = startPos.y + startSize.height;
+        nextY = bottomEdge - nextHeight;
+      }
+
+      const maxX = window.innerWidth - nextWidth;
+      const maxY = window.innerHeight - nextHeight;
+      nextX = clamp(nextX, 0, Math.max(0, maxX));
+      nextY = clamp(nextY, 0, Math.max(0, maxY));
+
+      setSize({ width: nextWidth, height: nextHeight });
+      setPosition({ x: nextX, y: nextY });
+    };
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   };
 
-  // Анимация точек загрузки
-  useEffect(() => {
-    let interval;
-    if (showLoadingScreen) {
-      interval = setInterval(() => {
-        setDots(prev => (prev >= 3 ? 0 : prev + 1));
-      }, 400);
+  const toggleMenu = (key) => {
+    setOpenMenu((prev) => (prev === key ? null : key));
+  };
+
+  const startDrag = (event) => {
+    if (event.target.closest('.window-controls')) {
+      return;
     }
-    return () => clearInterval(interval);
-  }, [showLoadingScreen]);
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startPos = { ...position };
 
-  // Анимация ASCII крутилки
-  useEffect(() => {
-    let interval;
-    if (showLoadingScreen) {
-      interval = setInterval(() => {
-        setFrame(prev => (prev >= 7 ? 0 : prev + 1));
-      }, 150);
-    }
-    return () => clearInterval(interval);
-  }, [showLoadingScreen]);
+    const onMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
 
-  // Управление экраном загрузки и плавным завершением
-  useEffect(() => {
-    // Вычисляем isLoading на основе текущих initialLoad и showNavSpinner
-    const currentIsLoading = initialLoad || showNavSpinner; 
+      const maxX = window.innerWidth - size.width - 16;
+      const maxY = window.innerHeight - size.height - 16;
 
-    if (currentIsLoading) {
-      setShowLoadingScreen(true); // Убедимся, что экран показан, если мы в состоянии загрузки
-      setContentReady(false);
-      loadingFinishing.current = false;
-    } else if (!loadingFinishing.current) {
-      loadingFinishing.current = true;
-      
-      const finishInterval = setInterval(() => {
-        setLoadingPercent(prev => {
-          if (prev >= 100) {
-            clearInterval(finishInterval);
-            setTimeout(() => {
-              setShowLoadingScreen(false);
-              setTimeout(() => {
-                setContentReady(true);
-              }, 50);
-            }, 300);
-            return 100;
-          }
-          return prev + 2;
-        });
-      }, 20);
-      
-      return () => clearInterval(finishInterval);
-    }
-  }, [initialLoad, showNavSpinner]);
+      const nextX = clamp(startPos.x + dx, 0, Math.max(0, maxX));
+      const nextY = clamp(startPos.y + dy, 0, Math.max(0, maxY));
 
-  // Анимация процентов загрузки
-  useEffect(() => {
-    let interval;
-    if (showLoadingScreen && !loadingFinishing.current && loadingPercent < 98 && (initialLoad || showNavSpinner) ) {
-      interval = setInterval(() => {
-        setLoadingPercent(prev => {
-          const increment = prev < 50 ? 1 : prev < 80 ? 0.8 : prev < 95 ? 0.3 : 0.1;
-          return Math.min(prev + increment, 98);
-        });
-      }, 100);
-    }
-    
-    return () => clearInterval(interval);
-  }, [showLoadingScreen, loadingPercent, initialLoad, showNavSpinner]);
-
-  // Initial load: минимум 3с и ожидание события загрузки страницы
-  useEffect(() => {
-    if (!initialLoad) return; // Выполняем только если initialLoad === true
-
-    let timerId;
-    let loadHandler;
-
-    const timerPromise = new Promise(resolve => {
-      timerId = setTimeout(resolve, 3000); 
-    });
-
-    const loadPromise = new Promise(resolve => {
-      if (document.readyState === 'complete') {
-        resolve();
-      } else {
-        loadHandler = () => resolve();
-        window.addEventListener('load', loadHandler);
-      }
-    });
-
-    Promise.all([timerPromise, loadPromise]).then(() => {
-      setInitialLoad(false); // Это переведет загрузку в фазу завершения (до 100%)
-      setInitialLoadComplete(true); // Обновляем контекст
-    });
-
-    return () => {
-      clearTimeout(timerId);
-      if (loadHandler) window.removeEventListener('load', loadHandler);
-    };
-  }, [initialLoad, setInitialLoadComplete]);
-
-  // Навигационный спиннер с минимальным временем отображения
-  useEffect(() => {
-    if (navigation.state === 'loading') {
-      setShowNavSpinner(true);
-      navStartTime.current = Date.now();
-      setLoadingPercent(0);
-      setShowLoadingScreen(true);
-      loadingFinishing.current = false;
-      setContentReady(false);
-    } else if (navigation.state === 'idle' && showNavSpinner) {
-      const elapsed = Date.now() - (navStartTime.current || Date.now());
-      const remaining = 500 - elapsed;
-      if (remaining > 0) {
-        const timer = setTimeout(() => setShowNavSpinner(false), remaining);
-        return () => clearTimeout(timer);
-      } else {
-        setShowNavSpinner(false);
-      }
-    }
-  }, [navigation.state, showNavSpinner]);
-
-  // Блокируем прокрутку страницы на время загрузки, включая touch и колесо
-  useEffect(() => {
-    const prevent = (e) => e.preventDefault();
-    if (showLoadingScreen) {
-      document.body.style.overflow = 'hidden';
-      document.documentElement.style.overflow = 'hidden';
-      document.body.addEventListener('touchmove', prevent, { passive: false });
-      document.body.addEventListener('wheel', prevent, { passive: false });
-    } else {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.removeEventListener('touchmove', prevent);
-      document.body.removeEventListener('wheel', prevent);
-    }
-    return () => {
-      document.body.style.overflow = '';
-      document.documentElement.style.overflow = '';
-      document.body.removeEventListener('touchmove', prevent);
-      document.body.removeEventListener('wheel', prevent);
-    };
-  }, [showLoadingScreen]);
-
-  // Блокировка pull-to-refresh в Mobile Safari
-  useEffect(() => {
-    let startY = 0;
-
-    const onTouchStart = (e) => {
-      if (e.touches.length === 1) {
-        startY = e.touches[0].clientY;
-      }
+      setPosition({ x: nextX, y: nextY });
     };
 
-    const onTouchMove = (e) => {
-      const curY = e.touches[0].clientY;
-      const diffY = curY - startY;
-      // если на вершине страницы и тянут вниз — блокируем обновление
-      if (window.scrollY === 0 && diffY > 0) {
-        e.preventDefault();
-      }
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
     };
 
-    document.addEventListener('touchstart', onTouchStart, { passive: false });
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      document.removeEventListener('touchstart', onTouchStart);
-      document.removeEventListener('touchmove', onTouchMove);
-    };
-  }, []);
-
-  // Кадры анимации большой ASCII крутилки
-  const spinnerFrames = [
-    `
-        ,:
-        ,:
-        ,:
-        ,:
-        ,:
-        ,:
-    ____,:____
-   /    :    /
-  /     :    /
- /      :    /
-/       :    /
-        :
-        :
-        :
-        :
-        :
-        :
-    `,
-    `
-        ,:
-        ,:
-        ,:
-        ,:
-        ,:
-        ,:
-    ____,:____
-    \\   :    /
-     \\  :   /
-      \\ :  /
-       \\: /
-        :
-        :
-        :
-        :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-     \\  :  /
-      \\ : /
-       \\:/
-        X
-       /:
-      / :
-     /  :
-    /   :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-      /:|\\
-     / : \\
-    /  :  \\
-   /   :   \\
-        :
-        :
-        :
-        :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-     /  :  \\
-    /   :   \\
-   /    :    \\
-  /     :     \\
-        :
-        :
-        :
-        :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-    \\   :   /
-     \\  :  /
-      \\ : /
-       \\:/
-        :
-        :
-        :
-        :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-     \\  :  /
-      \\ : /
-       \\:/
-        X
-       /:
-      / :
-     /  :
-        :
-        :
-        :
-    `,
-    `
-        :
-        :
-        :
-        :
-        :
-        :
-    ____:____
-      / : \\
-     /  :  \\
-    /   :   \\
-   /    :    \\
-        :
-        :
-        :
-        :
-        :
-        :
-    `
-  ];
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  };
 
   return (
-    <HelmetProvider>
-      <LanguageProvider>
-        <AppWrapper>
-          <GlobalStyle />
-          <SEO />
-          
-          {/* Форма ввода пароля или основное содержимое сайта */}
-          {!isPasswordVerified ? (
-            <PasswordEntry onPasswordSuccess={handlePasswordSuccess} />
-          ) : (
-            <>
-              <ScrollToTop />
-              {/* Spinner overlay during initial load or navigation */}
-              {showLoadingScreen && (
-                <LoadingContainer>
-                  <LoadingAscii>
-                    {spinnerFrames[frame]}
-                    <LoadingText>loading{'.'.repeat(dots)} {Math.floor(loadingPercent)}%</LoadingText>
-                  </LoadingAscii>
-                </LoadingContainer>
-              )}
-              {/* Основной контент загружается только после полного скрытия экрана загрузки */}
-              <DelayedContent isReady={contentReady || !showLoadingScreen}>
-                {!location.pathname.startsWith('/projects/') && <Header />}
-                <MainContent>
-                  <Outlet />
-                </MainContent>
-                {location.pathname !== '/' && <Footer />}
-                {!location.pathname.startsWith('/projects/') && <ScrollIndicator />}
-                {!location.pathname.startsWith('/projects/') && location.pathname !== '/contact' && <ScrollToTopButton />}
-              </DelayedContent>
-            </>
-          )}
-        </AppWrapper>
-      </LanguageProvider>
-    </HelmetProvider>
+    <div className="page">
+      <div
+        className="notepad-resizable"
+        ref={resizableRef}
+        style={{
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          position: 'absolute'
+        }}
+      >
+        <div className="notepad-shell">
+          <header className="titlebar" onPointerDown={startDrag}>
+            <div className="title-left">
+              <img className="app-logo" src={logo} alt="TUNK5585 logo" />
+              <span className="app-title">tunk5585 - портфолио</span>
+            </div>
+            <div className="window-controls" aria-hidden="true">
+              <span className="control-dot" />
+              <span className="control-dot" />
+              <span className="control-dot" />
+            </div>
+          </header>
+
+          <nav className="menubar" aria-label="Меню">
+            {[
+              { key: 'file', label: 'Файл', count: 5 },
+              { key: 'edit', label: 'Правка', count: 3 },
+              { key: 'view', label: 'Вид', count: 4 },
+              { key: 'help', label: 'Справка', count: 5 }
+            ].map((item) => (
+              <div className="menu-group" key={item.key}>
+                <button
+                  type="button"
+                  className="menu-item"
+                  aria-haspopup="menu"
+                  aria-expanded={openMenu === item.key}
+                  onClick={() => toggleMenu(item.key)}
+                >
+                  {item.label}
+                </button>
+                {openMenu === item.key && (
+                  <div className="menu-dropdown" role="menu">
+                    {Array.from({ length: item.count }).map((_, index) => (
+                      <button
+                        key={`${item.key}-${index}`}
+                        type="button"
+                        role="menuitem"
+                        className="menu-action"
+                      >
+                        Ремонт!
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
+
+          <main className="editor" role="main">
+            <div className="paper">
+              <textarea
+                className="paper-input"
+                defaultValue={"Ремонт!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)"}
+                aria-label="Текст"
+                spellCheck={false}
+              />
+            </div>
+          </main>
+
+          <footer className="statusbar" aria-label="Статус">
+            <div className="status-left">Готово</div>
+            <div className="status-right">UTF-8 · Строка 1, Столбец 28</div>
+          </footer>
+        </div>
+
+        <span className="resize-handle handle-n" onPointerDown={startResize('n')} />
+        <span className="resize-handle handle-e" onPointerDown={startResize('e')} />
+        <span className="resize-handle handle-s" onPointerDown={startResize('s')} />
+        <span className="resize-handle handle-w" onPointerDown={startResize('w')} />
+        <span className="resize-handle handle-ne" onPointerDown={startResize('ne')} />
+        <span className="resize-handle handle-se" onPointerDown={startResize('se')} />
+        <span className="resize-handle handle-sw" onPointerDown={startResize('sw')} />
+        <span className="resize-handle handle-nw" onPointerDown={startResize('nw')} />
+      </div>
+    </div>
   );
 };
 
-export default App; 
+export default App;

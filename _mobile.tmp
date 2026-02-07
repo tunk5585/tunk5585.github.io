@@ -1,0 +1,54 @@
+﻿@media (max-width: 640px) {
+  .titlebar {
+    height: 42px;
+  }
+
+  .menu-item {
+    padding: 5px 10px;
+  }
+
+  .editor {
+    padding: 20px;
+  }
+
+  .paper {
+    padding: 20px;
+    font-size: 14px;
+  }
+
+  .statusbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .page {
+    padding: 16px;
+  }
+
+  .notepad-resizable {
+    position: static;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    left: auto;
+    top: auto;
+  }
+
+  .notepad-shell {
+    border-radius: 12px;
+  }
+
+  .titlebar,
+  .menubar,
+  .editor,
+  .statusbar {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+}
