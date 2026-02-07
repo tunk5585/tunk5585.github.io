@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.21724c54.css",
-    "main.js": "/static/js/main.d9eea180.js",
+    "main.css": "/static/css/main.95387cda.css",
+    "main.js": "/static/js/main.ff37e859.js",
     "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.a5fc6dd0d438d6224fb028303039ac53.svg",
     "index.html": "/index.html",
-    "main.21724c54.css.map": "/static/css/main.21724c54.css.map",
-    "main.d9eea180.js.map": "/static/js/main.d9eea180.js.map"
+    "main.95387cda.css.map": "/static/css/main.95387cda.css.map",
+    "main.ff37e859.js.map": "/static/js/main.ff37e859.js.map"
   },
   "entrypoints": [
-    "static/css/main.21724c54.css",
-    "static/js/main.d9eea180.js"
+    "static/css/main.95387cda.css",
+    "static/js/main.ff37e859.js"
   ]
 }
