@@ -38,10 +38,7 @@ const App = () => {
   const backspaceTimer = useRef(null);
   const isAnimating = useRef(false);
   const animationToken = useRef(0);
-  const pinchState = useRef(null);
-  const mobilePadding = 16;
-  const mobileMinWidth = 280;
-  const mobileMinHeight = 320;
+  const mobileInset = 12;
 
   useEffect(() => {
     const node = resizableRef.current;
@@ -73,33 +70,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
-    const viewport = window.visualViewport;
-    const update = () => {
-      const width = viewport ? viewport.width : window.innerWidth;
-      const height = viewport ? viewport.height : window.innerHeight;
-      const maxWidth = Math.max(mobileMinWidth, width - mobilePadding * 2);
-      const maxHeight = Math.max(mobileMinHeight, height - mobilePadding * 2);
-      setSize((prev) => ({
-        width: clamp(prev.width, mobileMinWidth, maxWidth),
-        height: clamp(prev.height, mobileMinHeight, maxHeight)
-      }));
-      setPosition({ x: 0, y: 0 });
-    };
-    update();
-    if (viewport) {
-      viewport.addEventListener('resize', update);
-      viewport.addEventListener('scroll', update);
-      return () => {
-        viewport.removeEventListener('resize', update);
-        viewport.removeEventListener('scroll', update);
-      };
-    }
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, [isMobile]);
-
-  useEffect(() => {
     if (!isMaximized) return;
     const onResize = () => {
       const maxWidth = Math.max(320, window.innerWidth - 48);
@@ -122,25 +92,6 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    if (!isMobile) return;
-    const preventGesture = (event) => event.preventDefault();
-    const preventScroll = (event) => {
-      if (event.target.closest('.paper-input')) return;
-      event.preventDefault();
-    };
-    document.addEventListener('gesturestart', preventGesture, { passive: false });
-    document.addEventListener('gesturechange', preventGesture, { passive: false });
-    document.addEventListener('gestureend', preventGesture, { passive: false });
-    document.addEventListener('touchmove', preventScroll, { passive: false });
-    return () => {
-      document.removeEventListener('gesturestart', preventGesture);
-      document.removeEventListener('gesturechange', preventGesture);
-      document.removeEventListener('gestureend', preventGesture);
-      document.removeEventListener('touchmove', preventScroll);
-    };
-  }, [isMobile]);
-
-  useEffect(() => {
     const el = textareaRef.current;
     if (!el) return;
     setCaretIndex(el.selectionStart || 0);
@@ -152,95 +103,8 @@ const App = () => {
     if (greenClickTimer.current) clearTimeout(greenClickTimer.current);
   }, []);
 
-  const startResize = (direction) => (event) => {
-    if (isMobile || isMaximized) return;
-    setIsInteracting(true);
-    setAnimateWindow(false);
-    event.preventDefault();
-    const startX = event.clientX;
-    const startY = event.clientY;
-    const startSize = { ...size };
-    const startPos = { ...position };
-
-    const onMove = (moveEvent) => {
-      const dx = moveEvent.clientX - startX;
-      const dy = moveEvent.clientY - startY;
-
-      const rawWidth = startSize.width + (direction.includes('e') ? dx : 0) - (direction.includes('w') ? dx : 0);
-      const rawHeight = startSize.height + (direction.includes('s') ? dy : 0) - (direction.includes('n') ? dy : 0);
-
-      const nextWidth = clamp(rawWidth, 320, 1200);
-      const nextHeight = clamp(rawHeight, 360, 900);
-
-      let nextX = startPos.x;
-      let nextY = startPos.y;
-
-      if (direction.includes('w')) {
-        const rightEdge = startPos.x + startSize.width;
-        nextX = rightEdge - nextWidth;
-      }
-
-      if (direction.includes('n')) {
-        const bottomEdge = startPos.y + startSize.height;
-        nextY = bottomEdge - nextHeight;
-      }
-
-      const maxX = window.innerWidth - nextWidth;
-      const maxY = window.innerHeight - nextHeight;
-      nextX = clamp(nextX, 0, Math.max(0, maxX));
-      nextY = clamp(nextY, 0, Math.max(0, maxY));
-
-      setSize({ width: nextWidth, height: nextHeight });
-      setPosition({ x: nextX, y: nextY });
-    };
-
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      setIsInteracting(false);
-    };
-
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-  };
-
   const toggleMenu = (key) => {
     setOpenMenu((prev) => (prev === key ? null : key));
-  };
-
-  const startDrag = (event) => {
-    if (isMobile || isMaximized) return;
-    if (event.target.closest('.window-controls')) {
-      return;
-    }
-    setIsInteracting(true);
-    setAnimateWindow(false);
-    event.preventDefault();
-    const startX = event.clientX;
-    const startY = event.clientY;
-    const startPos = { ...position };
-
-    const onMove = (moveEvent) => {
-      const dx = moveEvent.clientX - startX;
-      const dy = moveEvent.clientY - startY;
-
-      const maxX = window.innerWidth - size.width;
-      const maxY = window.innerHeight - size.height;
-
-      const nextX = clamp(startPos.x + dx, 0, Math.max(0, maxX));
-      const nextY = clamp(startPos.y + dy, 0, Math.max(0, maxY));
-
-      setPosition({ x: nextX, y: nextY });
-    };
-
-    const onUp = () => {
-      window.removeEventListener('pointermove', onMove);
-      window.removeEventListener('pointerup', onUp);
-      setIsInteracting(false);
-    };
-
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
   };
 
   const toggleMaximize = () => {
@@ -336,63 +200,19 @@ const App = () => {
     setCaretIndex(event.target.selectionStart || 0);
   };
 
-  const handleTouchStart = (event) => {
-    if (!isMobile) return;
-    if (event.touches.length === 2) {
-      const [t1, t2] = event.touches;
-      const dx = t1.clientX - t2.clientX;
-      const dy = t1.clientY - t2.clientY;
-      const distance = Math.hypot(dx, dy);
-      pinchState.current = {
-        startDistance: distance,
-        startSize: { ...size }
-      };
-    }
-  };
-
-  const handleTouchMove = (event) => {
-    if (!isMobile) return;
-    if (!pinchState.current || event.touches.length !== 2) return;
-    event.preventDefault();
-    const [t1, t2] = event.touches;
-    const dx = t1.clientX - t2.clientX;
-    const dy = t1.clientY - t2.clientY;
-    const distance = Math.hypot(dx, dy);
-    const scale = distance / pinchState.current.startDistance;
-
-    const viewport = window.visualViewport;
-    const width = viewport ? viewport.width : window.innerWidth;
-    const height = viewport ? viewport.height : window.innerHeight;
-    const maxWidth = Math.max(mobileMinWidth, width - mobilePadding * 2);
-    const maxHeight = Math.max(mobileMinHeight, height - mobilePadding * 2);
-    const nextWidth = clamp(pinchState.current.startSize.width * scale, mobileMinWidth, maxWidth);
-    const nextHeight = clamp(pinchState.current.startSize.height * scale, mobileMinHeight, maxHeight);
-
-    setSize({ width: Math.round(nextWidth), height: Math.round(nextHeight) });
-  };
-
-  const handleTouchEnd = (event) => {
-    if (!isMobile) return;
-    if (event.touches.length < 2) {
-      pinchState.current = null;
-    }
-  };
-
   const { line, column } = getCaretPosition(text, caretIndex);
   const totalLines = text.split('\n').length;
 
   return (
     <div className="page">
       <div
-        className={`notepad-resizable${animateWindow && !isInteracting ? ' animate' : ''}`}
+        className={`notepad-resizable${animateWindow && !isInteracting ? ' animate' : ''}${isMobile ? ' mobile-fixed' : ''}`}
         ref={resizableRef}
         style={
           isMobile
             ? {
-                width: `${size.width}px`,
-                height: `${size.height}px`,
-                position: 'relative',
-                margin: '0 auto'
+                position: 'fixed',
+                inset: 0
               }
             : {
                 width: `${size.width}px`,
@@ -402,12 +222,9 @@ const App = () => {
                 position: 'absolute'
               }
         }
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         <div className="notepad-shell">
-          <header className="titlebar" onPointerDown={startDrag}>
+          <header className="titlebar">
             <div className="title-left">
               <img className="app-logo" src={logo} alt="TUNK5585 logo" />
               <span className="app-title">tunk5585</span>
@@ -490,15 +307,6 @@ const App = () => {
             <div className="status-right">UTF-8 · Строка {line}, Столбец {column}</div>
           </footer>
         </div>
-
-        <span className="resize-handle handle-n" onPointerDown={startResize('n')} />
-        <span className="resize-handle handle-e" onPointerDown={startResize('e')} />
-        <span className="resize-handle handle-s" onPointerDown={startResize('s')} />
-        <span className="resize-handle handle-w" onPointerDown={startResize('w')} />
-        <span className="resize-handle handle-ne" onPointerDown={startResize('ne')} />
-        <span className="resize-handle handle-se" onPointerDown={startResize('se')} />
-        <span className="resize-handle handle-sw" onPointerDown={startResize('sw')} />
-        <span className="resize-handle handle-nw" onPointerDown={startResize('nw')} />
       </div>
     </div>
   );

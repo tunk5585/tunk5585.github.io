@@ -27,8 +27,8 @@ body {
   font-family: var(--font-ui);
   background-color: #0b0c0e;
   color: var(--text-main);
-  overscroll-behavior: none;
-  touch-action: manipulation;
+  overscroll-behavior: auto;
+  touch-action: auto;
 }
 
 body::before {
@@ -47,7 +47,20 @@ body::before {
   padding: 32px 20px 48px;
   position: relative;
   overflow: hidden;
-  touch-action: manipulation;
+  touch-action: auto;
+}
+
+.mobile-fixed {
+  inset: calc(12px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right))
+    calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+  width: auto;
+  height: auto;
+}
+
+@supports (height: 100dvh) {
+  .page {
+    min-height: 100dvh;
+  }
 }
 
 .notepad-resizable {
