@@ -346,7 +346,8 @@ body {
   }
 
   .page {
-    padding: 16px;
+    padding: 12px;
+    min-height: 100svh;
   }
 
   .notepad-resizable {

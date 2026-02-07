@@ -9,6 +9,7 @@ const App = () => {
   const [size, setSize] = useState({ width: 920, height: 520 });
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [openMenu, setOpenMenu] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const node = resizableRef.current;
@@ -26,6 +27,14 @@ const App = () => {
   }, []);
 
   useEffect(() => {
+    const media = window.matchMedia('(max-width: 640px)');
+    const onChange = () => setIsMobile(media.matches);
+    onChange();
+    media.addEventListener('change', onChange);
+    return () => media.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
     const onDocClick = (event) => {
       if (!event.target.closest('.menu-group')) {
         setOpenMenu(null);
@@ -36,6 +45,7 @@ const App = () => {
   }, []);
 
   const startResize = (direction) => (event) => {
+    if (isMobile) return;
     event.preventDefault();
     const startX = event.clientX;
     const startY = event.clientY;
@@ -88,6 +98,7 @@ const App = () => {
   };
 
   const startDrag = (event) => {
+    if (isMobile) return;
     if (event.target.closest('.window-controls')) {
       return;
     }
@@ -123,13 +134,17 @@ const App = () => {
       <div
         className="notepad-resizable"
         ref={resizableRef}
-        style={{
-          width: `${size.width}px`,
-          height: `${size.height}px`,
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          position: 'absolute'
-        }}
+        style={
+          isMobile
+            ? { width: '100%', height: 'auto', position: 'static' }
+            : {
+                width: `${size.width}px`,
+                height: `${size.height}px`,
+                left: `${position.x}px`,
+                top: `${position.y}px`,
+                position: 'absolute'
+              }
+        }
       >
         <div className="notepad-shell">
           <header className="titlebar" onPointerDown={startDrag}>
