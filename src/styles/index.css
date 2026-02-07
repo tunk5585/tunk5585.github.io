@@ -21,11 +21,20 @@
   box-sizing: border-box;
 }
 
+html,
 body {
   min-height: 100vh;
   font-family: var(--font-ui);
-  background: radial-gradient(1200px 800px at 20% 10%, #1a1c22 0%, #121317 55%, #0b0c0e 100%);
+  background-color: #0b0c0e;
   color: var(--text-main);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, #1a1c22 0%, #121317 55%, #0b0c0e 100%);
+  z-index: -1;
 }
 
 .page {

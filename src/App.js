@@ -38,6 +38,10 @@ const App = () => {
   const backspaceTimer = useRef(null);
   const isAnimating = useRef(false);
   const animationToken = useRef(0);
+  const pinchState = useRef(null);
+  const mobilePadding = 24;
+  const mobileMinWidth = 280;
+  const mobileMinHeight = 320;
 
   useEffect(() => {
     const node = resizableRef.current;
@@ -67,6 +71,16 @@ const App = () => {
     media.addEventListener('change', onChange);
     return () => media.removeEventListener('change', onChange);
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const maxWidth = Math.max(mobileMinWidth, window.innerWidth - mobilePadding);
+    const maxHeight = Math.max(mobileMinHeight, window.innerHeight - mobilePadding);
+    setSize((prev) => ({
+      width: clamp(prev.width, mobileMinWidth, maxWidth),
+      height: clamp(prev.height, mobileMinHeight, maxHeight)
+    }));
+  }, [isMobile]);
 
   useEffect(() => {
     if (!isMaximized) return;
@@ -286,6 +300,45 @@ const App = () => {
     setCaretIndex(event.target.selectionStart || 0);
   };
 
+  const handleTouchStart = (event) => {
+    if (!isMobile) return;
+    if (event.touches.length === 2) {
+      const [t1, t2] = event.touches;
+      const dx = t1.clientX - t2.clientX;
+      const dy = t1.clientY - t2.clientY;
+      const distance = Math.hypot(dx, dy);
+      pinchState.current = {
+        startDistance: distance,
+        startSize: { ...size }
+      };
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (!isMobile) return;
+    if (!pinchState.current || event.touches.length !== 2) return;
+    event.preventDefault();
+    const [t1, t2] = event.touches;
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    const distance = Math.hypot(dx, dy);
+    const scale = distance / pinchState.current.startDistance;
+
+    const maxWidth = Math.max(mobileMinWidth, window.innerWidth - mobilePadding);
+    const maxHeight = Math.max(mobileMinHeight, window.innerHeight - mobilePadding);
+    const nextWidth = clamp(pinchState.current.startSize.width * scale, mobileMinWidth, maxWidth);
+    const nextHeight = clamp(pinchState.current.startSize.height * scale, mobileMinHeight, maxHeight);
+
+    setSize({ width: Math.round(nextWidth), height: Math.round(nextHeight) });
+  };
+
+  const handleTouchEnd = (event) => {
+    if (!isMobile) return;
+    if (event.touches.length < 2) {
+      pinchState.current = null;
+    }
+  };
+
   const { line, column } = getCaretPosition(text, caretIndex);
   const totalLines = text.split('\n').length;
 
@@ -296,7 +349,12 @@ const App = () => {
         ref={resizableRef}
         style={
           isMobile
-            ? { width: '100%', height: 'auto', position: 'static' }
+            ? {
+                width: `${size.width}px`,
+                height: `${size.height}px`,
+                position: 'relative',
+                margin: '0 auto'
+              }
             : {
                 width: `${size.width}px`,
                 height: `${size.height}px`,
@@ -305,6 +363,9 @@ const App = () => {
                 position: 'absolute'
               }
         }
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div className="notepad-shell">
           <header className="titlebar" onPointerDown={startDrag}>
