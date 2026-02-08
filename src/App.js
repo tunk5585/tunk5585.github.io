@@ -16,22 +16,6 @@ const getCaretPosition = (text, index) => {
   return { line, column };
 };
 
-const getLineAngle = (index) => {
-  let angle = 0;
-  let direction = 1;
-  for (let i = 1; i <= index; i += 1) {
-    angle += direction;
-    if (angle >= 15) {
-      angle = 15;
-      direction = -1;
-    } else if (angle <= -15) {
-      angle = -15;
-      direction = 1;
-    }
-  }
-  return angle;
-};
-
 const App = () => {
   const resizableRef = useRef(null);
   const textareaRef = useRef(null);
