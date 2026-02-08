@@ -50,42 +50,6 @@ body::before {
   touch-action: auto;
 }
 
-.mobile-fixed {
-  position: fixed;
-  inset: auto;
-  left: calc(12px + env(safe-area-inset-left));
-  right: calc(12px + env(safe-area-inset-right));
-  top: calc(12px + env(safe-area-inset-top));
-  bottom: calc(12px + env(safe-area-inset-bottom));
-  width: auto;
-  height: auto;
-}
-
-@supports (height: 100dvh) {
-  .page {
-    min-height: 100dvh;
-  }
-
-  .mobile-fixed {
-    width: calc(100dvw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
-    height: calc(100dvh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
-  }
-}
-
-@supports not (height: 100dvh) {
-  .mobile-fixed {
-    width: calc(100vw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
-    height: calc(100vh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
-  }
-}
-
-@media (max-width: 640px) {
-  .page {
-    padding: 0;
-    min-height: 100dvh;
-  }
-}
-
 .notepad-resizable {
   position: relative;
   overflow: visible;
@@ -257,9 +221,10 @@ body::before {
 
 .editor {
   padding: 28px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 250, 249, 0.92) 100%);
+  background: #f7f7f4;
   flex: 1;
   display: flex;
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.05), inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
 .paper {
@@ -267,7 +232,7 @@ body::before {
   flex: 1;
   background: #ffffff;
   border-radius: 10px;
-  padding: 26px 28px;
+  padding: 0;
   border: none;
   box-shadow: none;
   font-family: var(--font-editor);
@@ -279,23 +244,30 @@ body::before {
   overflow: hidden;
 }
 
-.paper p {
-  color: var(--text-main);
-}
-
 .paper-input {
   width: 100%;
   height: 100%;
   border: none;
   outline: none;
-  resize: none;
   background: transparent;
   color: var(--text-main);
+  caret-color: var(--text-main);
   font: inherit;
   line-height: inherit;
-  touch-action: pan-y;
-  -webkit-overflow-scrolling: touch;
+  padding: 26px 28px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  resize: none;
+  position: relative;
+  z-index: 1;
 }
+
+.paper-input:focus {
+  outline: none;
+}
+
 
 .statusbar {
   display: flex;
@@ -384,6 +356,35 @@ body::before {
   font-variant-numeric: tabular-nums;
 }
 
+.mobile-fixed {
+  position: fixed;
+  inset: auto;
+  left: calc(12px + env(safe-area-inset-left));
+  right: calc(12px + env(safe-area-inset-right));
+  top: calc(12px + env(safe-area-inset-top));
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: auto;
+  height: auto;
+}
+
+@supports (height: 100dvh) {
+  .page {
+    min-height: 100dvh;
+  }
+
+  .mobile-fixed {
+    width: calc(100dvw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
+    height: calc(100dvh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  }
+}
+
+@supports not (height: 100dvh) {
+  .mobile-fixed {
+    width: calc(100vw - (24px + env(safe-area-inset-left) + env(safe-area-inset-right)));
+    height: calc(100vh - (24px + env(safe-area-inset-top) + env(safe-area-inset-bottom)));
+  }
+}
+
 @media (max-width: 640px) {
   .titlebar {
     height: 42px;
@@ -398,8 +399,12 @@ body::before {
   }
 
   .paper {
-    padding: 20px;
+    padding: 0;
     font-size: 14px;
+  }
+
+  .paper-input {
+    padding: 20px 18px;
   }
 
   .statusbar {
@@ -409,30 +414,8 @@ body::before {
   }
 
   .page {
-    padding: 12px;
-    min-height: 100svh;
-  }
-
-  .notepad-resizable {
-    position: static;
-    width: 100%;
-    height: auto;
-    min-width: 0;
-    min-height: 0;
-    left: auto;
-    top: auto;
-  }
-
-  .notepad-shell {
-    border-radius: 12px;
-  }
-
-  .titlebar,
-  .menubar,
-  .editor,
-  .statusbar {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding: 0;
+    min-height: 100dvh;
   }
 
   .resize-handle {

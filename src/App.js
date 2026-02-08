@@ -2,7 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import './styles/index.css';
 import logo from './assets/images/header/Lolo_tunk_1.svg';
 
-const initialText = "Сайт на ремонте!\n\nВсе запросы на почту — t.project5585@gmail.com\n\n2026 <3 =)";
+const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+const emailAddress = 't.project5585@gmail.com';
+const initialText = `Сайт на ремонте!\n\nВсе запросы на почту — ${emailAddress}\n\n2026 <3 =)`;
 const warningText = "Хватит тыкать!\nНеси проекты!";
 
 const getCaretPosition = (text, index) => {
@@ -11,6 +14,22 @@ const getCaretPosition = (text, index) => {
   const line = lines.length;
   const column = lines[lines.length - 1].length + 1;
   return { line, column };
+};
+
+const getLineAngle = (index) => {
+  let angle = 0;
+  let direction = 1;
+  for (let i = 1; i <= index; i += 1) {
+    angle += direction;
+    if (angle >= 15) {
+      angle = 15;
+      direction = -1;
+    } else if (angle <= -15) {
+      angle = -15;
+      direction = 1;
+    }
+  }
+  return angle;
 };
 
 const App = () => {
@@ -28,6 +47,7 @@ const App = () => {
   const [animateWindow, setAnimateWindow] = useState(false);
   const [text, setText] = useState(initialText);
   const [caretIndex, setCaretIndex] = useState(0);
+  const [wrappedLines, setWrappedLines] = useState(() => initialText.split('\n'));
   const [greenTriggered, setGreenTriggered] = useState(false);
   const greenClickCount = useRef(0);
   const greenClickTimer = useRef(null);
@@ -87,20 +107,103 @@ const App = () => {
     return () => document.removeEventListener('click', onDocClick);
   }, []);
 
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    setCaretIndex(el.selectionStart || 0);
-  }, []);
-
   useEffect(() => () => {
     if (typingTimer.current) clearInterval(typingTimer.current);
     if (backspaceTimer.current) clearInterval(backspaceTimer.current);
     if (greenClickTimer.current) clearTimeout(greenClickTimer.current);
   }, []);
 
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    setCaretIndex(el.selectionStart || 0);
+  }, []);
+
+  const startResize = (direction) => (event) => {
+    if (isMobile || isMaximized) return;
+    setAnimateWindow(false);
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startSize = { ...size };
+    const startPos = { ...position };
+
+    const onMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      const rawWidth = startSize.width + (direction.includes('e') ? dx : 0) - (direction.includes('w') ? dx : 0);
+      const rawHeight = startSize.height + (direction.includes('s') ? dy : 0) - (direction.includes('n') ? dy : 0);
+
+      const nextWidth = clamp(rawWidth, 320, 1200);
+      const nextHeight = clamp(rawHeight, 360, 900);
+
+      let nextX = startPos.x;
+      let nextY = startPos.y;
+
+      if (direction.includes('w')) {
+        const rightEdge = startPos.x + startSize.width;
+        nextX = rightEdge - nextWidth;
+      }
+
+      if (direction.includes('n')) {
+        const bottomEdge = startPos.y + startSize.height;
+        nextY = bottomEdge - nextHeight;
+      }
+
+      const maxX = window.innerWidth - nextWidth;
+      const maxY = window.innerHeight - nextHeight;
+      nextX = clamp(nextX, 0, Math.max(0, maxX));
+      nextY = clamp(nextY, 0, Math.max(0, maxY));
+
+      setSize({ width: nextWidth, height: nextHeight });
+      setPosition({ x: nextX, y: nextY });
+    };
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  };
+
   const toggleMenu = (key) => {
     setOpenMenu((prev) => (prev === key ? null : key));
+  };
+
+  const startDrag = (event) => {
+    if (isMobile || isMaximized) return;
+    if (event.target.closest('.window-controls')) {
+      return;
+    }
+    setAnimateWindow(false);
+    event.preventDefault();
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startPos = { ...position };
+
+    const onMove = (moveEvent) => {
+      const dx = moveEvent.clientX - startX;
+      const dy = moveEvent.clientY - startY;
+
+      const maxX = window.innerWidth - size.width;
+      const maxY = window.innerHeight - size.height;
+
+      const nextX = clamp(startPos.x + dx, 0, Math.max(0, maxX));
+      const nextY = clamp(startPos.y + dy, 0, Math.max(0, maxY));
+
+      setPosition({ x: nextX, y: nextY });
+    };
+
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   };
 
   const toggleMaximize = () => {
@@ -139,7 +242,6 @@ const App = () => {
     setPosition(initialPosition);
     setIsMaximized(false);
     setText(initialText);
-    setCaretIndex(0);
     setGreenTriggered(false);
   };
 
@@ -147,26 +249,26 @@ const App = () => {
     stopAnimation();
     isAnimating.current = true;
     const token = animationToken.current;
+    let currentText = text;
 
     backspaceTimer.current = setInterval(() => {
       if (animationToken.current !== token) return;
-      setText((prev) => {
-        if (prev.length <= 0) {
-          clearInterval(backspaceTimer.current);
-          let index = 0;
-          typingTimer.current = setInterval(() => {
-            if (animationToken.current !== token) return;
-            index += 1;
-            setText(nextText.slice(0, index));
-            if (index >= nextText.length) {
-              clearInterval(typingTimer.current);
-              isAnimating.current = false;
-            }
-          }, 35);
-          return '';
-        }
-        return prev.slice(0, -1);
-      });
+      if (currentText.length <= 0) {
+        clearInterval(backspaceTimer.current);
+        let index = 0;
+        typingTimer.current = setInterval(() => {
+          if (animationToken.current !== token) return;
+          index += 1;
+          setText(nextText.slice(0, index));
+          if (index >= nextText.length) {
+            clearInterval(typingTimer.current);
+            isAnimating.current = false;
+          }
+        }, 35);
+        return;
+      }
+      currentText = currentText.slice(0, -1);
+      setText(currentText);
     }, 18);
   };
 
@@ -185,19 +287,18 @@ const App = () => {
     }
   };
 
-  const handleTextChange = (event) => {
+  const triggerWarning = () => {
     if (isAnimating.current) return;
-    const nextText = event.target.value;
-    setText(nextText);
-    setCaretIndex(event.target.selectionStart || 0);
+    setGreenTriggered(true);
+    animateTextReplace(warningText);
   };
 
-  const handleCaretUpdate = (event) => {
-    setCaretIndex(event.target.selectionStart || 0);
-  };
+  useEffect(() => {
+    setWrappedLines(text.split('\n'));
+  }, [text]);
 
+  const totalLines = wrappedLines.length;
   const { line, column } = getCaretPosition(text, caretIndex);
-  const totalLines = text.split('\n').length;
 
   return (
     <div className="page">
@@ -217,7 +318,7 @@ const App = () => {
         }
       >
         <div className="notepad-shell">
-          <header className="titlebar">
+          <header className="titlebar" onPointerDown={startDrag}>
             <div className="title-left">
               <img className="app-logo" src={logo} alt="TUNK5585 logo" />
               <span className="app-title">tunk5585</span>
@@ -269,6 +370,7 @@ const App = () => {
                         type="button"
                         role="menuitem"
                         className="menu-action"
+                        onClick={triggerWarning}
                       >
                         Ремонт!
                       </button>
@@ -285,11 +387,16 @@ const App = () => {
                 ref={textareaRef}
                 className="paper-input"
                 value={text}
-                onChange={handleTextChange}
-                onClick={handleCaretUpdate}
-                onKeyUp={handleCaretUpdate}
-                onSelect={handleCaretUpdate}
-                aria-label="Текст"
+                onChange={(event) => {
+                  if (isAnimating.current) return;
+                  setText(event.target.value);
+                  setCaretIndex(event.target.selectionStart || 0);
+                }}
+                onClick={(event) => setCaretIndex(event.target.selectionStart || 0)}
+                onKeyUp={(event) => setCaretIndex(event.target.selectionStart || 0)}
+                onSelect={(event) => setCaretIndex(event.target.selectionStart || 0)}
+                onFocus={(event) => setCaretIndex(event.target.selectionStart || 0)}
+                aria-label="?????"
                 spellCheck={false}
               />
             </div>
@@ -300,6 +407,19 @@ const App = () => {
             <div className="status-right">UTF-8 · Строка {line}, Столбец {column}</div>
           </footer>
         </div>
+
+        {!isMobile && (
+          <>
+            <span className="resize-handle handle-n" onPointerDown={startResize('n')} />
+            <span className="resize-handle handle-e" onPointerDown={startResize('e')} />
+            <span className="resize-handle handle-s" onPointerDown={startResize('s')} />
+            <span className="resize-handle handle-w" onPointerDown={startResize('w')} />
+            <span className="resize-handle handle-ne" onPointerDown={startResize('ne')} />
+            <span className="resize-handle handle-se" onPointerDown={startResize('se')} />
+            <span className="resize-handle handle-sw" onPointerDown={startResize('sw')} />
+            <span className="resize-handle handle-nw" onPointerDown={startResize('nw')} />
+          </>
+        )}
       </div>
     </div>
   );
