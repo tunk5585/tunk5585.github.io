@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.3eff48b6.css",
-    "main.js": "/static/js/main.6e08a394.js",
-    "static/media/Lolo_tunk_1.svg": "/static/media/Lolo_tunk_1.a5fc6dd0d438d6224fb028303039ac53.svg",
+    "main.css": "/static/css/main.897b5716.css",
+    "main.js": "/static/js/main.50d2242f.js",
+    "static/media/tunk_logo_blue.svg": "/static/media/tunk_logo_blue.3a4222b94ca6c9c8ab9ed77634750205.svg",
     "index.html": "/index.html",
-    "main.3eff48b6.css.map": "/static/css/main.3eff48b6.css.map",
-    "main.6e08a394.js.map": "/static/js/main.6e08a394.js.map"
+    "main.897b5716.css.map": "/static/css/main.897b5716.css.map",
+    "main.50d2242f.js.map": "/static/js/main.50d2242f.js.map"
   },
   "entrypoints": [
-    "static/css/main.3eff48b6.css",
-    "static/js/main.6e08a394.js"
+    "static/css/main.897b5716.css",
+    "static/js/main.50d2242f.js"
   ]
 }
