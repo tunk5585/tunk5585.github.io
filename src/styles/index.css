@@ -149,7 +149,7 @@ body::before {
 }
 
 .control-dot:nth-child(3) {
-  background: #28c840;
+  background: #5a55ff;
 }
 
 .control-dot:hover {

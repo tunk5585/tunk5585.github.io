@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './styles/index.css';
-import logo from './assets/images/header/Lolo_tunk_1.svg';
+import logo from './assets/images/header/tunk_logo_blue.svg';
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 

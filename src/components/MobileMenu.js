@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import logo from '../assets/images/header/Lolo_tunk_1.svg';
+import logo from '../assets/images/header/tunk_logo_blue.svg';
 import { useLanguage } from '../context/LanguageContext';
 import translations from '../data/translations';
 
